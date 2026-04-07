@@ -1,0 +1,114 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  cursor: default;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(20,20,18,0.08), 0 8px 32px rgba(20,20,18,0.06);
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.card-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.card-name-block { flex: 1; }
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.card-channel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.card-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.card-note {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 8px 12px;
+  background: var(--bg-page);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--border-medium);
+  margin-bottom: 10px;
+}
+
+.card-updates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.update-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.update-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border-medium);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.update-date { color: var(--text-muted); flex-shrink: 0; }
+.update-text { color: var(--text-secondary); }
+
+.card-actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}

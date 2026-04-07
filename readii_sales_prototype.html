@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Readii · 销售看板</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     READII SALES BOARD — UI PROTOTYPE
+     
+     DEVELOPER HANDOFF NOTES:
+     ─────────────────────────────────────────────────────────────
+     This file is a self-contained static prototype demonstrating
+     all UI states and interactions. Replace mock data (MOCK_LEADS)
+     with API calls / Supabase queries.
+     
+     Key sections:
+       1. CSS DESIGN TOKENS (variables)
+       2. LAYOUT (sidebar + main)
+       3. COMPONENTS (cards, badges, modals, coach panel)
+       4. MOCK DATA + JS INTERACTIONS
+     
+     Stack recommendation: Vite + React + Supabase
+     All colors use CSS variables — easy to theme.
+     ============================================================ -->
+
+<style>
+/* ============================================================
+   1. DESIGN TOKENS
+   ============================================================ */
+:root {
+  /* Background layers */
+  --bg-page:       #F0EDE6;
+  --bg-sidebar:    #141412;
+  --bg-card:       #FAFAF8;
+  --bg-card-hover: #FFFFFF;
+  --bg-input:      #FFFFFF;
+  --bg-muted:      #ECEAE3;
+
+  /* Text */
+  --text-primary:   #141412;
+  --text-secondary: #6B6960;
+  --text-muted:     #A8A49B;
+  --text-inverse:   #FAFAF8;
+  --text-sidebar:   #C8C4BA;
+
+  /* Accents */
+  --accent:         #C4873C;   /* warm amber — primary CTA */
+  --accent-hover:   #B07632;
+  --accent-subtle:  #F5EAD8;
+  --accent-text:    #7A4E12;
+
+  /* Status colors */
+  --p1-bg: #FDEEE8; --p1-text: #8B3A1A; --p1-border: #F4C4AE;
+  --p2-bg: #E8F0FD; --p2-text: #1A3A8B; --p2-border: #AEC4F4;
+  --p3-bg: #EEECEA; --p3-text: #5A574F; --p3-border: #D0CEC8;
+
+  --s-active-bg:  #E8F8EE; --s-active-text: #1A6B3A;
+  --s-cold-bg:    #F0EEEC; --s-cold-text:   #8B8680;
+  --s-won-bg:     #E8F5E8; --s-won-text:    #1A5C1A;
+
+  --prod-bg: #F0EDFB; --prod-text: #3D2A8B;
+  --budget-bg: #EAFAF0; --budget-text: #1A6B45;
+  --date-bg: #EEECEA; --date-text: #6B6960;
+  --danger-bg: #FDEEE8; --danger-text: #8B1A1A;
+
+  /* Coach / AI */
+  --coach-bg:     #F5F0FD;
+  --coach-border: #D4C4F4;
+  --coach-text:   #3D1A8B;
+  --coach-accent: #5C35C4;
+
+  /* Borders */
+  --border-subtle: rgba(20,20,18,0.08);
+  --border-medium: rgba(20,20,18,0.14);
+  --border-strong: rgba(20,20,18,0.22);
+
+  /* Shadows */
+  --shadow-card:   0 1px 3px rgba(20,20,18,0.06), 0 4px 16px rgba(20,20,18,0.04);
+  --shadow-modal:  0 8px 40px rgba(20,20,18,0.18), 0 2px 8px rgba(20,20,18,0.08);
+  --shadow-coach:  0 2px 12px rgba(92,53,196,0.12);
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+}
+
+/* ============================================================
+   2. RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ============================================================
+   3. SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-logo .wordmark {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #FAFAF8;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-logo .tagline {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-section {
+  padding: 16px 12px 8px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--text-sidebar);
+  font-size: 13px;
+  font-weight: 400;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #FAFAF8;
+}
+
+.sidebar-nav-item.active {
+  background: rgba(196,135,60,0.18);
+  color: #E8A85C;
+}
+
+.sidebar-nav-item .nav-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sidebar-nav-item .nav-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 100px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sidebar-nav-item.active .nav-badge {
+  background: rgba(196,135,60,0.25);
+  color: #E8A85C;
+}
+
+.sidebar-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 12px; }
+
+.sidebar-stats {
+  padding: 12px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+}
+
+.sidebar-stat-label { font-size: 12px; color: rgba(255,255,255,0.35); }
+.sidebar-stat-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
+.sidebar-stat-value.hot { color: #E8A85C; }
+
+/* ============================================================
+   4. MAIN CONTENT AREA
+   ============================================================ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Top bar */
+.topbar {
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-right: 4px;
+}
+
+.topbar-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 3px 8px;
+  background: var(--bg-muted);
+  border-radius: 100px;
+}
+
+.search-wrap {
+  flex: 1;
+  max-width: 280px;
+  position: relative;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.search-input {
+  width: 100%;
+  padding: 7px 12px 7px 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--border-medium); }
+
+.topbar-actions { display: flex; gap: 8px; margin-left: auto; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  border: none;
+  outline: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+}
+.btn-ghost:hover { background: var(--bg-card); color: var(--text-primary); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-coach {
+  background: var(--coach-bg);
+  color: var(--coach-text);
+  border: 1px solid var(--coach-border);
+}
+.btn-coach:hover { background: #EBE4FB; }
+
+.btn-email {
+  background: #E8F5EE;
+  color: #1A5C3A;
+  border: 1px solid #B4DEC8;
+}
+.btn-email:hover { background: #D8EFDE; }
+
+/* Metric strip */
+.metric-strip {
+  padding: 14px 24px;
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  box-shadow: var(--shadow-card);
+}
+
+.metric-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.metric-icon.red    { background: var(--p1-bg); }
+.metric-icon.blue   { background: var(--p2-bg); }
+.metric-icon.green  { background: var(--s-won-bg); }
+.metric-icon.amber  { background: var(--accent-subtle); }
+.metric-icon.gray   { background: var(--bg-muted); }
+
+.metric-body {}
+.metric-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+.metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Board / scroll area */
+.board-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ============================================================
+   5. LEAD CARDS
+   ============================================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  cursor: default;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px rgba(20,20,18,0.08), 0 8px 32px rgba(20,20,18,0.06);
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+
+/* Card header row */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.card-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.card-name-block { flex: 1; }
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.card-channel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 100px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.badge-p1 { background: var(--p1-bg); color: var(--p1-text); border: 1px solid var(--p1-border); }
+.badge-p2 { background: var(--p2-bg); color: var(--p2-text); border: 1px solid var(--p2-border); }
+.badge-p3 { background: var(--p3-bg); color: var(--p3-text); border: 1px solid var(--p3-border); }
+
+.badge-stage     { background: var(--bg-muted); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.badge-stage.won { background: var(--s-won-bg); color: var(--s-won-text); border: 1px solid #B4DEC8; }
+.badge-stage.cold{ background: var(--s-cold-bg); color: var(--s-cold-text); border: 1px solid var(--border-subtle); }
+
+.badge-prod   { background: var(--prod-bg);   color: var(--prod-text);   border: 1px solid #C8BEF0; }
+.badge-budget { background: var(--budget-bg); color: var(--budget-text); border: 1px solid #B4DEB8; }
+.badge-date   { background: var(--date-bg);   color: var(--date-text);   border: 1px solid var(--border-subtle); }
+.badge-danger { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--p1-border); }
+.badge-today  { background: var(--accent-subtle); color: var(--accent-text); border: 1px solid #E0C090; }
+
+/* Badge strip */
+.card-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+/* Progress note */
+.card-note {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 8px 12px;
+  background: var(--bg-page);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--border-medium);
+  margin-bottom: 10px;
+}
+
+/* Update history */
+.card-updates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.update-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.update-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border-medium);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.update-date { color: var(--text-muted); flex-shrink: 0; }
+.update-text { color: var(--text-secondary); }
+
+/* Card actions */
+.card-actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.btn-action:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-strong); }
+
+.btn-action.update { background: var(--text-primary); color: var(--text-inverse); border-color: var(--text-primary); }
+.btn-action.update:hover { background: #2C2C28; }
+
+.btn-action.ai-btn { background: var(--coach-bg); color: var(--coach-text); border-color: var(--coach-border); }
+.btn-action.ai-btn:hover { background: #EBE4FB; }
+
+/* ============================================================
+   6. MODALS
+   ============================================================ */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(20,20,18,0.45);
+  backdrop-filter: blur(3px);
+  z-index: 200;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3vh 1rem;
+  overflow-y: auto;
+}
+
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  width: 100%;
+  max-width: 520px;
+  margin: auto;
+  box-shadow: var(--shadow-modal);
+  border: 1px solid var(--border-subtle);
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.modal-close {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: var(--border-medium); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row { display: flex; flex-direction: column; gap: 5px; }
+.form-row.full { grid-column: 1 / -1; }
+
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  padding: 8px 11px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196,135,60,0.12);
+}
+
+.form-select { appearance: none; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* ============================================================
+   7. AI COACH DRAWER
+   ============================================================ */
+.coach-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+.coach-overlay.open { display: block; }
+
+.coach-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20,20,18,0.3);
+  backdrop-filter: blur(2px);
+}
+
+.coach-drawer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 440px;
+  background: var(--bg-card);
+  box-shadow: -8px 0 40px rgba(20,20,18,0.15);
+  display: flex;
+  flex-direction: column;
+  animation: drawerIn 0.25s ease;
+}
+
+@keyframes drawerIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.coach-drawer-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.coach-avatar-lg {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--coach-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border: 1px solid var(--coach-border);
+}
+
+.coach-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--coach-text);
+}
+.coach-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+.coach-quick-chips {
+  padding: 12px 16px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.coach-chip {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--coach-border);
+  background: var(--coach-bg);
+  color: var(--coach-text);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.coach-chip:hover { background: #EBE4FB; }
+
+.coach-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.coach-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.coach-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--coach-bg);
+  border: 1px solid var(--coach-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.coach-msg-bubble {
+  background: var(--coach-bg);
+  border: 1px solid var(--coach-border);
+  border-radius: 0 var(--r-lg) var(--r-lg) var(--r-lg);
+  padding: 11px 13px;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  max-width: calc(100% - 40px);
+}
+
+.coach-msg.user { flex-direction: row-reverse; }
+.coach-msg.user .coach-msg-bubble {
+  background: var(--accent-subtle);
+  border-color: #E0C090;
+  border-radius: var(--r-lg) 0 var(--r-lg) var(--r-lg);
+  color: var(--accent-text);
+}
+
+.coach-msg.user .coach-msg-avatar {
+  background: var(--accent-subtle);
+  border-color: #E0C090;
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.coach-input-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.coach-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+.coach-input:focus { border-color: var(--coach-accent); box-shadow: 0 0 0 3px rgba(92,53,196,0.1); }
+
+/* ============================================================
+   8. EMAIL CONFIG PANEL (inline collapsible)
+   ============================================================ */
+.email-panel {
+  background: #F0FBF5;
+  border: 1px solid #B4DEC8;
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  display: none;
+}
+.email-panel.open { display: block; }
+.email-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.email-panel-title { font-weight: 600; font-size: 13px; color: #1A5C3A; }
+.email-panel-sub { font-size: 12px; color: #5A9070; margin-left: auto; }
+
+.email-status {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  display: none;
+}
+.email-status.success { background: #E0F5EA; color: #1A5C3A; display: block; }
+.email-status.error   { background: var(--p1-bg); color: var(--p1-text); display: block; }
+
+/* ============================================================
+   9. TYPING INDICATOR
+   ============================================================ */
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--coach-accent);
+  opacity: 0.4;
+  animation: blink 1.2s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.9); }
+  40% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ============================================================
+   10. SCROLLBAR STYLING
+   ============================================================ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* ============================================================
+   11. EMPTY STATE
+   ============================================================ */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+.empty-state-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-state-title { font-family: var(--font-display); font-size: 15px; color: var(--text-secondary); margin-bottom: 6px; }
+.empty-state-sub { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SIDEBAR
+     DEV NOTE: Active filter state drives `currentFilter` var.
+     Badge counts come from leads array aggregation.
+     ============================================================ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Readii</div>
+    <div class="tagline">Sales Intelligence</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">视图</div>
+    <div class="sidebar-nav-item active" onclick="setFilter('all', this)">
+      <span class="nav-icon">◈</span> 全部线索
+      <span class="nav-badge" id="badge-all">7</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('today', this)">
+      <span class="nav-icon">◷</span> 今日跟进
+      <span class="nav-badge" id="badge-today">2</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('P1', this)">
+      <span class="nav-icon">◉</span> P1 紧急
+      <span class="nav-badge" id="badge-p1">3</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('P2', this)">
+      <span class="nav-icon">○</span> P2 跟进中
+      <span class="nav-badge" id="badge-p2">3</span>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">阶段</div>
+    <div class="sidebar-nav-item" onclick="setFilter('S0', this)">
+      <span class="nav-icon">✦</span> S0 新线索
+      <span class="nav-badge" id="badge-s0">2</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('active', this)">
+      <span class="nav-icon">▷</span> 进行中 S1–S3
+      <span class="nav-badge" id="badge-active">4</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('S4', this)">
+      <span class="nav-icon">✓</span> S4 已成交
+      <span class="nav-badge" id="badge-s4">1</span>
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('S5', this)">
+      <span class="nav-icon">–</span> S5 冷/失联
+      <span class="nav-badge" id="badge-s5">0</span>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">产品</div>
+    <div class="sidebar-nav-item" onclick="setFilter('IFV', this)">
+      <span class="nav-icon">◆</span> IFV 创新签
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('SW', this)">
+      <span class="nav-icon">◆</span> SW 工签
+    </div>
+    <div class="sidebar-nav-item" onclick="setFilter('PlanB', this)">
+      <span class="nav-icon">◆</span> PlanB 评估
+    </div>
+  </div>
+
+  <div class="sidebar-stats">
+    <div class="sidebar-stat-row">
+      <span class="sidebar-stat-label">本月成交</span>
+      <span class="sidebar-stat-value hot">1</span>
+    </div>
+    <div class="sidebar-stat-row">
+      <span class="sidebar-stat-label">管道总价值</span>
+      <span class="sidebar-stat-value">£240k</span>
+    </div>
+    <div class="sidebar-stat-row">
+      <span class="sidebar-stat-label">总线索数</span>
+      <span class="sidebar-stat-value">7</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="main">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <span class="topbar-title">销售看板</span>
+    <span class="topbar-date" id="topbar-date"></span>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" id="searchInput" placeholder="搜索姓名、渠道、标签..." oninput="render()">
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-coach" onclick="openCoach()">🧠 AI 教练</button>
+      <button class="btn btn-email" onclick="toggleEmail()">📧 邮件提醒</button>
+      <button class="btn btn-primary" onclick="openAdd()">+ 新增线索</button>
+    </div>
+  </header>
+
+  <!-- Metric strip -->
+  <div class="metric-strip">
+    <div class="metric-card">
+      <div class="metric-icon red">🔴</div>
+      <div class="metric-body">
+        <div class="metric-value" id="m-p1">3</div>
+        <div class="metric-label">P1 紧急</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon blue">🔵</div>
+      <div class="metric-body">
+        <div class="metric-value" id="m-p2">3</div>
+        <div class="metric-label">P2 跟进中</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon amber">⏰</div>
+      <div class="metric-body">
+        <div class="metric-value" id="m-today">2</div>
+        <div class="metric-label">今日跟进</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon green">✅</div>
+      <div class="metric-body">
+        <div class="metric-value" id="m-won">1</div>
+        <div class="metric-label">S4 已成交</div>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon gray">📋</div>
+      <div class="metric-body">
+        <div class="metric-value" id="m-total">7</div>
+        <div class="metric-label">总线索</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Board scroll area -->
+  <div class="board-area" id="boardArea">
+
+    <!-- Email panel (collapsible) -->
+    <div class="email-panel" id="emailPanel">
+      <div class="email-panel-header">
+        <span>📧</span>
+        <span class="email-panel-title">每日跟进提醒邮件配置</span>
+        <span class="email-panel-sub">
+          <a href="https://www.emailjs.com" target="_blank" style="color:#1A5C3A;font-size:12px">获取 EmailJS 配置 →</a>
+        </span>
+        <button class="btn-action" style="margin-left:8px;font-size:11px" onclick="toggleEmail()">收起</button>
+      </div>
+      <div class="form-grid" style="gap:10px">
+        <div class="form-row">
+          <label class="form-label">收件邮箱</label>
+          <input class="form-input" id="cfg-email" placeholder="your@email.com" type="email">
+        </div>
+        <div class="form-row">
+          <label class="form-label">EmailJS Service ID</label>
+          <input class="form-input" id="cfg-service" placeholder="service_xxxxxxx">
+        </div>
+        <div class="form-row">
+          <label class="form-label">EmailJS Template ID</label>
+          <input class="form-input" id="cfg-template" placeholder="template_xxxxxxx">
+        </div>
+        <div class="form-row">
+          <label class="form-label">EmailJS Public Key</label>
+          <input class="form-input" id="cfg-pubkey" placeholder="xxxxxxxxxxxxxx">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-email" onclick="sendDailyEmail()">立即发送今日报告</button>
+        <button class="btn btn-ghost" onclick="saveEmailConfig()">保存配置</button>
+      </div>
+      <div class="email-status" id="emailStatus"></div>
+      <p style="font-size:11px;color:#5A9070;margin-top:10px;line-height:1.6">
+        ⓘ 每天打开后点一次"立即发送"，邮件包含今日跟进清单 + AI建议。EmailJS 免费版每月200封。
+      </p>
+    </div>
+
+    <!-- Cards injected here by JS -->
+    <div id="cardsList"></div>
+
+  </div>
+</main>
+
+<!-- ============================================================
+     MODAL: Add / Edit Lead
+     ============================================================ -->
+<div class="overlay" id="addModal">
+<div class="modal">
+  <div class="modal-header">
+    <span style="font-size:18px">📋</span>
+    <span class="modal-title" id="addModalTitle">新建客户卡片</span>
+    <button class="modal-close" onclick="closeAdd()">✕</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label class="form-label">姓名</label>
+      <input class="form-input" id="f-name" placeholder="例：张三">
+    </div>
+    <div class="form-row">
+      <label class="form-label">来源渠道</label>
+      <input class="form-input" id="f-channel" placeholder="例：小红书、朋友介绍">
+    </div>
+  </div>
+
+  <div class="form-grid" style="margin-top:12px">
+    <div class="form-row">
+      <label class="form-label">优先级 P</label>
+      <select class="form-select" id="f-p">
+        <option value="P1">P1 — 7天内决策 / 窗口紧</option>
+        <option value="P2" selected>P2 — 30天内可能决策</option>
+        <option value="P3">P3 — 观望</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">阶段 S</label>
+      <select class="form-select" id="f-s">
+        <option value="S0" selected>S0 — 新线索</option>
+        <option value="S1">S1 — 已预筛信息齐</option>
+        <option value="S2">S2 — 已约电话</option>
+        <option value="S3">S3 — 已方案 / 报价</option>
+        <option value="S4">S4 — 已成交 / 付款</option>
+        <option value="S5">S5 — 冷 / 失联 / 拒绝</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid" style="margin-top:12px">
+    <div class="form-row">
+      <label class="form-label">产品</label>
+      <select class="form-select" id="f-prod">
+        <option value="IFV">IFV — 创新签</option>
+        <option value="SW">SW — 自担保工签</option>
+        <option value="GT">GT — 全球人才</option>
+        <option value="Student">Student — 学签 / 陪读</option>
+        <option value="PlanB">PlanB — 路线图 / 评估</option>
+        <option value="?">未确定</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">预算 B</label>
+      <select class="form-select" id="f-b">
+        <option value="B0">B0 — 未知</option>
+        <option value="B1">B1 — ≤ £5k</option>
+        <option value="B2">B2 — £5k – £20k</option>
+        <option value="B3">B3 — £20k – £60k</option>
+        <option value="B4">B4 — ≥ £60k</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid" style="margin-top:12px">
+    <div class="form-row">
+      <label class="form-label">签证到期 Exp <span style="font-weight:400;color:var(--text-muted)">(YYYYMM)</span></label>
+      <input class="form-input" id="f-exp" placeholder="202609" maxlength="6">
+    </div>
+    <div class="form-row">
+      <label class="form-label">目标月份 Goal <span style="font-weight:400;color:var(--text-muted)">(YYYYMM)</span></label>
+      <input class="form-input" id="f-goal" placeholder="202507" maxlength="6">
+    </div>
+  </div>
+
+  <div class="form-grid" style="margin-top:12px">
+    <div class="form-row">
+      <label class="form-label">下一步动作</label>
+      <select class="form-select" id="f-next">
+        <option value="Call">Call — 约 / 打电话</option>
+        <option value="Docs">Docs — 要资料</option>
+        <option value="Pay">Pay — 收定金 / 付款</option>
+        <option value="Intro">Intro — 引荐</option>
+        <option value="Wait">Wait — 等回复</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">跟进日期 <span style="font-weight:400;color:var(--text-muted)">(MMDD)</span></label>
+      <input class="form-input" id="f-follow" placeholder="0415" maxlength="4">
+    </div>
+  </div>
+
+  <div class="form-row full" style="margin-top:12px">
+    <label class="form-label">一句话进度</label>
+    <textarea class="form-textarea" id="f-note" placeholder="例：刚加微信，对IFV有兴趣，签证2026年底到期，决策节点9月"></textarea>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeAdd()">取消</button>
+    <button class="btn btn-primary" onclick="saveCard()">保存卡片</button>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     MODAL: Update Progress
+     ============================================================ -->
+<div class="overlay" id="updateModal">
+<div class="modal" style="max-width:440px">
+  <div class="modal-header">
+    <span style="font-size:18px">↑</span>
+    <span class="modal-title">更新跟进进展</span>
+    <button class="modal-close" onclick="closeUpdate()">✕</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label class="form-label">新阶段</label>
+      <select class="form-select" id="u-s">
+        <option value="S0">S0 新线索</option>
+        <option value="S1">S1 信息已齐</option>
+        <option value="S2">S2 已约电话</option>
+        <option value="S3">S3 已方案 / 报价</option>
+        <option value="S4">S4 已成交 ✓</option>
+        <option value="S5">S5 冷 / 失联</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">优先级</label>
+      <select class="form-select" id="u-p">
+        <option value="P1">P1</option>
+        <option value="P2">P2</option>
+        <option value="P3">P3</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid" style="margin-top:12px">
+    <div class="form-row">
+      <label class="form-label">下一步动作</label>
+      <select class="form-select" id="u-next">
+        <option value="Call">Call</option>
+        <option value="Docs">Docs</option>
+        <option value="Pay">Pay</option>
+        <option value="Intro">Intro</option>
+        <option value="Wait">Wait</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">下次跟进日期 (MMDD)</label>
+      <input class="form-input" id="u-follow" placeholder="例：0420" maxlength="4">
+    </div>
+  </div>
+
+  <div class="form-row full" style="margin-top:12px">
+    <label class="form-label">本次沟通备注</label>
+    <textarea class="form-textarea" id="u-note" placeholder="简短记录本次沟通内容和客户反馈..."></textarea>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeUpdate()">取消</button>
+    <button class="btn btn-primary" onclick="saveUpdate()">保存更新</button>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     AI COACH DRAWER
+     ============================================================ -->
+<div class="coach-overlay" id="coachOverlay">
+  <div class="coach-backdrop" onclick="closeCoach()"></div>
+  <div class="coach-drawer">
+    <div class="coach-drawer-header">
+      <div class="coach-avatar-lg">🧠</div>
+      <div>
+        <div class="coach-title">Readii 销售教练</div>
+        <div class="coach-subtitle">基于你的线索库实时分析</div>
+      </div>
+      <button class="btn-action" style="margin-left:auto;font-size:12px" onclick="closeCoach()">✕ 关闭</button>
+    </div>
+
+    <div class="coach-quick-chips">
+      <span class="coach-chip" onclick="sendCoachMsg('分析我当前线索库的整体健康度，哪些P1客户需要立刻行动？')">📊 健康度分析</span>
+      <span class="coach-chip" onclick="sendCoachMsg('今天我应该优先跟进哪些客户？给出具体话术建议')">📅 今日计划</span>
+      <span class="coach-chip" onclick="sendCoachMsg('哪些客户有流失风险？如何挽救？')">⚠️ 风险预警</span>
+      <span class="coach-chip" onclick="sendCoachMsg('针对IFV/SW/PlanB各产品客户，最有效的推进策略是什么？')">🎯 产品策略</span>
+      <span class="coach-chip" onclick="sendCoachMsg('从线索数据看，最常见的卡点在哪里？给出突破方法')">🔓 卡点突破</span>
+    </div>
+
+    <div class="coach-messages" id="coachMessages">
+      <!-- Welcome message -->
+      <div class="coach-msg">
+        <div class="coach-msg-avatar">🧠</div>
+        <div class="coach-msg-bubble">
+          你好，Xiaoyu！我已读取你的线索库。<br><br>
+          当前有 <strong>3 个 P1 客户</strong>需要本周内跟进，<strong>2 个</strong>今日到期。<br><br>
+          点击上方快捷问题，或直接问我任何关于客户的销售策略。
+        </div>
+      </div>
+    </div>
+
+    <div class="coach-input-area">
+      <input class="coach-input" id="coachInput" placeholder="问 AI 教练，例如：王芳下一步应该怎么跟进？" onkeydown="if(event.key==='Enter')sendCoachFromInput()">
+      <button class="btn btn-coach" onclick="sendCoachFromInput()">发送 ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — MOCK DATA + INTERACTIONS
+     ============================================================ -->
+<script>
+/* ============================================================
+   MOCK DATA
+   DEV NOTE: Replace with Supabase real-time subscription.
+   Table: leads
+   Schema: id, name, channel, p, s, prod, b, exp, goal, next,
+           follow, note, updates (jsonb array), created_at
+   ============================================================ */
+const MOCK_LEADS = [
+  {
+    id: '1',
+    name: '王芳',
+    channel: '小红书',
+    p: 'P1', s: 'S2', prod: 'IFV', b: 'B4',
+    exp: '202609', goal: '202510',
+    next: 'Call', follow: todayMMDD(),
+    note: '电话已约好，对创新签很感兴趣，有一个AI创业项目，签证10月前必须递交',
+    updates: [
+      { date: '04/02', note: '[S1] 收到公司资料，商业计划书初稿待审' },
+      { date: '04/05', note: '[S2] 已约电话，周二下午3点' }
+    ]
+  },
+  {
+    id: '2',
+    name: '李建国',
+    channel: '朋友介绍',
+    p: 'P1', s: 'S3', prod: 'SW', b: 'B3',
+    exp: '202508', goal: '202507',
+    next: 'Pay', follow: todayMMDD(),
+    note: '方案已出，等待定金，CoS类型确认中，8月到期窗口极紧',
+    updates: [
+      { date: '03/28', note: '[S2] 电话沟通1小时，需求明确' },
+      { date: '04/01', note: '[S3] 发出£35k方案，对价格有疑虑' },
+      { date: '04/05', note: '[S3] 再次确认需求，同意价格，等付款' }
+    ]
+  },
+  {
+    id: '3',
+    name: '陈美玲',
+    channel: 'Douyin',
+    p: 'P1', s: 'S1', prod: 'PlanB', b: 'B1',
+    exp: '', goal: '202506',
+    next: 'Call', follow: '0410',
+    note: '刚来英国一年PSW，想了解长期留英路径，预算有限，先做PlanB评估',
+    updates: [
+      { date: '04/06', note: '[S0] 抖音私信转微信，已通过' },
+      { date: '04/07', note: '[S1] 收到基本信息，专业背景和收入情况符合SW路线' }
+    ]
+  },
+  {
+    id: '4',
+    name: '张伟',
+    channel: '微信好友',
+    p: 'P2', s: 'S2', prod: 'GT', b: 'B3',
+    exp: '202612', goal: '202601',
+    next: 'Docs', follow: '0412',
+    note: '顶尖大学博士，符合GT认可学术清单，需要整理发表论文和引用数据',
+    updates: [
+      { date: '03/30', note: '[S1] 背景审查通过，GT路线可行' },
+      { date: '04/04', note: '[S2] 电话沟通完成，同意推进，要资料清单' }
+    ]
+  },
+  {
+    id: '5',
+    name: '刘婷婷',
+    channel: '小红书',
+    p: 'P2', s: 'S0', prod: 'Student', b: 'B1',
+    exp: '', goal: '202509',
+    next: 'Wait', follow: '0414',
+    note: '国内陪读妈妈，孩子今年9月入学英国私校，想了解陪读签证流程',
+    updates: [
+      { date: '04/07', note: '[S0] 刚加微信，发了陪读签证介绍资料，等回复' }
+    ]
+  },
+  {
+    id: '6',
+    name: '赵志强',
+    channel: '直播间',
+    p: 'P2', s: 'S1', prod: 'IFV', b: 'B4',
+    exp: '202704', goal: '202611',
+    next: 'Call', follow: '0415',
+    note: '连续创业者，目前项目在上海，想通过IFV在英建立欧洲据点',
+    updates: [
+      { date: '04/03', note: '[S0] 直播间引流，微信咨询' },
+      { date: '04/06', note: '[S1] 收到商业背景资料，项目方向符合要求' }
+    ]
+  },
+  {
+    id: '7',
+    name: '孙晓晨',
+    channel: '老客户转介',
+    p: 'P3', s: 'S4', prod: 'SW', b: 'B3',
+    exp: '', goal: '202503',
+    next: 'Wait', follow: '0501',
+    note: '已成交 £32k，CoS已获批，递交材料中，等批签',
+    updates: [
+      { date: '03/15', note: '[S4] 定金到账 £16k' },
+      { date: '03/28', note: '[S4] CoS获批，递交材料准备完成' },
+      { date: '04/02', note: '[S4] 递交成功，等UKVI审批' }
+    ]
+  }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let leads = [...MOCK_LEADS];
+let currentFilter = 'all';
+let editingId = null;
+let updatingId = null;
+let coachConversation = [];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function todayMMDD() {
+  const d = new Date();
+  return String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+}
+
+function todayLabel() {
+  const d = new Date();
+  const days = ['日','一','二','三','四','五','六'];
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 · 周${days[d.getDay()]}`;
+}
+
+function isOverdue(f) {
+  return f && f.length === 4 && f < todayMMDD();
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const chars = [...name];
+  return chars.length >= 2 ? chars[0] + chars[chars.length - 1] : chars[0];
+}
+
+function badgeP(p) {
+  const cls = { P1: 'badge-p1', P2: 'badge-p2', P3: 'badge-p3' }[p] || 'badge-p3';
+  return `<span class="badge ${cls}">${p}</span>`;
+}
+
+function badgeS(s) {
+  const wonStages = ['S4'];
+  const coldStages = ['S5'];
+  let extra = wonStages.includes(s) ? ' won' : coldStages.includes(s) ? ' cold' : '';
+  const labels = { S0:'S0 新线索', S1:'S1 信息齐', S2:'S2 电话已约', S3:'S3 已报价', S4:'S4 成交 ✓', S5:'S5 冷/失联' };
+  return `<span class="badge badge-stage${extra}">${labels[s]||s}</span>`;
+}
+
+/* ============================================================
+   FILTER + RENDER
+   ============================================================ */
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.sidebar-nav-item').forEach(x => x.classList.remove('active'));
+  if (el) el.classList.add('active');
+  render();
+}
+
+function getFiltered() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  const today = todayMMDD();
+  return leads.filter(l => {
+    let pass = true;
+    if (currentFilter === 'today')  pass = l.follow === today;
+    else if (currentFilter === 'P1') pass = l.p === 'P1';
+    else if (currentFilter === 'P2') pass = l.p === 'P2';
+    else if (currentFilter === 'S0') pass = l.s === 'S0';
+    else if (currentFilter === 'S4') pass = l.s === 'S4';
+    else if (currentFilter === 'S5') pass = l.s === 'S5';
+    else if (currentFilter === 'active') pass = ['S1','S2','S3'].includes(l.s);
+    else if (['IFV','SW','GT','Student','PlanB'].includes(currentFilter)) pass = l.prod === currentFilter;
+    if (!pass) return false;
+    if (!q) return true;
+    const text = [l.name, l.channel, l.p, l.s, l.prod, l.b, l.exp, l.goal, l.next, l.follow, l.note,
+      ...(l.updates||[]).map(u=>u.note)].join(' ').toLowerCase();
+    return text.includes(q);
+  });
+}
+
+function render() {
+  const filtered = getFiltered();
+  const today = todayMMDD();
+
+  // Update metrics
+  const p1 = leads.filter(l=>l.p==='P1'&&l.s!=='S5').length;
+  const p2 = leads.filter(l=>l.p==='P2'&&l.s!=='S5').length;
+  const won = leads.filter(l=>l.s==='S4').length;
+  const todayF = leads.filter(l=>l.follow===today&&l.s!=='S5').length;
+
+  document.getElementById('m-p1').textContent = p1;
+  document.getElementById('m-p2').textContent = p2;
+  document.getElementById('m-today').textContent = todayF;
+  document.getElementById('m-won').textContent = won;
+  document.getElementById('m-total').textContent = leads.length;
+  document.getElementById('badge-all').textContent = leads.length;
+  document.getElementById('badge-p1').textContent = p1;
+  document.getElementById('badge-p2').textContent = p2;
+  document.getElementById('badge-today').textContent = todayF;
+  document.getElementById('badge-s0').textContent = leads.filter(l=>l.s==='S0').length;
+  document.getElementById('badge-active').textContent = leads.filter(l=>['S1','S2','S3'].includes(l.s)).length;
+  document.getElementById('badge-s4').textContent = won;
+  document.getElementById('badge-s5').textContent = leads.filter(l=>l.s==='S5').length;
+
+  // Render cards
+  const list = document.getElementById('cardsList');
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-title">没有匹配的线索</div>
+        <div class="empty-state-sub">尝试调整筛选条件或搜索关键词</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(l => {
+    const overdue = isOverdue(l.follow) && l.s !== 'S5' && l.s !== 'S4';
+    const isToday = l.follow === today;
+    const recentUpdates = (l.updates || []).slice(-3).reverse();
+    const dateClass = overdue ? 'badge-danger' : isToday ? 'badge-today' : 'badge-date';
+    const dateLabel = isToday ? `⏰ 今日 ${l.follow}` : overdue ? `⚠️ 逾期 ${l.follow}` : `跟进 ${l.follow||'—'}`;
+
+    const avatarColors = ['#F5EAD8','#E8F0FD','#F0EDFB','#E8F8EE','#FDE8E8'];
+    const idx = l.name.charCodeAt(0) % avatarColors.length;
+
+    return `
+<div class="card" id="card-${l.id}">
+  <div class="card-header">
+    <div class="card-avatar" style="background:${avatarColors[idx]}">${initials(l.name)}</div>
+    <div class="card-name-block">
+      <div class="card-name">${l.name}</div>
+      <div class="card-channel">via ${l.channel}</div>
+    </div>
+    <div class="card-header-right">
+      ${isToday ? '<span class="badge badge-today">今日跟进</span>' : ''}
+      ${badgeP(l.p)}
+    </div>
+  </div>
+
+  <div class="card-badges">
+    ${badgeS(l.s)}
+    <span class="badge badge-prod">${l.prod}</span>
+    <span class="badge badge-budget">${l.b}</span>
+    ${l.exp ? `<span class="badge badge-date">Exp: ${l.exp}</span>` : ''}
+    ${l.goal ? `<span class="badge badge-date">Goal: ${l.goal}</span>` : ''}
+    <span class="badge badge-date">→ ${l.next}</span>
+    <span class="badge ${dateClass}">${dateLabel}</span>
+  </div>
+
+  <div class="card-note">${l.note || '暂无备注'}</div>
+
+  ${recentUpdates.length ? `
+  <div class="card-updates">
+    ${recentUpdates.map(u => `
+      <div class="update-row">
+        <span class="update-dot"></span>
+        <span class="update-date">${u.date}</span>
+        <span class="update-text">${u.note}</span>
+      </div>`).join('')}
+  </div>` : ''}
+
+  <div class="card-actions">
+    <button class="btn-action update" onclick="openUpdate('${l.id}')">↑ 更新进展</button>
+    <button class="btn-action ai-btn" onclick="openClientCoach('${l.id}')">🧠 AI建议</button>
+    <button class="btn-action" onclick="openEdit('${l.id}')">编辑</button>
+    <button class="btn-action" onclick="copyCard('${l.id}')">复制格式</button>
+    <button class="btn-action" style="color:var(--text-muted);margin-left:auto" onclick="deleteLead('${l.id}')">删除</button>
+  </div>
+</div>`;
+  }).join('');
+}
+
+/* ============================================================
+   ADD / EDIT MODAL
+   ============================================================ */
+function openAdd() {
+  editingId = null;
+  document.getElementById('addModalTitle').textContent = '新建客户卡片';
+  ['name','channel','exp','goal','follow','note'].forEach(f => document.getElementById('f-'+f).value = '');
+  document.getElementById('f-p').value = 'P2';
+  document.getElementById('f-s').value = 'S0';
+  document.getElementById('f-prod').value = 'IFV';
+  document.getElementById('f-b').value = 'B0';
+  document.getElementById('f-next').value = 'Call';
+  document.getElementById('addModal').classList.add('open');
+}
+
+function openEdit(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  editingId = id;
+  document.getElementById('addModalTitle').textContent = '编辑客户卡片';
+  document.getElementById('f-name').value = l.name;
+  document.getElementById('f-channel').value = l.channel;
+  document.getElementById('f-p').value = l.p;
+  document.getElementById('f-s').value = l.s;
+  document.getElementById('f-prod').value = l.prod;
+  document.getElementById('f-b').value = l.b;
+  document.getElementById('f-exp').value = l.exp || '';
+  document.getElementById('f-goal').value = l.goal || '';
+  document.getElementById('f-next').value = l.next;
+  document.getElementById('f-follow').value = l.follow || '';
+  document.getElementById('f-note').value = l.note;
+  document.getElementById('addModal').classList.add('open');
+}
+
+function closeAdd() { document.getElementById('addModal').classList.remove('open'); editingId = null; }
+
+function saveCard() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('请填写姓名'); return; }
+  const card = {
+    id: editingId || Date.now().toString(36),
+    name,
+    channel: document.getElementById('f-channel').value.trim(),
+    p: document.getElementById('f-p').value,
+    s: document.getElementById('f-s').value,
+    prod: document.getElementById('f-prod').value,
+    b: document.getElementById('f-b').value,
+    exp: document.getElementById('f-exp').value.trim(),
+    goal: document.getElementById('f-goal').value.trim(),
+    next: document.getElementById('f-next').value,
+    follow: document.getElementById('f-follow').value.trim(),
+    note: document.getElementById('f-note').value.trim(),
+    updates: editingId ? (leads.find(x=>x.id===editingId)||{}).updates||[] : [],
+  };
+  if (editingId) {
+    const idx = leads.findIndex(x => x.id === editingId);
+    if (idx > -1) leads[idx] = card;
+  } else {
+    leads.unshift(card);
+  }
+  closeAdd();
+  render();
+}
+
+/* ============================================================
+   UPDATE MODAL
+   ============================================================ */
+function openUpdate(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  updatingId = id;
+  document.getElementById('u-s').value = l.s;
+  document.getElementById('u-p').value = l.p;
+  document.getElementById('u-next').value = l.next;
+  document.getElementById('u-follow').value = '';
+  document.getElementById('u-note').value = '';
+  document.getElementById('updateModal').classList.add('open');
+}
+
+function closeUpdate() { document.getElementById('updateModal').classList.remove('open'); updatingId = null; }
+
+function saveUpdate() {
+  const l = leads.find(x => x.id === updatingId);
+  if (!l) return;
+  const note = document.getElementById('u-note').value.trim();
+  if (!note) { alert('请填写本次进展备注'); return; }
+  l.s = document.getElementById('u-s').value;
+  l.p = document.getElementById('u-p').value;
+  l.next = document.getElementById('u-next').value;
+  const nf = document.getElementById('u-follow').value.trim();
+  if (nf) l.follow = nf;
+  if (!l.updates) l.updates = [];
+  const d = new Date();
+  const ds = String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+  l.updates.push({ date: ds, note: `[${l.s}] ${note}` });
+  l.note = note;
+  closeUpdate();
+  render();
+}
+
+/* ============================================================
+   AI COACH
+   ============================================================ */
+function openCoach() { document.getElementById('coachOverlay').classList.add('open'); }
+function closeCoach() { document.getElementById('coachOverlay').classList.remove('open'); }
+
+function appendCoachMsg(text, isUser) {
+  const container = document.getElementById('coachMessages');
+  const div = document.createElement('div');
+  div.className = 'coach-msg' + (isUser ? ' user' : '');
+  div.innerHTML = `
+    <div class="coach-msg-avatar">${isUser ? 'XY' : '🧠'}</div>
+    <div class="coach-msg-bubble">${text.replace(/\n/g,'<br>')}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function appendTyping() {
+  const container = document.getElementById('coachMessages');
+  const div = document.createElement('div');
+  div.className = 'coach-msg';
+  div.id = 'typingIndicator';
+  div.innerHTML = `
+    <div class="coach-msg-avatar">🧠</div>
+    <div class="coach-msg-bubble">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+function leadsContext() {
+  return leads.map(l =>
+    `【${l.name}|${l.channel}】${l.p} ${l.s} 产品:${l.prod} 预算:${l.b} Exp:${l.exp||'?'} Goal:${l.goal||'?'} 下一步:${l.next} 跟进:${l.follow||'?'} | ${l.note}`
+  ).join('\n');
+}
+
+async function sendCoachMsg(q) {
+  if (!q) return;
+  openCoach();
+  appendCoachMsg(q, true);
+  appendTyping();
+  coachConversation.push({ role: 'user', content: q });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `你是Readii的专业销售教练，专注英国移民签证咨询（中英跨境）。产品：IFV创新签£60k | SW自担保工签£30-40k | GT全球人才 | Student学签 | PlanB路线图评估。P1=7天内决策 P2=30天 P3=观望。今日线索库：\n${leadsContext()}\n用中文回复，专业务实，给可立即执行的建议，含具体话术。`,
+        messages: coachConversation
+      })
+    });
+    const data = await res.json();
+    const reply = (data.content || []).map(c => c.text || '').join('');
+    removeTyping();
+    coachConversation.push({ role: 'assistant', content: reply });
+    appendCoachMsg(reply || '抱歉，请求失败，请重试。', false);
+  } catch(e) {
+    removeTyping();
+    appendCoachMsg('网络错误，请检查连接后重试。', false);
+  }
+}
+
+function sendCoachFromInput() {
+  const input = document.getElementById('coachInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  sendCoachMsg(q);
+}
+
+function openClientCoach(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  openCoach();
+  sendCoachMsg(`请针对客户"${l.name}"给出详细的下一步销售策略。\n当前信息：${l.p} ${l.s} 产品:${l.prod} 预算:${l.b} Goal:${l.goal||'?'} 下一步:${l.next} | ${l.note}\n请分析：1)主要障碍 2)最优下一步（含具体话术）3)成交概率 4)风险提示`);
+}
+
+/* ============================================================
+   COPY / EXPORT
+   ============================================================ */
+function copyCard(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  const txt = `【${l.name}-${l.channel}】${l.p}｜${l.s}｜${l.prod}｜${l.b}｜Exp:${l.exp||'?'}｜Goal:${l.goal||'?'}｜${l.next}｜跟进:${l.follow||'?'}｜${l.note}`;
+  navigator.clipboard.writeText(txt).then(() => alert('已复制客户卡片格式')).catch(() => prompt('复制：', txt));
+}
+
+/* ============================================================
+   EMAIL (EmailJS)
+   ============================================================ */
+function toggleEmail() {
+  document.getElementById('emailPanel').classList.toggle('open');
+}
+
+function saveEmailConfig() {
+  alert('配置已保存（原型模式：实际开发中存入 localStorage / Supabase user settings）');
+}
+
+async function sendDailyEmail() {
+  document.getElementById('emailStatus').className = '';
+  document.getElementById('emailStatus').textContent = '';
+  alert('原型模式：发送功能需配置真实 EmailJS 凭证后生效。实际效果见最终版 HTML。');
+}
+
+/* ============================================================
+   DELETE
+   ============================================================ */
+function deleteLead(id) {
+  if (!confirm('确认删除该线索？')) return;
+  leads = leads.filter(x => x.id !== id);
+  render();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('topbar-date').textContent = todayLabel();
+document.getElementById('addModal').addEventListener('click', e => { if (e.target.id === 'addModal') closeAdd(); });
+document.getElementById('updateModal').addEventListener('click', e => { if (e.target.id === 'updateModal') closeUpdate(); });
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+.dankoe-modal {
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.dankoe-header {
+  background: var(--coach-bg);
+  border-bottom: 1px solid var(--coach-border);
+}
+
+.dankoe-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 200px;
+  max-height: 50vh;
+}
+
+.dankoe-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.dankoe-msg--user {
+  flex-direction: row-reverse;
+}
+
+.dankoe-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--coach-bg);
+  border: 1px solid var(--coach-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.dankoe-msg--user .dankoe-msg-avatar {
+  background: var(--bg-muted);
+  border-color: var(--border-medium);
+}
+
+.dankoe-msg-bubble {
+  background: var(--coach-bg);
+  border: 1px solid var(--coach-border);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  max-width: 85%;
+}
+
+.dankoe-msg--user .dankoe-msg-bubble {
+  background: var(--bg-muted);
+  border-color: var(--border-medium);
+}
+
+.dankoe-typing {
+  color: var(--coach-accent);
+  font-style: italic;
+}
+
+.dankoe-input-area {
+  display: flex;
+  gap: 8px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-page);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+}
+
+.dankoe-input {
+  flex: 1;
+}

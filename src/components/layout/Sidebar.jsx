@@ -1,0 +1,102 @@
+import { useLocation, useNavigate } from 'react-router-dom'
+import './Sidebar.css'
+
+const VIEW_FILTERS = [
+  { key: 'all',   icon: '◈', label: '全部线索' },
+  { key: 'today', icon: '◷', label: '今日跟进' },
+  { key: 'P1',    icon: '◉', label: 'P1 紧急' },
+  { key: 'P2',    icon: '○', label: 'P2 跟进中' },
+]
+
+const STAGE_FILTERS = [
+  { key: 'S0',     icon: '✦', label: 'S0 新线索' },
+  { key: 'active', icon: '▷', label: '进行中 S1–S3' },
+  { key: 'S4',     icon: '✓', label: 'S4 已成交' },
+  { key: 'S5',     icon: '–', label: 'S5 冷/失联' },
+]
+
+const PRODUCT_FILTERS = [
+  { key: 'IFV',   icon: '◆', label: 'IFV 创新签' },
+  { key: 'SW',    icon: '◆', label: 'SW 工签' },
+  { key: 'PlanB', icon: '◆', label: 'PlanB 评估' },
+]
+
+export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {} }) {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isToday = location.pathname === '/today' || location.pathname === '/'
+  const isContent = location.pathname === '/content'
+
+  function handleFilterClick(key) {
+    if (key === 'today') {
+      navigate('/today')
+    } else if (key === 'content') {
+      navigate('/content')
+    } else {
+      if (isToday || isContent) navigate('/board')
+      onFilterChange?.(key)
+    }
+  }
+
+  const renderItem = ({ key, icon, label }) => {
+    const isActive = key === 'today' ? isToday
+      : key === 'content' ? isContent
+      : (!isToday && !isContent && currentFilter === key)
+    return (
+      <div
+        key={key}
+        className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+        onClick={() => handleFilterClick(key)}
+      >
+        <span className="nav-icon">{icon}</span> {label}
+        <span className="nav-badge">{badgeCounts[key] ?? '–'}</span>
+      </div>
+    )
+  }
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo" onClick={() => navigate('/today')} style={{ cursor: 'pointer' }}>
+        <div className="wordmark">Readii</div>
+        <div className="tagline">Sales Intelligence</div>
+      </div>
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-label">视图</div>
+        {VIEW_FILTERS.map(renderItem)}
+      </div>
+
+      <div className="sidebar-divider" />
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-label">阶段</div>
+        {STAGE_FILTERS.map(renderItem)}
+      </div>
+
+      <div className="sidebar-divider" />
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-label">产品</div>
+        {PRODUCT_FILTERS.map(renderItem)}
+      </div>
+
+      <div className="sidebar-divider" />
+
+      <div className="sidebar-section">
+        <div className="sidebar-section-label">工具</div>
+        {renderItem({ key: 'content', icon: '✎', label: '内容选题' })}
+      </div>
+
+      <div className="sidebar-stats">
+        <div className="sidebar-stat-row">
+          <span className="sidebar-stat-label">本月成交</span>
+          <span className="sidebar-stat-value hot">{badgeCounts.S4 ?? '–'}</span>
+        </div>
+        <div className="sidebar-stat-row">
+          <span className="sidebar-stat-label">总线索数</span>
+          <span className="sidebar-stat-value">{badgeCounts.all ?? '–'}</span>
+        </div>
+      </div>
+    </aside>
+  )
+}

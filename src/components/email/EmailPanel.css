@@ -1,0 +1,22 @@
+.email-panel {
+  background: #E8F5EE;
+  border: 1px solid #B4DEC8;
+  border-radius: var(--r-lg);
+  padding: 16px 0;
+}
+
+.email-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid #B4DEC8;
+  margin-bottom: 12px;
+}
+
+.email-panel-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: #1A5C3A;
+}

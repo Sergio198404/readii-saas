@@ -1,0 +1,211 @@
+/* Today View Header */
+.today-header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.today-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.today-header-right {
+  display: flex;
+  gap: 8px;
+}
+
+.today-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Stats strip */
+.today-stats {
+  display: flex;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.today-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 10px 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.today-stat-num {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.today-stat--danger .today-stat-num { color: var(--danger-text); }
+.today-stat--p1 .today-stat-num { color: var(--p1-text); }
+
+.today-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Sections */
+.today-section {
+  margin-bottom: 8px;
+}
+
+.today-section-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.today-section-title--danger { color: var(--danger-text); }
+.today-section-title--p1 { color: var(--p1-text); }
+
+.today-section-count {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bg-muted);
+  padding: 1px 8px;
+  border-radius: 100px;
+  color: var(--text-secondary);
+}
+
+.today-section-title--danger .today-section-count {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+/* Mini cards */
+.today-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.today-card:hover {
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+
+.today-card--overdue {
+  border-left: 3px solid var(--danger-text);
+  background: #FFFBF9;
+}
+
+.today-card-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.today-card-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.today-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.today-card-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.today-card-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.today-overdue-tag {
+  display: inline-block;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 100px;
+  margin-left: 6px;
+}
+
+.today-card-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.today-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.today-card-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+.today-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-subtle);
+}

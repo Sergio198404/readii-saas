@@ -1,0 +1,117 @@
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-logo .wordmark {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #FAFAF8;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-logo .tagline {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-section {
+  padding: 16px 12px 8px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--text-sidebar);
+  font-size: 13px;
+  font-weight: 400;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #FAFAF8;
+}
+
+.sidebar-nav-item.active {
+  background: rgba(196,135,60,0.18);
+  color: #E8A85C;
+}
+
+.sidebar-nav-item .nav-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sidebar-nav-item .nav-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 100px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.sidebar-nav-item.active .nav-badge {
+  background: rgba(196,135,60,0.25);
+  color: #E8A85C;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 8px 12px;
+}
+
+.sidebar-stats {
+  padding: 12px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+}
+
+.sidebar-stat-label { font-size: 12px; color: rgba(255,255,255,0.35); }
+.sidebar-stat-value { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); }
+.sidebar-stat-value.hot { color: #E8A85C; }

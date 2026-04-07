@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+
+[functions]
+  # 延长函数超时到 60 秒（Netlify Pro 支持更长）
+  external_node_modules = ["@anthropic-ai/sdk"]
+
+[functions."daily-brief"]
+  # web_search 需要更长时间
+
+# SPA 路由 fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
