@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npx --yes create-vite@latest . -- --template react --force)",
+      "Bash(npx --yes create-vite@latest readii-sales --template react)",
+      "Bash(npm install:*)",
+      "Bash(mv readii-sales/node_modules .)",
+      "Bash(mv readii-sales/package.json .)",
+      "Bash(mv readii-sales/package-lock.json .)",
+      "Bash(mv readii-sales/vite.config.js .)",
+      "Bash(mv readii-sales/index.html .)",
+      "Bash(rm -f src/App.css src/index.css src/assets/react.svg public/vite.svg)",
+      "Bash(mkdir -p src/components/layout src/components/leads src/components/modals src/components/coach src/components/email src/pages src/styles src/lib)",
+      "Bash(npx vite:*)",
+      "Bash(curl:*)",
+      "Bash(npx netlify:*)"
+    ]
+  }
+}

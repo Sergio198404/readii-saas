@@ -20,7 +20,7 @@ function buildInitialPrompt(lead) {
     ? lead.updates.map(u => `${u.date} ${u.note}`).join('\n')
     : '暂无跟进历史'
 
-  return `请基于 Dan Koe 的一人企业理论，针对以下客户给出具体的下一步跟进建议，包括：1）这个客户当前最大的障碍是什么 2）最优的下一步行动，给出一句可以直接发微信的开场白 3）成交概率判断 4）风险提示
+  return `针对以下客户给出具体的下一步跟进建议，包括：1）这个客户当前最大的障碍是什么 2）最优的下一步行动，给出一句可以直接发微信的开场白 3）成交概率判断 4）风险提示
 
 客户信息：
 ${fields}
@@ -29,10 +29,11 @@ ${fields}
 ${history}`
 }
 
-export default function DanKoeModal({ open, onClose, lead }) {
+export default function DanKoeModal({ open, onClose, lead, experts = [] }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [selectedExpert, setSelectedExpert] = useState('')
   const messagesEndRef = useRef(null)
   const initialSent = useRef(false)
 
@@ -40,19 +41,31 @@ export default function DanKoeModal({ open, onClose, lead }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  // 打开时重置并自动发送初始 prompt
   useEffect(() => {
-    if (open && lead && !initialSent.current) {
-      initialSent.current = true
+    if (open && lead) {
       setMessages([])
       setInput('')
-      const prompt = buildInitialPrompt(lead)
-      sendMessage(prompt, [])
-    }
-    if (!open) {
       initialSent.current = false
+      // 默认选 Dan Koe
+      const danKoe = experts.find(e => e.name === 'Dan Koe')
+      setSelectedExpert(danKoe?.id || '')
     }
-  }, [open, lead])
+  }, [open, lead, experts])
+
+  // 选好专家后自动发送（仅首次打开）
+  useEffect(() => {
+    if (open && lead && !initialSent.current && selectedExpert !== undefined) {
+      // 小延迟确保 selectedExpert 设置完成
+      const timer = setTimeout(() => {
+        if (!initialSent.current) {
+          initialSent.current = true
+          const prompt = buildInitialPrompt(lead)
+          sendMessage(prompt, [])
+        }
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [open, lead, selectedExpert])
 
   async function sendMessage(text, existingMessages) {
     if (!text.trim() || loading) return
@@ -64,12 +77,15 @@ export default function DanKoeModal({ open, onClose, lead }) {
     setInput('')
     setLoading(true)
 
+    const expertStyle = experts.find(e => e.id === selectedExpert)?.style_prompt || null
+
     try {
       const res = await fetch('/.netlify/functions/dan-koe-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          expertStyle,
         }),
       })
 
@@ -96,13 +112,25 @@ export default function DanKoeModal({ open, onClose, lead }) {
 
   if (!open || !lead) return null
 
+  const expertName = experts.find(e => e.id === selectedExpert)?.name || 'AI'
+
   return (
     <div className="overlay open" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal dankoe-modal">
         <div className="modal-header dankoe-header">
           <span style={{ fontSize: 18 }}>🧠</span>
-          <span className="modal-title">Dan Koe 教练 · {lead.name}</span>
+          <span className="modal-title">AI 教练 · {lead.name}</span>
           <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        {/* 专家选择器 */}
+        <div style={{ padding: '10px 22px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <label className="form-label" style={{ margin: 0 }}>专家风格</label>
+          <select className="form-select" value={selectedExpert} onChange={e => setSelectedExpert(e.target.value)} style={{ maxWidth: 200 }}>
+            <option value="">默认</option>
+            {experts.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+          </select>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>当前：{expertName}</span>
         </div>
 
         <div className="dankoe-messages">

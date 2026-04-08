@@ -4,6 +4,7 @@ import UpdateLeadModal from '../components/modals/UpdateLeadModal'
 import DanKoeModal from '../components/modals/DanKoeModal'
 import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
+import { useExperts } from '../lib/useExperts'
 import './TodayView.css'
 
 function todayMMDD() {
@@ -49,7 +50,7 @@ function MiniCard({ lead, onUpdate, onDanKoe, overdue }) {
       </div>
       <div className="today-card-actions">
         <button className="btn-action ai-btn today-card-btn" onClick={() => onDanKoe(lead)}>
-          🧠 Dan Koe
+          🧠 AI教练
         </button>
         <button className="btn btn-primary today-card-btn" onClick={() => onUpdate(lead)}>
           已跟进 ↑
@@ -69,6 +70,7 @@ export default function TodayView() {
   const [danKoeLead, setDanKoeLead] = useState(null)
 
   const { leads, badgeCounts, loading } = useLeads('all', '')
+  const { experts } = useExperts()
   const today = todayMMDD()
 
   // ① 今日必跟进（只关注 P1/P2）
@@ -201,6 +203,7 @@ export default function TodayView() {
         open={showDanKoe}
         onClose={() => { setShowDanKoe(false); setDanKoeLead(null) }}
         lead={danKoeLead}
+        experts={experts}
       />
 
       <CoachDrawer

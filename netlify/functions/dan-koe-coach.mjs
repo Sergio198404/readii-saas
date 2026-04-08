@@ -32,7 +32,7 @@ export default async (req) => {
   }
 
   try {
-    const { messages } = await req.json()
+    const { messages, expertStyle } = await req.json()
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'messages is required' }), {
@@ -41,10 +41,16 @@ export default async (req) => {
       })
     }
 
+    // 如果传入了自定义专家风格，替换 system prompt 中的回复准则
+    let systemPrompt = SYSTEM_PROMPT
+    if (expertStyle) {
+      systemPrompt += `\n\n【专家写作风格】\n${expertStyle}`
+    }
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 800,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages,
     })
 

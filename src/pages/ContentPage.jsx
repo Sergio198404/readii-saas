@@ -3,6 +3,7 @@ import Sidebar from '../components/layout/Sidebar'
 import { supabase } from '../lib/supabase'
 import { useLeads } from '../lib/useLeads'
 import { useExperts } from '../lib/useExperts'
+import ContentGenModal from '../components/modals/ContentGenModal'
 import './ContentPage.css'
 
 const PLATFORMS = ['抖音', '视频号', '小红书']
@@ -11,13 +12,14 @@ const EMPTY_TOPIC = { topic: '', source_count: 1, platform: '抖音', angle: '',
 // ============================================================
 // 选题库 Tab
 // ============================================================
-function TopicsTab({ leads }) {
+function TopicsTab({ leads, experts = [] }) {
   const [topics, setTopics] = useState([])
   const [loading, setLoading] = useState(true)
   const [extracting, setExtracting] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState(EMPTY_TOPIC)
   const [saving, setSaving] = useState(false)
+  const [genTopic, setGenTopic] = useState(null)
 
   useEffect(() => { fetchTopics() }, [])
 
@@ -147,8 +149,9 @@ function TopicsTab({ leads }) {
                 {t.angle && <div className="content-card-angle">💡 {t.angle}</div>}
               </div>
               <div className="content-card-actions">
+                <button className="btn-action ai-btn" onClick={() => setGenTopic(t)}>🧠 AI</button>
                 <button className="btn-action" onClick={() => toggleStatus(t)}>
-                  {t.status === '待创作' ? '✓ 标记已发布' : '↩ 改为待创作'}
+                  {t.status === '待创作' ? '✓ 已发布' : '↩ 待创作'}
                 </button>
                 <button className="btn-action" onClick={() => deleteTopic(t.id)} style={{ color: 'var(--danger-text)' }}>删除</button>
               </div>
@@ -156,6 +159,14 @@ function TopicsTab({ leads }) {
           ))}
         </div>
       )}
+
+      <ContentGenModal
+        open={!!genTopic}
+        onClose={() => setGenTopic(null)}
+        topic={genTopic?.topic}
+        angle={genTopic?.angle}
+        experts={experts}
+      />
     </>
   )
 }
@@ -179,7 +190,8 @@ function MomentsTab({ leads, experts = [] }) {
   const [generating, setGenerating] = useState(false)
   const [regeneratingIdx, setRegeneratingIdx] = useState(-1)
   const [selectedCaseLead, setSelectedCaseLead] = useState('')
-  const [selectedExpert, setSelectedExpert] = useState('')
+  const [selectedExpert, setSelectedExpert] = useState('') // 全局（用于批量生成）
+  const [cardExperts, setCardExperts] = useState(['', '', '']) // 每张卡片独立专家
   const [copied, setCopied] = useState(-1)
 
   const caseLeads = leads.filter(l => l.s === 'S3' || l.s === 'S4')
@@ -232,7 +244,7 @@ function MomentsTab({ leads, experts = [] }) {
           caseLeadInfo: MOMENT_TYPES[idx].type === '案例' ? buildCaseInfo() : null,
           recentNotes,
           regenerateType: MOMENT_TYPES[idx].type,
-          expertStyle: experts.find(e => e.id === selectedExpert)?.style_prompt || null,
+          expertStyle: experts.find(e => e.id === (cardExperts[idx] || selectedExpert))?.style_prompt || null,
         }),
       })
       const data = await res.json()
@@ -290,6 +302,14 @@ function MomentsTab({ leads, experts = [] }) {
                 <div className="moment-card-type">{mt.type}</div>
                 <div className="moment-card-desc">{mt.desc}</div>
               </div>
+            </div>
+            <div className="moment-card-expert">
+              <select className="form-select" value={cardExperts[idx]} onChange={e => {
+                const next = [...cardExperts]; next[idx] = e.target.value; setCardExperts(next)
+              }} style={{ fontSize: 11, padding: '3px 8px' }}>
+                <option value="">Readii默认</option>
+                {experts.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+              </select>
             </div>
             <div className="moment-card-body">
               {regeneratingIdx === idx ? (
@@ -527,7 +547,7 @@ export default function ContentPage() {
         </header>
 
         <div className="board-area">
-          {tab === 'topics' && <TopicsTab leads={leads} />}
+          {tab === 'topics' && <TopicsTab leads={leads} experts={experts} />}
           {tab === 'moments' && <MomentsTab leads={leads} experts={experts} />}
           {tab === 'brief' && <BriefTab />}
         </div>
