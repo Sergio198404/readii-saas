@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import TodayView from './pages/TodayView'
 import SalesBoard from './pages/SalesBoard'
 import ContentPage from './pages/ContentPage'
+import ExpertsPage from './pages/ExpertsPage'
 
 export default function App() {
   return (
@@ -10,6 +11,7 @@ export default function App() {
         <Route path="/today" element={<TodayView />} />
         <Route path="/board" element={<SalesBoard />} />
         <Route path="/content" element={<ContentPage />} />
+        <Route path="/experts" element={<ExpertsPage />} />
         <Route path="/" element={<Navigate to="/today" replace />} />
         <Route path="*" element={<Navigate to="/today" replace />} />
       </Routes>

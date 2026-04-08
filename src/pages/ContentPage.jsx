@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Sidebar from '../components/layout/Sidebar'
 import { supabase } from '../lib/supabase'
 import { useLeads } from '../lib/useLeads'
+import { useExperts } from '../lib/useExperts'
 import './ContentPage.css'
 
 const PLATFORMS = ['抖音', '视频号', '小红书']
@@ -173,11 +174,12 @@ function todayDateStr() {
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`
 }
 
-function MomentsTab({ leads }) {
+function MomentsTab({ leads, experts = [] }) {
   const [moments, setMoments] = useState([null, null, null]) // 三条对应三种类型
   const [generating, setGenerating] = useState(false)
   const [regeneratingIdx, setRegeneratingIdx] = useState(-1)
   const [selectedCaseLead, setSelectedCaseLead] = useState('')
+  const [selectedExpert, setSelectedExpert] = useState('')
   const [copied, setCopied] = useState(-1)
 
   const caseLeads = leads.filter(l => l.s === 'S3' || l.s === 'S4')
@@ -204,6 +206,7 @@ function MomentsTab({ leads }) {
           date: todayDateStr(),
           caseLeadInfo: buildCaseInfo(),
           recentNotes,
+          expertStyle: experts.find(e => e.id === selectedExpert)?.style_prompt || null,
         }),
       })
       const data = await res.json()
@@ -229,6 +232,7 @@ function MomentsTab({ leads }) {
           caseLeadInfo: MOMENT_TYPES[idx].type === '案例' ? buildCaseInfo() : null,
           recentNotes,
           regenerateType: MOMENT_TYPES[idx].type,
+          expertStyle: experts.find(e => e.id === selectedExpert)?.style_prompt || null,
         }),
       })
       const data = await res.json()
@@ -258,13 +262,20 @@ function MomentsTab({ leads }) {
         </button>
       </div>
 
-      {/* 案例客户选择 */}
+      {/* 选项栏 */}
       <div className="moments-case-select">
-        <label className="form-label" style={{ marginRight: 8 }}>案例素材来源客户（S3/S4）</label>
-        <select className="form-select" value={selectedCaseLead} onChange={(e) => setSelectedCaseLead(e.target.value)} style={{ maxWidth: 280 }}>
-          <option value="">不指定，AI 自由发挥</option>
+        <label className="form-label" style={{ marginRight: 8 }}>案例素材客户</label>
+        <select className="form-select" value={selectedCaseLead} onChange={(e) => setSelectedCaseLead(e.target.value)} style={{ maxWidth: 220 }}>
+          <option value="">不指定</option>
           {caseLeads.map(l => (
             <option key={l.id} value={l.id}>{l.name}（{l.prod}, {l.s}）</option>
+          ))}
+        </select>
+        <label className="form-label" style={{ marginLeft: 16, marginRight: 8 }}>专家风格</label>
+        <select className="form-select" value={selectedExpert} onChange={(e) => setSelectedExpert(e.target.value)} style={{ maxWidth: 200 }}>
+          <option value="">默认风格</option>
+          {experts.map(e => (
+            <option key={e.id} value={e.id}>{e.name}</option>
           ))}
         </select>
       </div>
@@ -487,6 +498,7 @@ export default function ContentPage() {
   const [tab, setTab] = useState('topics')
   const [currentFilter, setCurrentFilter] = useState('all')
   const { leads, badgeCounts } = useLeads('all', '')
+  const { experts } = useExperts()
 
   return (
     <div className="app-layout">
@@ -516,7 +528,7 @@ export default function ContentPage() {
 
         <div className="board-area">
           {tab === 'topics' && <TopicsTab leads={leads} />}
-          {tab === 'moments' && <MomentsTab leads={leads} />}
+          {tab === 'moments' && <MomentsTab leads={leads} experts={experts} />}
           {tab === 'brief' && <BriefTab />}
         </div>
       </main>

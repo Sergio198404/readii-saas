@@ -27,9 +27,13 @@ export default async (req) => {
   }
 
   try {
-    const { date, caseLeadInfo, recentNotes, regenerateType } = await req.json()
+    const { date, caseLeadInfo, recentNotes, regenerateType, expertStyle } = await req.json()
 
     let userMessage = `今天是${date}。\n\n`
+
+    if (expertStyle) {
+      userMessage += `请用以下风格进行写作：${expertStyle}\n\n`
+    }
 
     if (recentNotes && recentNotes.length > 0) {
       userMessage += `最近客户备注（灵感素材）：\n${recentNotes.join('\n')}\n\n`

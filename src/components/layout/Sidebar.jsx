@@ -26,14 +26,17 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
   const navigate = useNavigate()
   const isToday = location.pathname === '/today' || location.pathname === '/'
   const isContent = location.pathname === '/content'
+  const isExperts = location.pathname === '/experts'
 
   function handleFilterClick(key) {
     if (key === 'today') {
       navigate('/today')
     } else if (key === 'content') {
       navigate('/content')
+    } else if (key === 'experts') {
+      navigate('/experts')
     } else {
-      if (isToday || isContent) navigate('/board')
+      if (isToday || isContent || isExperts) navigate('/board')
       onFilterChange?.(key)
     }
   }
@@ -41,7 +44,8 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
   const renderItem = ({ key, icon, label }) => {
     const isActive = key === 'today' ? isToday
       : key === 'content' ? isContent
-      : (!isToday && !isContent && currentFilter === key)
+      : key === 'experts' ? isExperts
+      : (!isToday && !isContent && !isExperts && currentFilter === key)
     return (
       <div
         key={key}
@@ -84,7 +88,8 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
 
       <div className="sidebar-section">
         <div className="sidebar-section-label">工具</div>
-        {renderItem({ key: 'content', icon: '✎', label: '内容选题' })}
+        {renderItem({ key: 'content', icon: '✎', label: '内容中心' })}
+        {renderItem({ key: 'experts', icon: '🧠', label: '专家库' })}
       </div>
 
       <div className="sidebar-stats">
