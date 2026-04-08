@@ -1,6 +1,6 @@
 import './LeadCard.css'
 
-export default function LeadCard({ lead, onEdit, onUpdate, onAskCoach }) {
+export default function LeadCard({ lead, onEdit, onUpdate, onAskCoach, onDelete }) {
   const initials = lead?.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
@@ -48,6 +48,7 @@ export default function LeadCard({ lead, onEdit, onUpdate, onAskCoach }) {
         <button className="btn-action" onClick={() => onEdit?.(lead)}>编辑</button>
         <button className="btn-action update" onClick={() => onUpdate?.(lead)}>更新进展</button>
         <button className="btn-action ai-btn" onClick={() => onAskCoach?.(lead)}>🧠 AI建议</button>
+        <button className="btn-action" onClick={() => { if (confirm(`确认删除「${lead.name}」？`)) onDelete?.(lead) }} style={{ color: 'var(--danger-text)' }}>删除</button>
       </div>
     </div>
   )

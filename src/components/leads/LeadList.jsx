@@ -1,7 +1,7 @@
 import './LeadList.css'
 import LeadCard from './LeadCard'
 
-export default function LeadList({ leads = [], onEdit, onUpdate, onAskCoach }) {
+export default function LeadList({ leads = [], onEdit, onUpdate, onAskCoach, onDelete }) {
   if (leads.length === 0) {
     return (
       <div className="empty-state">
@@ -21,6 +21,7 @@ export default function LeadList({ leads = [], onEdit, onUpdate, onAskCoach }) {
           onEdit={onEdit}
           onUpdate={onUpdate}
           onAskCoach={onAskCoach}
+          onDelete={onDelete}
         />
       ))}
     </div>

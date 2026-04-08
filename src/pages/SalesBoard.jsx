@@ -8,6 +8,7 @@ import AddLeadModal from '../components/modals/AddLeadModal'
 import UpdateLeadModal from '../components/modals/UpdateLeadModal'
 import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
+import { supabase } from '../lib/supabase'
 import './SalesBoard.css'
 
 export default function SalesBoard() {
@@ -59,6 +60,7 @@ export default function SalesBoard() {
               onEdit={(lead) => { setEditingLead(lead); setShowAddModal(true) }}
               onUpdate={(lead) => { setUpdatingLead(lead); setShowUpdateModal(true) }}
               onAskCoach={(lead) => setShowCoach(true)}
+              onDelete={async (lead) => { await supabase.from('leads').delete().eq('id', lead.id) }}
             />
           )}
         </div>
