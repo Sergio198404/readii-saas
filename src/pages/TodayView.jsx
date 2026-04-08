@@ -71,14 +71,14 @@ export default function TodayView() {
   const { leads, badgeCounts, loading } = useLeads('all', '')
   const today = todayMMDD()
 
-  // ① 今日必跟进
+  // ① 今日必跟进（只关注 P1/P2）
   const todayLeads = leads
-    .filter(l => l.follow === today)
+    .filter(l => l.follow === today && l.p !== 'P3')
     .sort(sortByPriority)
 
-  // ② 逾期未跟进
+  // ② 逾期未跟进（只关注 P1/P2）
   const overdueLeads = leads
-    .filter(l => l.follow && l.follow < today && l.s !== 'S4' && l.s !== 'S5')
+    .filter(l => l.follow && l.follow < today && l.s !== 'S4' && l.s !== 'S5' && l.p !== 'P3')
     .sort(sortByPriority)
 
   // ③ P1 雷达（排除已在上面两组出现的）
