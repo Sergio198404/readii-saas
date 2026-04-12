@@ -1,0 +1,71 @@
+import { useEffect, useState, useCallback } from 'react'
+import { supabase, ADMIN_EMAILS } from './supabase'
+
+async function ensureProfile(user) {
+  if (!user) return null
+
+  const { data: existing, error: selectErr } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (selectErr) {
+    console.error('[useAuth] load profile failed:', selectErr)
+    return null
+  }
+  if (existing) return existing
+
+  const role = ADMIN_EMAILS.includes(user.email) ? 'admin' : 'partner'
+  const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || null
+
+  const { data: inserted, error: insertErr } = await supabase
+    .from('profiles')
+    .insert({ id: user.id, full_name: fullName, role })
+    .select()
+    .single()
+
+  if (insertErr) {
+    console.error('[useAuth] create profile failed:', insertErr)
+    return null
+  }
+  return inserted
+}
+
+export function useAuth() {
+  const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const hydrate = useCallback(async (sessionUser) => {
+    setUser(sessionUser ?? null)
+    if (sessionUser) {
+      const p = await ensureProfile(sessionUser)
+      setProfile(p)
+    } else {
+      setProfile(null)
+    }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
+      hydrate(data.session?.user ?? null)
+    })
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return
+      hydrate(session?.user ?? null)
+    })
+
+    return () => {
+      mounted = false
+      sub.subscription.unsubscribe()
+    }
+  }, [hydrate])
+
+  return { user, profile, loading }
+}

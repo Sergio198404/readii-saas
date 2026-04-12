@@ -56,4 +56,4 @@
 .search-input::placeholder { color: var(--text-muted); }
 .search-input:focus { border-color: var(--border-medium); }
 
-.topbar-actions { display: flex; gap: 8px; margin-left: auto; }
+.topbar-actions { display: flex; gap: 8px; margin-left: auto; align-items: center; padding-right: 56px; }
