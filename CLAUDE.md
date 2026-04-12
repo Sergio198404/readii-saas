@@ -12,7 +12,7 @@ Readii 销售 CRM，中英跨境签证咨询业务专用
 不要引用、混入任何 ReadiiOS 的代码或逻辑
 
 ## 数据库
-Supabase project ID: qvuewcavzjdzoajujjma
+Supabase project ID: pgjqfcirfpoitybgmuka
 
 ## 核心规则
 - 所有数据存 Supabase，不用 localStorage
