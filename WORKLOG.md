@@ -2,6 +2,21 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14
+
+### 完成
+- 步骤 2：admin 后台伙伴管理
+  - 新建 `netlify/functions/create-partner.mjs`（service_role key 创建 Auth user + profile + partner）
+  - 新建 `src/pages/PartnersAdminPage.jsx`：左列表 / 右详情布局，支持 level、commission_rate 在线编辑
+  - 新建 `src/components/modals/NewPartnerModal.jsx`：表单+成功态展示推广码/链接/临时密码
+  - `Sidebar` 接入 `useAuth`，为 admin 增加"管理 → 伙伴管理"入口
+  - `App.jsx` 挂载 `/admin/partners` 路由（admin-only）
+
+### 待跟进
+- Netlify Dashboard → Environment Variables 添加 `SUPABASE_SERVICE_ROLE_KEY`（值来自 Supabase → Settings → API → service_role）
+- 本地开发若要测试 create-partner 函数，需要 `netlify dev` 并把 service_role key 写入本地 `.env`
+- 伙伴首次登录后应提示修改临时密码（尚未实现）
+
 ## 2026-04-12
 
 ### 完成

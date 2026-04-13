@@ -2,6 +2,23 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.3.0] - 2026-04-14
+
+### 新增
+- `/admin/partners` 伙伴管理页（仅 admin 可见）
+  - 左侧伙伴列表（姓名、推广码、等级、状态、线索数）
+  - 右侧详情编辑（level / commission_rate 实时保存）
+  - 推广码+推广链接展示 + 一键复制
+- `NewPartnerModal` 新增伙伴弹窗（姓名 / 邮箱 / 英文名）
+- Netlify Function `create-partner`：用 service_role key 创建 Auth user → profile → partners 行
+  - 推广码格式：`READII-${英文名大写}-2025`
+  - 推广链接：`https://readii.co.uk/?ref=${推广码}`
+  - 默认临时密码：`Readii2025!`
+- Sidebar 增加 "管理 → 伙伴管理" 入口（仅 admin 可见）
+
+### 修复
+- CLAUDE.md Supabase project ID 纠正为 `pgjqfcirfpoitybgmuka`
+
 ## [0.1.0] - 2026-04-12
 
 ### 新增

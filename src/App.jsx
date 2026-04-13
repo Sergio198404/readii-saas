@@ -5,6 +5,7 @@ import ContentPage from './pages/ContentPage'
 import ExpertsPage from './pages/ExpertsPage'
 import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
+import PartnersAdminPage from './pages/PartnersAdminPage'
 import AppLayout from './components/layout/AppLayout'
 import { useAuth } from './lib/useAuth'
 
@@ -87,6 +88,15 @@ export default function App() {
           element={
             <RequireAuth user={user} profile={profile}>
               <PartnerPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/partners"
+          element={
+            <RequireAuth user={user} profile={profile} allow={['admin']}>
+              <PartnersAdminPage />
             </RequireAuth>
           }
         />

@@ -1,0 +1,129 @@
+.np-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+}
+
+.np-modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card, #fff);
+  border-radius: var(--r-lg, 12px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.np-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.np-head h2 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.np-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.np-close:hover { color: var(--text-primary); }
+
+.np-body {
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.np-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.np-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.np-field input {
+  padding: 9px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md, 8px);
+  background: var(--bg-input, #fff);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+}
+
+.np-field input:focus { border-color: var(--border-medium, #999); }
+
+.np-preview {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: ui-monospace, monospace;
+  margin-top: 2px;
+}
+
+.np-readonly {
+  padding: 9px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md, 8px);
+  background: var(--bg-muted);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.np-error {
+  background: #fee;
+  color: #c33;
+  padding: 8px 12px;
+  border-radius: var(--r-md, 8px);
+  font-size: 12px;
+}
+
+.np-success {
+  background: #e6f4ea;
+  color: #1e7a3c;
+  padding: 10px 12px;
+  border-radius: var(--r-md, 8px);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.np-submit {
+  margin-top: 4px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--r-md, 8px);
+  background: var(--text-primary, #111);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.np-submit:disabled { opacity: 0.5; cursor: not-allowed; }

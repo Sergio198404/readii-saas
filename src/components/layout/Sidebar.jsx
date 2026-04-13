@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../lib/useAuth'
 import './Sidebar.css'
 
 const VIEW_FILTERS = [
@@ -24,9 +25,12 @@ const PRODUCT_FILTERS = [
 export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {} }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { profile } = useAuth()
+  const isAdmin = profile?.role === 'admin'
   const isToday = location.pathname === '/today' || location.pathname === '/'
   const isContent = location.pathname === '/content'
   const isExperts = location.pathname === '/experts'
+  const isPartnersAdmin = location.pathname === '/admin/partners'
 
   function handleFilterClick(key) {
     if (key === 'today') {
@@ -35,8 +39,10 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
       navigate('/content')
     } else if (key === 'experts') {
       navigate('/experts')
+    } else if (key === 'admin-partners') {
+      navigate('/admin/partners')
     } else {
-      if (isToday || isContent || isExperts) navigate('/board')
+      if (isToday || isContent || isExperts || isPartnersAdmin) navigate('/board')
       onFilterChange?.(key)
     }
   }
@@ -45,7 +51,8 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
     const isActive = key === 'today' ? isToday
       : key === 'content' ? isContent
       : key === 'experts' ? isExperts
-      : (!isToday && !isContent && !isExperts && currentFilter === key)
+      : key === 'admin-partners' ? isPartnersAdmin
+      : (!isToday && !isContent && !isExperts && !isPartnersAdmin && currentFilter === key)
     return (
       <div
         key={key}
@@ -91,6 +98,16 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
         {renderItem({ key: 'content', icon: '✎', label: '内容中心' })}
         {renderItem({ key: 'experts', icon: '🧠', label: '专家库' })}
       </div>
+
+      {isAdmin && (
+        <>
+          <div className="sidebar-divider" />
+          <div className="sidebar-section">
+            <div className="sidebar-section-label">管理</div>
+            {renderItem({ key: 'admin-partners', icon: '◇', label: '伙伴管理' })}
+          </div>
+        </>
+      )}
 
       <div className="sidebar-stats">
         <div className="sidebar-stat-row">
