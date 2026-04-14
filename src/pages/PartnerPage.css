@@ -256,9 +256,15 @@
   letter-spacing: 0.04em;
 }
 
-.pp-status-pending { background: #fff4e0; color: #b8741a; }
-.pp-status-confirmed { background: #e6efff; color: #1e4a9e; }
+.pp-status-pending { background: #f3f3f3; color: var(--text-muted); }
+.pp-status-confirmed { background: #fff4e0; color: #b8741a; }
 .pp-status-paid { background: #e6f4ea; color: #1e7a3c; }
+
+.pp-paid-date {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
 
 .pp-promo {
   margin: 8px 28px 32px;

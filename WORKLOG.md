@@ -2,6 +2,20 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14 (v0.6.1)
+
+### 完成
+- deal_roles 状态流闭环
+  - admin 在 PartnersAdminPage 伙伴详情 → 佣金记录 tab，逐条 确认 / 标记已付
+  - PartnersAdminPage 伙伴列表卡片新增 待/确/付 三项金额聚合
+  - PartnerPage 佣金表颜色分三档，paid 行显示 paid_at
+  - "待结算佣金"语义改为 confirmed 总额（原来是 pending）
+
+### 没动
+- deal_roles_admin 策略已在 v0.6.0 的 `deal_roles_rls.sql` 里加好；状态变更走 update 走 admin 全权策略
+- RLS 对 partner 只给 select 自己的行，UPDATE 仍然走 admin 路径，安全
+- partner 看不到自己无关的记录 → OK
+
 ## 2026-04-14 (v0.6.0)
 
 ### 完成

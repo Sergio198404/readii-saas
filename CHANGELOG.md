@@ -2,6 +2,20 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.6.1] - 2026-04-14
+
+### 新增：deal_roles 状态流
+- `PartnersAdminPage` 右侧详情加 Tabs（基本信息 / 佣金记录）
+  - 佣金记录表展示该伙伴作为 lead_recorder 的所有分成记录
+  - `pending` → 显示"✓ 确认"按钮，点击 → `confirmed` + `confirmed_at = now()`
+  - `confirmed` → 显示"💰 标记已付"按钮，点击 → `paid` + `paid_at = now()`
+  - `paid` → 绿色"已结算"文本，无操作
+- `PartnersAdminPage` 伙伴列表每个卡片新增一行"待 / 确 / 付"三个金额聚合（基于 deal_roles.status 分组求和）
+- `PartnerPage`：
+  - "待结算佣金"定义变更：只计算 `confirmed` 金额（pending 尚未被确认，paid 已结清）
+  - 佣金表状态颜色：灰（pending）/ 橙（confirmed）/ 绿（paid）
+  - `paid` 行下方显示 `paid_at` 日期
+
 ## [0.6.0] - 2026-04-14
 
 ### 新增：渠道伙伴工作台 `/partner`

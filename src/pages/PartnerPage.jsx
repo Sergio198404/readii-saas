@@ -8,8 +8,14 @@ import './PartnerPage.css'
 
 const STATUS_LABEL = {
   pending:   '待确认',
-  confirmed: '已确认',
-  paid:      '已结算',
+  confirmed: '已确认，待付款',
+  paid:      '✓ 已到账',
+}
+
+function fmtDate(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function firstOfMonthISO() {
@@ -90,8 +96,9 @@ export default function PartnerPage() {
     const total = leads.length
     const thisMonth = leads.filter((l) => l.created_at && l.created_at >= monthStart).length
     const won = leads.filter((l) => l.s === 'S4').length
+    // 待结算 = 已确认但未付款
     const pendingCommission = commissions
-      .filter((r) => r.status === 'pending')
+      .filter((r) => r.status === 'confirmed')
       .reduce((sum, r) => sum + (Number(r.amount) || 0), 0)
     return { total, thisMonth, won, pendingCommission }
   }, [leads, commissions])
@@ -228,6 +235,9 @@ export default function PartnerPage() {
                               <span className={`pp-status pp-status-${r.status}`}>
                                 {STATUS_LABEL[r.status] || r.status}
                               </span>
+                              {r.status === 'paid' && r.paid_at && (
+                                <div className="pp-paid-date">{fmtDate(r.paid_at)}</div>
+                              )}
                             </td>
                           </tr>
                         )

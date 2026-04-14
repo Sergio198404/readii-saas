@@ -4,9 +4,12 @@ import Sidebar from '../components/layout/Sidebar'
 import NewPartnerModal from '../components/modals/NewPartnerModal'
 import './PartnersAdminPage.css'
 
+const fmtMoney = (n) => `£${(Math.round((Number(n) || 0) * 100) / 100).toLocaleString()}`
+
 export default function PartnersAdminPage() {
   const [partners, setPartners] = useState([])
   const [leadCounts, setLeadCounts] = useState({})
+  const [commissionAgg, setCommissionAgg] = useState({}) // keyed by user_id
   const [selectedId, setSelectedId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -30,19 +33,35 @@ export default function PartnersAdminPage() {
     setPartners(partnerRows || [])
 
     const ids = (partnerRows || []).map((p) => p.id)
-    if (ids.length) {
-      const { data: leadRows } = await supabase
-        .from('leads')
-        .select('partner_id')
-        .in('partner_id', ids)
-      const counts = {}
-      ;(leadRows || []).forEach((l) => {
-        counts[l.partner_id] = (counts[l.partner_id] || 0) + 1
-      })
-      setLeadCounts(counts)
-    } else {
-      setLeadCounts({})
-    }
+    const userIds = (partnerRows || []).map((p) => p.user_id).filter(Boolean)
+
+    const [{ data: leadRows }, { data: roleRows }] = await Promise.all([
+      ids.length
+        ? supabase.from('leads').select('partner_id').in('partner_id', ids)
+        : Promise.resolve({ data: [] }),
+      userIds.length
+        ? supabase
+            .from('deal_roles')
+            .select('user_id, amount, status')
+            .eq('role', 'lead_recorder')
+            .in('user_id', userIds)
+        : Promise.resolve({ data: [] }),
+    ])
+
+    const counts = {}
+    ;(leadRows || []).forEach((l) => {
+      counts[l.partner_id] = (counts[l.partner_id] || 0) + 1
+    })
+    setLeadCounts(counts)
+
+    const agg = {}
+    ;(roleRows || []).forEach((r) => {
+      if (!r.user_id) return
+      if (!agg[r.user_id]) agg[r.user_id] = { pending: 0, confirmed: 0, paid: 0 }
+      const amt = Number(r.amount) || 0
+      if (r.status in agg[r.user_id]) agg[r.user_id][r.status] += amt
+    })
+    setCommissionAgg(agg)
 
     setLoading(false)
   }, [])
@@ -96,6 +115,7 @@ export default function PartnersAdminPage() {
                 {partners.map((p) => {
                   const name = p.profiles?.full_name || '未命名'
                   const isActive = p.id === selectedId
+                  const agg = commissionAgg[p.user_id] || { pending: 0, confirmed: 0, paid: 0 }
                   return (
                     <li
                       key={p.id}
@@ -114,6 +134,11 @@ export default function PartnersAdminPage() {
                         <span>·</span>
                         <span>线索 {leadCounts[p.id] || 0}</span>
                       </div>
+                      <div className="pa-list-commission">
+                        <span title="待确认">待 {fmtMoney(agg.pending)}</span>
+                        <span title="已确认待付">确 {fmtMoney(agg.confirmed)}</span>
+                        <span title="已结算">付 {fmtMoney(agg.paid)}</span>
+                      </div>
                     </li>
                   )
                 })}
@@ -123,7 +148,7 @@ export default function PartnersAdminPage() {
 
           <section className="pa-detail">
             {selected ? (
-              <PartnerDetail partner={selected} onSave={handleSave} />
+              <PartnerDetail partner={selected} onSave={handleSave} onReload={load} />
             ) : (
               <div className="pa-detail-empty">← 从左侧选择一个伙伴</div>
             )}
@@ -144,7 +169,8 @@ export default function PartnersAdminPage() {
   )
 }
 
-function PartnerDetail({ partner, onSave }) {
+function PartnerDetail({ partner, onSave, onReload }) {
+  const [tab, setTab] = useState('info')
   const [level, setLevel] = useState(partner.level)
   const [commissionRate, setCommissionRate] = useState(partner.commission_rate)
   const [saving, setSaving] = useState(false)
@@ -153,6 +179,7 @@ function PartnerDetail({ partner, onSave }) {
   useEffect(() => {
     setLevel(partner.level)
     setCommissionRate(partner.commission_rate)
+    setTab('info')
   }, [partner.id, partner.level, partner.commission_rate])
 
   const dirty =
@@ -183,52 +210,180 @@ function PartnerDetail({ partner, onSave }) {
         <span className={`pa-badge pa-badge-${partner.status}`}>{partner.status}</span>
       </div>
 
-      <div className="pa-field">
-        <label>推广码</label>
-        <div className="pa-readonly">{partner.referral_code}</div>
+      <div className="pa-tabs">
+        <button
+          type="button"
+          className={`pa-tab ${tab === 'info' ? 'active' : ''}`}
+          onClick={() => setTab('info')}
+        >
+          基本信息
+        </button>
+        <button
+          type="button"
+          className={`pa-tab ${tab === 'commissions' ? 'active' : ''}`}
+          onClick={() => setTab('commissions')}
+        >
+          佣金记录
+        </button>
       </div>
 
-      <div className="pa-field">
-        <label>推广链接</label>
-        <div className="pa-link-row">
-          <div className="pa-readonly pa-link">{partner.referral_url}</div>
-          <button type="button" className="pa-copy-btn" onClick={copyLink}>
-            {copied ? '✓ 已复制' : '复制链接'}
+      {tab === 'info' && (
+        <>
+          <div className="pa-field">
+            <label>推广码</label>
+            <div className="pa-readonly">{partner.referral_code}</div>
+          </div>
+
+          <div className="pa-field">
+            <label>推广链接</label>
+            <div className="pa-link-row">
+              <div className="pa-readonly pa-link">{partner.referral_url}</div>
+              <button type="button" className="pa-copy-btn" onClick={copyLink}>
+                {copied ? '✓ 已复制' : '复制链接'}
+              </button>
+            </div>
+          </div>
+
+          <div className="pa-field">
+            <label>等级 (1-10)</label>
+            <input
+              type="number"
+              min="1"
+              max="10"
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+            />
+          </div>
+
+          <div className="pa-field">
+            <label>分成比例 commission_rate</label>
+            <input
+              type="number"
+              step="0.001"
+              min="0"
+              max="1"
+              value={commissionRate}
+              onChange={(e) => setCommissionRate(e.target.value)}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="pa-save-btn"
+            disabled={!dirty || saving}
+            onClick={handleSaveClick}
+          >
+            {saving ? '保存中...' : dirty ? '保存修改' : '无修改'}
           </button>
-        </div>
-      </div>
+        </>
+      )}
 
-      <div className="pa-field">
-        <label>等级 (1-10)</label>
-        <input
-          type="number"
-          min="1"
-          max="10"
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-        />
-      </div>
-
-      <div className="pa-field">
-        <label>分成比例 commission_rate</label>
-        <input
-          type="number"
-          step="0.001"
-          min="0"
-          max="1"
-          value={commissionRate}
-          onChange={(e) => setCommissionRate(e.target.value)}
-        />
-      </div>
-
-      <button
-        type="button"
-        className="pa-save-btn"
-        disabled={!dirty || saving}
-        onClick={handleSaveClick}
-      >
-        {saving ? '保存中...' : dirty ? '保存修改' : '无修改'}
-      </button>
+      {tab === 'commissions' && (
+        <PartnerCommissionsTab userId={partner.user_id} onChanged={onReload} />
+      )}
     </div>
+  )
+}
+
+function PartnerCommissionsTab({ userId, onChanged }) {
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [actingId, setActingId] = useState(null)
+
+  const fetchRows = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    const { data, error: err } = await supabase
+      .from('deal_roles')
+      .select('id, amount, status, confirmed_at, paid_at, created_at, deals(id, contract_amount, signed_at, leads(name), products(code, name_zh))')
+      .eq('user_id', userId)
+      .eq('role', 'lead_recorder')
+      .order('created_at', { ascending: false })
+    if (err) {
+      setError(err.message)
+    } else {
+      setRows(data || [])
+    }
+    setLoading(false)
+  }, [userId])
+
+  useEffect(() => { fetchRows() }, [fetchRows])
+
+  async function handleConfirm(row) {
+    setActingId(row.id)
+    const { error: err } = await supabase
+      .from('deal_roles')
+      .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
+      .eq('id', row.id)
+    setActingId(null)
+    if (err) return alert(`确认失败：${err.message}`)
+    await fetchRows()
+    onChanged?.()
+  }
+
+  async function handleMarkPaid(row) {
+    setActingId(row.id)
+    const { error: err } = await supabase
+      .from('deal_roles')
+      .update({ status: 'paid', paid_at: new Date().toISOString() })
+      .eq('id', row.id)
+    setActingId(null)
+    if (err) return alert(`标记失败：${err.message}`)
+    await fetchRows()
+    onChanged?.()
+  }
+
+  if (loading) return <div className="pa-empty">加载中...</div>
+  if (error) return <div className="pa-error">{error}</div>
+  if (rows.length === 0) return <div className="pa-empty">暂无佣金记录</div>
+
+  return (
+    <table className="pa-commission-table">
+      <thead>
+        <tr>
+          <th>客户</th>
+          <th>产品</th>
+          <th>合同金额</th>
+          <th>应得佣金</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => {
+          const deal = r.deals || {}
+          const busy = actingId === r.id
+          return (
+            <tr key={r.id}>
+              <td>{deal.leads?.name || '—'}</td>
+              <td>{deal.products?.code || '—'}</td>
+              <td>{fmtMoney(deal.contract_amount)}</td>
+              <td className="pa-amount">{fmtMoney(r.amount)}</td>
+              <td>
+                <span className={`pa-status pa-status-${r.status}`}>
+                  {r.status === 'pending' ? '待确认' : r.status === 'confirmed' ? '已确认' : '已结算'}
+                </span>
+              </td>
+              <td>
+                {r.status === 'pending' && (
+                  <button className="pa-row-btn confirm" disabled={busy} onClick={() => handleConfirm(r)}>
+                    ✓ 确认
+                  </button>
+                )}
+                {r.status === 'confirmed' && (
+                  <button className="pa-row-btn paid" disabled={busy} onClick={() => handleMarkPaid(r)}>
+                    💰 标记已付
+                  </button>
+                )}
+                {r.status === 'paid' && (
+                  <span className="pa-row-done">已结算</span>
+                )}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
   )
 }

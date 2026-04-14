@@ -247,3 +247,103 @@
 }
 
 .pa-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pa-list-commission {
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.pa-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 8px;
+}
+
+.pa-tab {
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.pa-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+
+.pa-commission-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.pa-commission-table th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-page);
+  font-weight: 600;
+}
+
+.pa-commission-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.pa-amount {
+  font-weight: 600;
+  color: #1e7a3c;
+}
+
+.pa-status {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.pa-status-pending { background: #f3f3f3; color: var(--text-muted); }
+.pa-status-confirmed { background: #fff4e0; color: #b8741a; }
+.pa-status-paid { background: #e6f4ea; color: #1e7a3c; }
+
+.pa-row-btn {
+  padding: 5px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  background: var(--bg-card, #fff);
+  color: var(--text-primary);
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.pa-row-btn.confirm { color: #b8741a; border-color: #f0d9a8; background: #fff8ec; }
+.pa-row-btn.confirm:hover { background: #feefcf; }
+
+.pa-row-btn.paid { color: #1e7a3c; border-color: #b7e0c2; background: #edf8f0; }
+.pa-row-btn.paid:hover { background: #dcf0e2; }
+
+.pa-row-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pa-row-done {
+  font-size: 10px;
+  color: #1e7a3c;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
