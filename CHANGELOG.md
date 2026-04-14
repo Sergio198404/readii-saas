@@ -2,6 +2,21 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.6.0] - 2026-04-14
+
+### 新增：渠道伙伴工作台 `/partner`
+- 顶部 4 项统计：我的线索 / 本月新增 / 已成交 / 待结算佣金
+- 左列"我的线索"：只显示 `partner_id = self.partner.id` 的 leads，支持更新进展、录入新线索
+- 右列"佣金记录"：读 `deal_roles` 自己作为 `lead_recorder` 的行，附带客户名、产品、合同金额、应得佣金、状态
+- 底部"我的推广"：推广码 + 推广链接 + 一键复制
+- 新建 `PartnerSidebar`：partner 登录后只显示「我的线索 / 佣金记录 / 推广信息」三个锚点，不再出现 admin 功能
+- `App.jsx` 已有的 RequireAuth 自动按 role 分流，admin 进不了 partner 页，partner 进不了 admin 页
+
+### 安全
+- 新建 `supabase/deal_roles_rls.sql`：给 `deal_roles` 表补策略（原本 enable 了 RLS 但无任何 policy，导致 partner 根本读不到自己的分成记录，间接让 `deals_partner` 的 exists 子查询也永远为 false）
+  - `deal_roles_admin`：admin 全权
+  - `deal_roles_self`：partner 仅可 select 自己的 row（`user_id = auth.uid()`）
+
 ## [0.5.1] - 2026-04-14
 
 ### 变更

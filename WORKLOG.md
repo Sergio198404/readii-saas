@@ -2,6 +2,21 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14 (v0.6.0)
+
+### 完成
+- 渠道伙伴工作台 `/partner` 重构（原先只是占位页）
+  - 拉自己的 partner 行 → leads → deal_roles（join deals / products / leads）
+  - 顶部 4 项统计、主区域左右 grid、底部推广卡片
+- 新建 `PartnerSidebar`，partner 登录后的侧栏只有三个锚点（我的线索 / 佣金记录 / 推广信息）
+- 新建 SQL 迁移 `supabase/deal_roles_rls.sql` 补 RLS 策略
+
+### 发现的历史问题
+- `deal_roles` 表之前 RLS enable 但零 policy —— 非 service_role 任何人都读不到任何行。导致 `deals_partner` 策略里的 `exists (select 1 from deal_roles ...)` 也永远 false，partner 角色连自己参与的 deal 都看不见。v0.6.0 补齐
+
+### 待跟进
+- Supabase SQL Editor 执行 `supabase/deal_roles_rls.sql`
+
 ## 2026-04-14 (v0.5.1)
 
 ### 完成
