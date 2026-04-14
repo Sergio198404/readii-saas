@@ -2,6 +2,17 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.5.1] - 2026-04-14
+
+### 变更
+- `AddLeadModal` 来源类型默认改为「内容引流」(`content`)；选项顺序：内容引流 / 朋友介绍 / 专属链接 / 直接录入
+- 智能粘贴解析**不再覆盖归属区块**（partner_id / source_type 保持用户当前选择）
+- 移除自动识别 `?ref=` 参数匹配 partner 的逻辑（担心误覆盖用户手动选择）
+
+### 安全
+- `leads_partner` RLS 策略补充显式 `with check`：partner 用户 INSERT/UPDATE lead 时 `partner_id` 必须在自己名下的 partners 行里，防止绕过前端硬锁写入他人 partner_id
+- SQL: `supabase/leads_partner_rls_with_check.sql`
+
 ## [0.5.0] - 2026-04-14
 
 ### 新增：线索归属

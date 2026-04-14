@@ -2,6 +2,18 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14 (v0.5.1)
+
+### 完成
+- `AddLeadModal` 归属区块微调：
+  - `source_type` 默认值 → `content`（内容引流）
+  - 选项顺序：内容引流 / 朋友介绍 / 专属链接 / 直接录入
+  - 智能粘贴不再覆盖归属（之前的 URL `?ref=` 自动匹配逻辑已移除）
+- 新建 `supabase/leads_partner_rls_with_check.sql`：`leads_partner` 策略补显式 `with check`，后端兜底 partner_id 必须等于 `auth.uid()` 对应的 partners.id
+
+### 待跟进
+- 在 Supabase SQL Editor 执行 `leads_partner_rls_with_check.sql`
+
 ## 2026-04-14 (v0.5.0)
 
 ### 完成

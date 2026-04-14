@@ -3,10 +3,10 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/useAuth'
 
 const SOURCE_TYPES = [
-  { key: 'ref_link', label: '专属链接' },
-  { key: 'direct',   label: '直接录入' },
   { key: 'content',  label: '内容引流' },
   { key: 'referral', label: '朋友介绍' },
+  { key: 'ref_link', label: '专属链接' },
+  { key: 'direct',   label: '直接录入' },
 ]
 
 const EMPTY_FORM = {
@@ -16,7 +16,7 @@ const EMPTY_FORM = {
   next: 'Call', follow: '',
   note: '',
   partner_id: '',
-  source_type: 'direct',
+  source_type: 'content',
 }
 
 const VALID_P = ['P1', 'P2', 'P3']
@@ -24,8 +24,6 @@ const VALID_S = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5']
 const VALID_PROD = ['IFV', 'SW', 'GT', 'Student', 'PlanB', '?']
 const VALID_B = ['B0', 'B1', 'B2', 'B3', 'B4']
 const VALID_NEXT = ['Call', 'Docs', 'Pay', 'Intro', 'Wait']
-
-const REF_REGEX = /[?&]ref=(READII-[A-Z0-9]+-\d{4})/i
 
 /**
  * 解析微信格式客户卡片：
@@ -132,7 +130,7 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
         follow:      editingLead.follow      || '',
         note:        editingLead.note        || '',
         partner_id:  editingLead.partner_id  || '',
-        source_type: editingLead.source_type || 'direct',
+        source_type: editingLead.source_type || 'content',
       })
       setPasteCollapsed(true)
     } else {
@@ -147,68 +145,33 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
     setError(null)
   }, [open, editingLead, isAdmin, selfPartnerId])
 
-  // Admin: try to resolve a referral code in pasted text → auto-select partner + source_type
-  async function tryMatchRef(text, base) {
-    if (!isAdmin) return base
-    const m = text.match(REF_REGEX)
-    if (!m) return base
-    const code = m[1].toUpperCase()
-    const { data: partnerRow } = await supabase
-      .from('partners')
-      .select('id, referral_code')
-      .eq('referral_code', code)
-      .maybeSingle()
-    if (partnerRow) {
-      return { ...base, partner_id: partnerRow.id, source_type: 'ref_link' }
-    }
-    return base
-  }
-
-  async function applyParsed(parsed, sourceText) {
-    const merged = { ...EMPTY_FORM, ...form, ...parsed }
-    // partner role lock always wins
-    if (!isAdmin && selfPartnerId) merged.partner_id = selfPartnerId
-    const withRef = await tryMatchRef(sourceText || '', merged)
-    setForm(withRef)
+  // 智能粘贴仅覆盖业务字段，不覆盖归属区块（partner_id / source_type / recorder）
+  function applyParsed(parsed) {
+    setForm((prev) => ({
+      ...prev,
+      ...parsed,
+      partner_id: prev.partner_id,
+      source_type: prev.source_type,
+    }))
     setPasteCollapsed(true)
-    setParseMsg({
-      ok: true,
-      text:
-        withRef.partner_id && withRef.source_type === 'ref_link'
-          ? `已解析「${parsed.name}」并识别渠道推广链接`
-          : `已解析「${parsed.name}」的信息，请确认后保存`,
-    })
+    setParseMsg({ ok: true, text: `已解析「${parsed.name}」的信息，请确认后保存` })
   }
 
-  async function handleParse() {
+  function handleParse() {
     const result = parseWechatCard(pasteText)
     if (result) {
-      await applyParsed(result, pasteText)
+      applyParsed(result)
     } else {
-      // Even without wechat card, try URL ref match
-      const m = pasteText.match(REF_REGEX)
-      if (m && isAdmin) {
-        const merged = { ...form }
-        const withRef = await tryMatchRef(pasteText, merged)
-        setForm(withRef)
-        setParseMsg({ ok: true, text: `已识别渠道推广链接：${m[1]}` })
-        return
-      }
       setParseMsg({ ok: false, text: '解析失败，请检查格式：【姓名-渠道】P?｜S?｜产品｜预算｜...' })
     }
   }
 
   function handlePasteEvent(e) {
-    setTimeout(async () => {
+    setTimeout(() => {
       const val = e.target.value
       if (val && val.includes('【')) {
         const result = parseWechatCard(val)
-        if (result) await applyParsed(result, val)
-      } else if (val && REF_REGEX.test(val) && isAdmin) {
-        const merged = { ...form }
-        const withRef = await tryMatchRef(val, merged)
-        setForm(withRef)
-        setParseMsg({ ok: true, text: `已识别渠道推广链接` })
+        if (result) applyParsed(result)
       }
     }, 0)
   }
