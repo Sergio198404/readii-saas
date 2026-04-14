@@ -38,9 +38,17 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   const hydrate = useCallback(async (sessionUser) => {
+    setLoading(true)
     setUser(sessionUser ?? null)
     if (sessionUser) {
       const p = await ensureProfile(sessionUser)
+      console.log('[useAuth] hydrate profile:', {
+        email: sessionUser.email,
+        id: sessionUser.id,
+        role: p?.role,
+        password_changed: p?.password_changed,
+        full: p,
+      })
       setProfile(p)
     } else {
       setProfile(null)

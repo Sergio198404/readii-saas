@@ -46,6 +46,11 @@ export default function App() {
   if (loading) return <FullScreenMessage>加载中...</FullScreenMessage>
 
   const homePath = profile?.role === 'admin' ? '/today' : '/partner'
+  console.log('[App] routing decision:', {
+    hasUser: !!user,
+    role: profile?.role,
+    homePath,
+  })
 
   return (
     <BrowserRouter>
