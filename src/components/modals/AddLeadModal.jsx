@@ -21,7 +21,7 @@ const EMPTY_FORM = {
 
 const VALID_P = ['P1', 'P2', 'P3']
 const VALID_S = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5']
-const VALID_PROD = ['IFV', 'SW', 'GT', 'Student', 'PlanB', '?']
+const VALID_PROD = ['IFV', 'SW', 'EW', 'GT', 'Student', 'PlanB', '?']
 const VALID_B = ['B0', 'B1', 'B2', 'B3', 'B4']
 const VALID_NEXT = ['Call', 'Docs', 'Pay', 'Intro', 'Wait']
 
@@ -306,6 +306,7 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
             <select className="form-select" value={form.prod} onChange={set('prod')}>
               <option value="IFV">IFV — 创新签</option>
               <option value="SW">SW — 自担保工签</option>
+              <option value="EW">EW — 拓展工签</option>
               <option value="GT">GT — 全球人才</option>
               <option value="Student">Student — 学签 / 陪读</option>
               <option value="PlanB">PlanB — 路线图 / 评估</option>

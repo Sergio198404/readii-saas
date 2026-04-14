@@ -17,7 +17,8 @@ export default function CoachDrawer({ open, onClose, leads = [], initialPrompt }
   const initialPromptSent = useRef(false)
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // block:'nearest' prevents the parent page from jumping when the drawer scrolls
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, loading])
 
   // 支持外部传入 initialPrompt，打开时自动发送一次

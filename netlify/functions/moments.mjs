@@ -27,12 +27,16 @@ export default async (req) => {
   }
 
   try {
-    const { date, caseLeadInfo, recentNotes, regenerateType, expertStyle } = await req.json()
+    const { date, caseLeadInfo, recentNotes, regenerateType, expertStyle, userPrompt } = await req.json()
 
     let userMessage = `今天是${date}。\n\n`
 
     if (expertStyle) {
       userMessage += `请用以下风格进行写作：${expertStyle}\n\n`
+    }
+
+    if (userPrompt) {
+      userMessage += `用户提供的核心内容（三条朋友圈都围绕这段内容展开，从生活、价值观、案例三个角度切入）：\n${userPrompt}\n\n`
     }
 
     if (recentNotes && recentNotes.length > 0) {

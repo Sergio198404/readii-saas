@@ -14,7 +14,7 @@
 }
 
 .coach-drawer {
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
   bottom: 0;
@@ -25,6 +25,7 @@
   display: flex;
   flex-direction: column;
   animation: slideIn 0.25s ease;
+  z-index: 301;
 }
 
 @keyframes slideIn {

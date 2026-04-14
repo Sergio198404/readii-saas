@@ -2,6 +2,23 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14 (v0.7.0)
+
+### 完成
+- CoachDrawer 稳定性：position 改显式 fixed；scrollIntoView 加 `block:'nearest'` 防页面跟着滚
+- AI 建议按钮自动首发：`SalesBoard` 维护 `coachInitialPrompt` 状态，点击卡片 🧠 按钮时塞入 per-lead prompt
+- 新增产品 EW / 补齐 GT 的前端展示：Sidebar 筛选、AddLeadModal 选项、useLeads 计数
+- 新建 SQL 迁移：
+  - `add_ew_product.sql` — `on conflict do nothing` 幂等
+  - `swap_content_topics_status.sql` — 三步重命名对调 `待创作` ↔ `已发布`
+- 选题卡片 badge：`待创作` 新样式 `.badge-topic-pending`（灰色）；`已发布` 保留绿色
+- 朋友圈自定义输入：textarea + 专家下拉 + 生成按钮；`moments.mjs` 新增 `userPrompt` 参数
+
+### 待跟进
+- Supabase SQL Editor 依次执行：
+  1. `supabase/add_ew_product.sql`
+  2. `supabase/swap_content_topics_status.sql`
+
 ## 2026-04-14 (v0.6.1)
 
 ### 完成

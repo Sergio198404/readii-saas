@@ -22,6 +22,7 @@ export default function SalesBoard() {
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [updatingLead, setUpdatingLead] = useState(null)
   const [showCoach, setShowCoach] = useState(false)
+  const [coachInitialPrompt, setCoachInitialPrompt] = useState(null)
   const [showEmail, setShowEmail] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [dealingLead, setDealingLead] = useState(null)
@@ -63,7 +64,7 @@ export default function SalesBoard() {
       <main className="main">
         <TopBar
           onOpenAdd={() => { setEditingLead(null); setShowAddModal(true) }}
-          onOpenCoach={() => setShowCoach(true)}
+          onOpenCoach={() => { setCoachInitialPrompt(null); setShowCoach(true) }}
           onToggleEmail={() => setShowEmail(v => !v)}
           onSearch={setSearchQuery}
         />
@@ -89,7 +90,10 @@ export default function SalesBoard() {
               dealSummaries={dealSummaries}
               onEdit={(lead) => { setEditingLead(lead); setShowAddModal(true) }}
               onUpdate={(lead) => { setUpdatingLead(lead); setShowUpdateModal(true) }}
-              onAskCoach={(lead) => setShowCoach(true)}
+              onAskCoach={(lead) => {
+                setCoachInitialPrompt(`请针对客户${lead.name}给出今日跟进计划，包括开场白和下一步行动建议`)
+                setShowCoach(true)
+              }}
               onDelete={async (lead) => { await supabase.from('leads').delete().eq('id', lead.id) }}
               onMarkDeal={(lead) => setDealingLead(lead)}
             />
@@ -122,8 +126,9 @@ export default function SalesBoard() {
 
       <CoachDrawer
         open={showCoach}
-        onClose={() => setShowCoach(false)}
+        onClose={() => { setShowCoach(false); setCoachInitialPrompt(null) }}
         leads={leads}
+        initialPrompt={coachInitialPrompt}
       />
     </div>
   )

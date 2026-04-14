@@ -2,6 +2,26 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.7.0] - 2026-04-14
+
+### 新增
+- 选题库新增两款产品：**EW（拓展工签）** 和 **GT（全球人才签）**
+  - `add_ew_product.sql` 幂等迁移（GT 初始 seed 已有，EW 新增）
+  - `Sidebar` 产品筛选、`AddLeadModal` 产品下拉、`useLeads` 的 badge 计数全部补齐
+- 朋友圈新增"用户输入对话框"：
+  - 顶部 textarea 让用户自由描述素材
+  - 选专家风格下拉
+  - "生成三条朋友圈"按钮 → 调 `moments` 函数新增的 `userPrompt` 参数，Claude 围绕用户内容分三个角度展开
+
+### 体验
+- `CoachDrawer` 改为显式 `position: fixed`（原先 absolute inside fixed overlay），消除了抽屉位置的潜在抖动
+- `scrollIntoView` 加 `block: 'nearest'`，修复长对话时整个页面被带着滚动的 bug
+- 客户卡片的"🧠 AI 建议"按钮现在**自动发送第一条消息**：`请针对客户${name}给出今日跟进计划，包括开场白和下一步行动建议`（通过 CoachDrawer 已有的 `initialPrompt` 机制）
+
+### 数据修正
+- `swap_content_topics_status.sql`：三步重命名把 `content_topics.status` 的 `待创作` 与 `已发布` 值对调（之前语义反了）
+- 选题卡片 `待创作` badge 改为中性灰色（新 `.badge-topic-pending` 样式），`已发布` 保持绿色
+
 ## [0.6.1] - 2026-04-14
 
 ### 新增：deal_roles 状态流

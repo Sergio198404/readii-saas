@@ -18,7 +18,9 @@ const STAGE_FILTERS = [
 
 const PRODUCT_FILTERS = [
   { key: 'IFV',   icon: '◆', label: 'IFV 创新签' },
-  { key: 'SW',    icon: '◆', label: 'SW 工签' },
+  { key: 'SW',    icon: '◆', label: 'SW 自担保工签' },
+  { key: 'EW',    icon: '◆', label: 'EW 拓展工签' },
+  { key: 'GT',    icon: '◆', label: 'GT 全球人才' },
   { key: 'PlanB', icon: '◆', label: 'PlanB 评估' },
 ]
 

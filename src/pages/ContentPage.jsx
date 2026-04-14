@@ -144,7 +144,7 @@ function TopicsTab({ leads, experts = [] }) {
                 <div className="content-card-meta">
                   <span className={`badge ${t.platform === '抖音' ? 'badge-p1' : t.platform === '视频号' ? 'badge-p2' : 'badge-prod'}`}>{t.platform}</span>
                   <span className="badge badge-date">{t.source_count} 个客户问过</span>
-                  <span className={`badge ${t.status === '已发布' ? 'badge-stage won' : 'badge-today'}`}>{t.status}</span>
+                  <span className={`badge ${t.status === '已发布' ? 'badge-stage won' : 'badge-topic-pending'}`}>{t.status}</span>
                 </div>
                 {t.angle && <div className="content-card-angle">💡 {t.angle}</div>}
               </div>
@@ -193,6 +193,9 @@ function MomentsTab({ leads, experts = [] }) {
   const [selectedExpert, setSelectedExpert] = useState('') // 全局（用于批量生成）
   const [cardExperts, setCardExperts] = useState(['', '', '']) // 每张卡片独立专家
   const [copied, setCopied] = useState(-1)
+  const [userInput, setUserInput] = useState('')
+  const [inputExpert, setInputExpert] = useState('')
+  const [inputGenerating, setInputGenerating] = useState(false)
 
   const caseLeads = leads.filter(l => l.s === 'S3' || l.s === 'S4')
   const recentNotes = leads.slice(0, 3).map(l => l.note).filter(Boolean)
@@ -265,6 +268,31 @@ function MomentsTab({ leads, experts = [] }) {
     setTimeout(() => setCopied(-1), 2000)
   }
 
+  async function generateFromInput() {
+    if (!userInput.trim()) return
+    setInputGenerating(true)
+    try {
+      const res = await fetch('/.netlify/functions/moments', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: todayDateStr(),
+          userPrompt: userInput.trim(),
+          expertStyle: experts.find(e => e.id === inputExpert)?.style_prompt || null,
+        }),
+      })
+      const data = await res.json()
+      if (data.moments?.length >= 3) {
+        setMoments(MOMENT_TYPES.map(mt => {
+          const found = data.moments.find(m => m.type === mt.type)
+          return found ? found.content : data.moments[MOMENT_TYPES.indexOf(mt)]?.content || ''
+        }))
+      } else if (data.moments?.length > 0) {
+        setMoments(data.moments.map(m => m.content || ''))
+      }
+    } catch (err) { console.error('Generate from input failed:', err) }
+    finally { setInputGenerating(false) }
+  }
+
   return (
     <>
       <div className="content-tab-toolbar">
@@ -272,6 +300,30 @@ function MomentsTab({ leads, experts = [] }) {
         <button className="btn btn-primary" onClick={generateAll} disabled={generating}>
           {generating ? '🧠 生成中...' : '🧠 生成今日三条朋友圈'}
         </button>
+      </div>
+
+      {/* 自定义内容输入区块 */}
+      <div className="moments-input-block">
+        <textarea
+          placeholder="描述你想写的内容，例如：今天陪客户看了创新签方案，聊到一个很有意思的问题..."
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+        />
+        <div className="moments-input-row">
+          <label>选择专家</label>
+          <select className="form-select" value={inputExpert} onChange={(e) => setInputExpert(e.target.value)} style={{ maxWidth: 200 }}>
+            <option value="">Readii 默认</option>
+            {experts.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+          </select>
+          <button
+            className="btn btn-primary"
+            onClick={generateFromInput}
+            disabled={inputGenerating || !userInput.trim()}
+            style={{ marginLeft: 'auto' }}
+          >
+            {inputGenerating ? '🧠 生成中...' : '🧠 生成三条朋友圈'}
+          </button>
+        </div>
       </div>
 
       {/* 选项栏 */}

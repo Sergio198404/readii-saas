@@ -81,6 +81,8 @@ export function useLeads(filter = 'all', searchQuery = '') {
     S5:     leads.filter(l => l.s === 'S5').length,
     IFV:    leads.filter(l => l.prod === 'IFV').length,
     SW:     leads.filter(l => l.prod === 'SW').length,
+    EW:     leads.filter(l => l.prod === 'EW').length,
+    GT:     leads.filter(l => l.prod === 'GT').length,
     PlanB:  leads.filter(l => l.prod === 'PlanB').length,
   }
 
@@ -96,6 +98,8 @@ export function useLeads(filter = 'all', searchQuery = '') {
     case 'S5':     filteredLeads = leads.filter(l => l.s === 'S5'); break
     case 'IFV':    filteredLeads = leads.filter(l => l.prod === 'IFV'); break
     case 'SW':     filteredLeads = leads.filter(l => l.prod === 'SW'); break
+    case 'EW':     filteredLeads = leads.filter(l => l.prod === 'EW'); break
+    case 'GT':     filteredLeads = leads.filter(l => l.prod === 'GT'); break
     case 'PlanB':  filteredLeads = leads.filter(l => l.prod === 'PlanB'); break
     default:       break // 'all'
   }

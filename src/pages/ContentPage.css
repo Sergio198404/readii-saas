@@ -325,3 +325,53 @@
 }
 
 .brief-item-link:hover { text-decoration: underline; }
+
+/* v0.7.0: 选题状态 `待创作` 显示为中性灰，避免与 `已发布`（绿）混淆 */
+.badge.badge-topic-pending {
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* v0.7.0: 朋友圈 — 用户输入区块 */
+.moments-input-block {
+  margin: 16px 0 8px;
+  padding: 16px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moments-input-block textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md, 8px);
+  background: var(--bg-input, #fff);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+}
+
+.moments-input-block textarea:focus { border-color: var(--border-medium, #999); }
+
+.moments-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.moments-input-row label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}

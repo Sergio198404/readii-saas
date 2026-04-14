@@ -14,7 +14,8 @@
       "Bash(mkdir -p src/components/layout src/components/leads src/components/modals src/components/coach src/components/email src/pages src/styles src/lib)",
       "Bash(npx vite:*)",
       "Bash(curl:*)",
-      "Bash(npx netlify:*)"
+      "Bash(npx netlify:*)",
+      "Bash(npm run:*)"
     ]
   }
 }
