@@ -112,3 +112,48 @@
   border-top: 1px solid var(--border-subtle);
   flex-wrap: wrap;
 }
+
+.btn-action.deal-btn {
+  color: #1e7a3c;
+  border-color: #b7e0c2;
+  background: #edf8f0;
+}
+
+.btn-action.deal-btn:hover {
+  background: #dcf0e2;
+}
+
+.card-deal-summary {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #fff8ec 0%, #fef3d9 100%);
+  border: 1px solid #f0d9a8;
+  border-radius: var(--r-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deal-total {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.deal-total strong {
+  font-size: 15px;
+  color: #b8741a;
+  font-weight: 700;
+}
+
+.deal-split {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.deal-you {
+  color: #1e7a3c;
+  font-weight: 600;
+}

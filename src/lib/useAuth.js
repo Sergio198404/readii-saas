@@ -21,7 +21,7 @@ async function ensureProfile(user) {
 
   const { data: inserted, error: insertErr } = await supabase
     .from('profiles')
-    .insert({ id: user.id, full_name: fullName, role })
+    .insert({ id: user.id, full_name: fullName, role, password_changed: true })
     .select()
     .single()
 
@@ -48,6 +48,21 @@ export function useAuth() {
     setLoading(false)
   }, [])
 
+  const refetchProfile = useCallback(async () => {
+    if (!user) return null
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle()
+    if (error) {
+      console.error('[useAuth] refetch profile failed:', error)
+      return null
+    }
+    setProfile(data)
+    return data
+  }, [user])
+
   useEffect(() => {
     let mounted = true
 
@@ -67,5 +82,5 @@ export function useAuth() {
     }
   }, [hydrate])
 
-  return { user, profile, loading }
+  return { user, profile, loading, refetchProfile }
 }

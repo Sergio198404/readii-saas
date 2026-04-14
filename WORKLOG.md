@@ -2,7 +2,23 @@
 
 每日开发日志，按倒序记录。
 
-## 2026-04-14
+## 2026-04-14 (下半场 v0.4.0)
+
+### 完成
+- 安全补丁 1：`create-partner` 加 admin JWT 校验；`NewPartnerModal` 发送 `Authorization: Bearer <session.access_token>`
+- 安全补丁 2：首次登录强制改密
+  - 新建 `supabase/add_password_changed_column.sql`（待用户执行）
+  - `ChangePasswordPage` 页面 + `/change-password` 路由
+  - `RequireAuth` 检测 `password_changed === false` 强制重定向
+  - `useAuth` 导出 `refetchProfile` 供改密后刷新
+- 第三步：成交录入
+  - `lib/commission.js` 纯函数库（buildDealRoles / summarizeDeal）
+  - `MarkDealModal` + `LeadCard` 标记成交按钮（仅 S3）+ 成交摘要卡片（仅 S4）
+  - `SalesBoard` 拉取 deals + deal_roles 并传给 LeadList
+
+### 待跟进
+- ⚠️ 用户需在 Supabase SQL Editor 执行 `add_password_changed_column.sql`
+- 多角色拆分（目前 converter/plan_*/exec_* 都是当前登录 admin 一人）需要等有了第二个运营同事再改
 
 ### 完成
 - 步骤 2：admin 后台伙伴管理

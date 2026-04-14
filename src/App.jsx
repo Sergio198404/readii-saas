@@ -6,6 +6,7 @@ import ExpertsPage from './pages/ExpertsPage'
 import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
 import PartnersAdminPage from './pages/PartnersAdminPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import AppLayout from './components/layout/AppLayout'
 import { useAuth } from './lib/useAuth'
 
@@ -28,6 +29,9 @@ function FullScreenMessage({ children }) {
 function RequireAuth({ profile, user, allow, children }) {
   const location = useLocation()
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
+  if (profile && profile.password_changed === false) {
+    return <Navigate to="/change-password" replace />
+  }
   if (allow && profile && !allow.includes(profile.role)) {
     const home = profile.role === 'admin' ? '/today' : '/partner'
     return <Navigate to={home} replace />
@@ -48,6 +52,15 @@ export default function App() {
         <Route
           path="/login"
           element={user ? <Navigate to={homePath} replace /> : <LoginPage />}
+        />
+
+        <Route
+          path="/change-password"
+          element={
+            !user
+              ? <Navigate to="/login" replace />
+              : <ChangePasswordPage />
+          }
         />
 
         <Route

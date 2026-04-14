@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Sidebar from '../components/layout/Sidebar'
 import TopBar from '../components/layout/TopBar'
 import MetricStrip from '../components/layout/MetricStrip'
@@ -6,12 +6,16 @@ import LeadList from '../components/leads/LeadList'
 import EmailPanel from '../components/email/EmailPanel'
 import AddLeadModal from '../components/modals/AddLeadModal'
 import UpdateLeadModal from '../components/modals/UpdateLeadModal'
+import MarkDealModal from '../components/modals/MarkDealModal'
 import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
+import { useAuth } from '../lib/useAuth'
 import { supabase } from '../lib/supabase'
+import { summarizeDeal } from '../lib/commission'
 import './SalesBoard.css'
 
 export default function SalesBoard() {
+  const { user } = useAuth()
   const [currentFilter, setCurrentFilter] = useState('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingLead, setEditingLead] = useState(null)
@@ -20,8 +24,33 @@ export default function SalesBoard() {
   const [showCoach, setShowCoach] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [dealingLead, setDealingLead] = useState(null)
+  const [deals, setDeals] = useState([])
 
-  const { leads, filteredLeads, counts, badgeCounts, loading, error } = useLeads(currentFilter, searchQuery)
+  const { leads, filteredLeads, counts, badgeCounts, loading, error, refetch } = useLeads(currentFilter, searchQuery)
+
+  const fetchDeals = useCallback(async () => {
+    const { data, error: err } = await supabase
+      .from('deals')
+      .select('id, lead_id, contract_amount, platform_amount, status, deal_roles(user_id, role, amount)')
+    if (!err) setDeals(data || [])
+  }, [])
+
+  useEffect(() => { fetchDeals() }, [fetchDeals])
+
+  const dealSummaries = useMemo(() => {
+    const map = {}
+    for (const d of deals) {
+      if (!d.lead_id) continue
+      map[d.lead_id] = summarizeDeal({
+        contractAmount: d.contract_amount,
+        platformAmount: d.platform_amount,
+        roles: d.deal_roles || [],
+        currentUserId: user?.id,
+      })
+    }
+    return map
+  }, [deals, user?.id])
 
   return (
     <div className="app-layout">
@@ -57,10 +86,12 @@ export default function SalesBoard() {
           ) : (
             <LeadList
               leads={filteredLeads}
+              dealSummaries={dealSummaries}
               onEdit={(lead) => { setEditingLead(lead); setShowAddModal(true) }}
               onUpdate={(lead) => { setUpdatingLead(lead); setShowUpdateModal(true) }}
               onAskCoach={(lead) => setShowCoach(true)}
               onDelete={async (lead) => { await supabase.from('leads').delete().eq('id', lead.id) }}
+              onMarkDeal={(lead) => setDealingLead(lead)}
             />
           )}
         </div>
@@ -77,6 +108,17 @@ export default function SalesBoard() {
         onClose={() => { setShowUpdateModal(false); setUpdatingLead(null) }}
         lead={updatingLead}
       />
+
+      {dealingLead && (
+        <MarkDealModal
+          lead={dealingLead}
+          onClose={() => setDealingLead(null)}
+          onDone={async () => {
+            setDealingLead(null)
+            await Promise.all([refetch(), fetchDeals()])
+          }}
+        />
+      )}
 
       <CoachDrawer
         open={showCoach}

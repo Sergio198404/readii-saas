@@ -2,6 +2,28 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.4.0] - 2026-04-14
+
+### 安全
+- `create-partner` 函数新增 admin JWT 校验：调用方必须携带 `Authorization: Bearer <token>`，且 `profiles.role = 'admin'`，否则 401/403
+- 首次登录强制改密：
+  - `profiles` 新增 `password_changed boolean not null default true`
+  - `create-partner` 创建新伙伴时显式写入 `password_changed = false`
+  - 新增 `/change-password` 页面，密码 < 8 位或两次不一致阻塞提交
+  - `RequireAuth` 守卫：任意受保护路由若检测到 `password_changed = false` 则重定向到 `/change-password`
+
+### 新增：成交录入
+- `lib/commission.js`：`buildDealRoles` / `summarizeDeal` 纯函数
+  - `converter` 独占；`planner` 平分给 3 个 plan_* 角色；`executor` 平分给 3 个 exec_* 角色
+  - `fixed_commission` 模型（PlanB）直接按固定金额计入 converter
+  - 若 lead 有 `partner_id`，按 `partners.commission_rate × contract_amount` 给 `lead_recorder`（额外成本，不占 distributable）
+- `MarkDealModal`：产品下拉（从 `products` 拉取） / 合同金额 / 首付 / 签约日期；提交后一并写入 deals + deal_roles，并将 lead 更新为 S4 + `product_id`
+- `LeadCard`：S3 阶段显示 "🎉 标记成交"；S4 阶段显示成交摘要（平台/渠道/你实得）
+- `SalesBoard`：拉取 deals + 嵌套 deal_roles，按 lead_id 汇总给卡片
+
+### SQL 迁移
+- `supabase/add_password_changed_column.sql`
+
 ## [0.3.0] - 2026-04-14
 
 ### 新增

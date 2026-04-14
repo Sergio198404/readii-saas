@@ -22,6 +22,32 @@ export default async (req) => {
     return json(500, { error: 'Server missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY' })
   }
 
+  // --- Admin-only gate: validate caller JWT and role ---
+  const authHeader = req.headers.get('authorization') || req.headers.get('Authorization') || ''
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!token) return json(401, { error: '缺少 Authorization token' })
+
+  const admin = createClient(url, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+
+  const { data: userData, error: userErr } = await admin.auth.getUser(token)
+  if (userErr || !userData?.user) {
+    return json(401, { error: '无效 token' })
+  }
+  const callerId = userData.user.id
+
+  const { data: callerProfile, error: profErr } = await admin
+    .from('profiles')
+    .select('role')
+    .eq('id', callerId)
+    .maybeSingle()
+  if (profErr) return json(500, { error: `读取调用方 profile 失败：${profErr.message}` })
+  if (!callerProfile || callerProfile.role !== 'admin') {
+    return json(403, { error: '仅管理员可创建伙伴' })
+  }
+
+  // --- Parse body ---
   let body
   try {
     body = await req.json()
@@ -38,10 +64,6 @@ export default async (req) => {
     return json(400, { error: '姓名、邮箱、英文名均为必填' })
   }
 
-  const admin = createClient(url, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-
   // 1. Create auth user
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email,
@@ -56,12 +78,15 @@ export default async (req) => {
   const userId = created.user?.id
   if (!userId) return json(500, { error: '创建账号后未返回 user id' })
 
-  // 2. Upsert profile (role=partner)
-  const { error: profileErr } = await admin
+  // 2. Upsert profile (role=partner, force password change on first login)
+  const { error: profileInsertErr } = await admin
     .from('profiles')
-    .upsert({ id: userId, full_name: fullName, role: 'partner' }, { onConflict: 'id' })
-  if (profileErr) {
-    return json(500, { error: `写入 profile 失败：${profileErr.message}` })
+    .upsert(
+      { id: userId, full_name: fullName, role: 'partner', password_changed: false },
+      { onConflict: 'id' }
+    )
+  if (profileInsertErr) {
+    return json(500, { error: `写入 profile 失败：${profileInsertErr.message}` })
   }
 
   // 3. Generate referral code + URL

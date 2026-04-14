@@ -1,11 +1,14 @@
 import './LeadCard.css'
 
-export default function LeadCard({ lead, onEdit, onUpdate, onAskCoach, onDelete }) {
+export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal }) {
   const initials = lead?.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
       : [...lead.name][0]
     : '?'
+
+  const isS3 = lead?.s === 'S3'
+  const isS4 = lead?.s === 'S4'
 
   return (
     <div className="card">
@@ -44,10 +47,28 @@ export default function LeadCard({ lead, onEdit, onUpdate, onAskCoach, onDelete 
         </div>
       )}
 
+      {isS4 && dealSummary && (
+        <div className="card-deal-summary">
+          <div className="deal-total">
+            成交 <strong>£{dealSummary.contract.toLocaleString()}</strong>
+          </div>
+          <div className="deal-split">
+            <span>平台 £{dealSummary.platform.toLocaleString()}</span>
+            <span>·</span>
+            <span>渠道 £{dealSummary.channel.toLocaleString()}</span>
+            <span>·</span>
+            <span className="deal-you">你实得 £{dealSummary.you.toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+
       <div className="card-actions">
         <button className="btn-action" onClick={() => onEdit?.(lead)}>编辑</button>
         <button className="btn-action update" onClick={() => onUpdate?.(lead)}>更新进展</button>
         <button className="btn-action ai-btn" onClick={() => onAskCoach?.(lead)}>🧠 AI建议</button>
+        {isS3 && (
+          <button className="btn-action deal-btn" onClick={() => onMarkDeal?.(lead)}>🎉 标记成交</button>
+        )}
         <button className="btn-action" onClick={() => { if (confirm(`确认删除「${lead.name}」？`)) onDelete?.(lead) }} style={{ color: 'var(--danger-text)' }}>删除</button>
       </div>
     </div>

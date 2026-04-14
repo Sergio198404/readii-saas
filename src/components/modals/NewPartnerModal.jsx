@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import './NewPartnerModal.css'
 
 export default function NewPartnerModal({ onClose, onCreated }) {
@@ -19,9 +20,16 @@ export default function NewPartnerModal({ onClose, onCreated }) {
 
     setSubmitting(true)
     try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData.session?.access_token
+      if (!token) throw new Error('未登录或登录已过期')
+
       const res = await fetch('/.netlify/functions/create-partner', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           full_name: fullName.trim(),
           email: email.trim(),
