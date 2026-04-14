@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
 import PartnersAdminPage from './pages/PartnersAdminPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import AppLayout from './components/layout/AppLayout'
 import { useAuth } from './lib/useAuth'
 
@@ -53,6 +54,8 @@ export default function App() {
           path="/login"
           element={user ? <Navigate to={homePath} replace /> : <LoginPage />}
         />
+
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         <Route
           path="/change-password"
