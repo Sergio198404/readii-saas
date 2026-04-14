@@ -2,6 +2,18 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 修复
+- 渠道佣金改为从 distributable 池里先切，而非额外计提：
+  - `platform = contract × 0.30`
+  - `distributable = contract × 0.70`
+  - `channelAmount = distributable × partner.commission_rate × partner.multiplier`
+  - `remainingPool = distributable − channelAmount`
+  - 转化/方案/执行按 commission_model 的 532 比例分 `remainingPool`
+- `deal_roles.lead_recorder.share_rate` 改为 `channelAmount / contractAmount`（相对合同额的实际比例）
+- `MarkDealModal` 预览新增 5 行：合同 → 平台 → 渠道 → 剩余池 → 你实得
+
 ## [0.4.0] - 2026-04-14
 
 ### 安全

@@ -112,6 +112,22 @@
   font-weight: 600;
 }
 
+.md-preview-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 2px 0;
+}
+
+.md-preview-row.md-preview-you {
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.md-preview-row.md-preview-you strong {
+  color: #1e7a3c;
+}
+
 .md-error {
   background: #fee;
   color: #c33;
