@@ -2,7 +2,21 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [0.5.0] - 2026-04-14
+
+### 新增：线索归属
+- `leads` 表新增 `source_type` 字段（ref_link / direct / content / referral，默认 direct）
+- `AddLeadModal` 新增"归属"区块：
+  - **渠道伙伴**：admin 下拉选择 partners.status='active'；partner 用户锁定为自己的 partner row，只读
+  - **录入人**：只读，显示当前登录用户姓名，保存时自动填入 `recorder_id = user.id`
+  - **来源类型**：4 个单选项（专属链接 / 直接录入 / 内容引流 / 朋友介绍）
+- 智能粘贴新增 URL 识别：文本含 `?ref=READII-XXX-2025` 时自动查 partners 表匹配 `referral_code`，自动选中伙伴并把 source_type 设为 `ref_link`
+- 无论智能粘贴还是手工填写，partner 角色的 `partner_id` 永远强制 = 自己的 partner.id（不可绕过）
+
+### SQL 迁移
+- `supabase/add_lead_source_type.sql`
+
+## [0.4.1] - 2026-04-14
 
 ### 修复
 - 渠道佣金改为从 distributable 池里先切，而非额外计提：

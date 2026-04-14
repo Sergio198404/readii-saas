@@ -2,6 +2,20 @@
 
 每日开发日志，按倒序记录。
 
+## 2026-04-14 (v0.5.0)
+
+### 完成
+- v0.4.1 打标（本地 tag，未 push：仓库无 origin 远端）
+- v0.5.0 第四步：leads 录入表单加归属字段
+  - 新建 `supabase/add_lead_source_type.sql`（待用户执行）
+  - `AddLeadModal` 新增归属区块：渠道伙伴下拉（admin）/ 锁定（partner）、录入人只读、来源类型 4 单选
+  - 智能粘贴识别 `?ref=READII-XXX-2025` 自动匹配 partners 并设 source_type=ref_link
+  - partner 角色 `partner_id` 硬锁自己，服务端靠 RLS 再兜底一次
+
+### 待跟进
+- 在 Supabase SQL Editor 执行 `add_lead_source_type.sql`
+- 若后续要把未知 URL 参数也传给后台统计，需要再加 `utm_source` / `referrer_url` 字段
+
 ## 2026-04-14 (下半场 v0.4.0)
 
 ### 完成

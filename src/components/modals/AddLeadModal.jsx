@@ -1,5 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../lib/useAuth'
+
+const SOURCE_TYPES = [
+  { key: 'ref_link', label: '专属链接' },
+  { key: 'direct',   label: '直接录入' },
+  { key: 'content',  label: '内容引流' },
+  { key: 'referral', label: '朋友介绍' },
+]
 
 const EMPTY_FORM = {
   name: '', channel: '',
@@ -7,6 +15,8 @@ const EMPTY_FORM = {
   exp: '', goal: '',
   next: 'Call', follow: '',
   note: '',
+  partner_id: '',
+  source_type: 'direct',
 }
 
 const VALID_P = ['P1', 'P2', 'P3']
@@ -14,6 +24,8 @@ const VALID_S = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5']
 const VALID_PROD = ['IFV', 'SW', 'GT', 'Student', 'PlanB', '?']
 const VALID_B = ['B0', 'B1', 'B2', 'B3', 'B4']
 const VALID_NEXT = ['Call', 'Docs', 'Pay', 'Intro', 'Wait']
+
+const REF_REGEX = /[?&]ref=(READII-[A-Z0-9]+-\d{4})/i
 
 /**
  * 解析微信格式客户卡片：
@@ -23,7 +35,6 @@ function parseWechatCard(text) {
   const trimmed = text.trim()
   if (!trimmed) return null
 
-  // 提取【】里的姓名和渠道
   const headerMatch = trimmed.match(/[【\[](.*?)[】\]]/)
   if (!headerMatch) return null
 
@@ -33,11 +44,10 @@ function parseWechatCard(text) {
 
   if (!name) return null
 
-  // 【】之后的部分按｜或 | 分割
   const rest = trimmed.slice(headerMatch.index + headerMatch[0].length).trim()
   const segments = rest.split(/[｜|]/).map(s => s.trim()).filter(Boolean)
 
-  const result = { ...EMPTY_FORM, name, channel }
+  const result = { name, channel }
 
   for (const seg of segments) {
     const upper = seg.toUpperCase()
@@ -59,7 +69,6 @@ function parseWechatCard(text) {
     } else if (/^跟进[:\s：]/i.test(seg)) {
       result.follow = seg.replace(/^跟进[:\s：]*/i, '').trim()
     } else if (seg.length > 6) {
-      // 长文本视为备注
       result.note = seg
     }
   }
@@ -68,63 +77,138 @@ function parseWechatCard(text) {
 }
 
 export default function AddLeadModal({ open, onClose, editingLead }) {
+  const { user, profile } = useAuth()
+  const isAdmin = profile?.role === 'admin'
   const isEdit = !!editingLead
+
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [pasteText, setPasteText] = useState('')
   const [pasteCollapsed, setPasteCollapsed] = useState(false)
   const [parseMsg, setParseMsg] = useState(null)
+  const [partners, setPartners] = useState([])
+  const [selfPartnerId, setSelfPartnerId] = useState(null)
 
-  // 打开时：编辑模式回填，新建模式重置
+  // Load partners list + current user's own partner row (for partner role lock)
+  useEffect(() => {
+    if (!open) return
+    (async () => {
+      if (isAdmin) {
+        const { data } = await supabase
+          .from('partners')
+          .select('id, referral_code, profiles:user_id(full_name)')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+        setPartners(data || [])
+      } else if (user?.id) {
+        const { data } = await supabase
+          .from('partners')
+          .select('id, referral_code, profiles:user_id(full_name)')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (data) {
+          setPartners([data])
+          setSelfPartnerId(data.id)
+        }
+      }
+    })()
+  }, [open, isAdmin, user?.id])
+
+  // Open: reset or populate
   useEffect(() => {
     if (!open) return
     if (editingLead) {
       setForm({
-        name:    editingLead.name    || '',
-        channel: editingLead.channel || '',
-        p:       editingLead.p       || 'P2',
-        s:       editingLead.s       || 'S0',
-        prod:    editingLead.prod    || 'IFV',
-        b:       editingLead.b       || 'B0',
-        exp:     editingLead.exp     || '',
-        goal:    editingLead.goal    || '',
-        next:    editingLead.next    || 'Call',
-        follow:  editingLead.follow  || '',
-        note:    editingLead.note    || '',
+        name:        editingLead.name        || '',
+        channel:     editingLead.channel     || '',
+        p:           editingLead.p           || 'P2',
+        s:           editingLead.s           || 'S0',
+        prod:        editingLead.prod        || 'IFV',
+        b:           editingLead.b           || 'B0',
+        exp:         editingLead.exp         || '',
+        goal:        editingLead.goal        || '',
+        next:        editingLead.next        || 'Call',
+        follow:      editingLead.follow      || '',
+        note:        editingLead.note        || '',
+        partner_id:  editingLead.partner_id  || '',
+        source_type: editingLead.source_type || 'direct',
       })
       setPasteCollapsed(true)
     } else {
-      setForm(EMPTY_FORM)
+      setForm({
+        ...EMPTY_FORM,
+        partner_id: !isAdmin && selfPartnerId ? selfPartnerId : '',
+      })
       setPasteCollapsed(false)
     }
     setPasteText('')
     setParseMsg(null)
     setError(null)
-  }, [open, editingLead])
+  }, [open, editingLead, isAdmin, selfPartnerId])
 
-  function handleParse() {
+  // Admin: try to resolve a referral code in pasted text → auto-select partner + source_type
+  async function tryMatchRef(text, base) {
+    if (!isAdmin) return base
+    const m = text.match(REF_REGEX)
+    if (!m) return base
+    const code = m[1].toUpperCase()
+    const { data: partnerRow } = await supabase
+      .from('partners')
+      .select('id, referral_code')
+      .eq('referral_code', code)
+      .maybeSingle()
+    if (partnerRow) {
+      return { ...base, partner_id: partnerRow.id, source_type: 'ref_link' }
+    }
+    return base
+  }
+
+  async function applyParsed(parsed, sourceText) {
+    const merged = { ...EMPTY_FORM, ...form, ...parsed }
+    // partner role lock always wins
+    if (!isAdmin && selfPartnerId) merged.partner_id = selfPartnerId
+    const withRef = await tryMatchRef(sourceText || '', merged)
+    setForm(withRef)
+    setPasteCollapsed(true)
+    setParseMsg({
+      ok: true,
+      text:
+        withRef.partner_id && withRef.source_type === 'ref_link'
+          ? `已解析「${parsed.name}」并识别渠道推广链接`
+          : `已解析「${parsed.name}」的信息，请确认后保存`,
+    })
+  }
+
+  async function handleParse() {
     const result = parseWechatCard(pasteText)
     if (result) {
-      setForm(result)
-      setPasteCollapsed(true)
-      setParseMsg({ ok: true, text: `已解析「${result.name}」的信息，请确认后保存` })
+      await applyParsed(result, pasteText)
     } else {
+      // Even without wechat card, try URL ref match
+      const m = pasteText.match(REF_REGEX)
+      if (m && isAdmin) {
+        const merged = { ...form }
+        const withRef = await tryMatchRef(pasteText, merged)
+        setForm(withRef)
+        setParseMsg({ ok: true, text: `已识别渠道推广链接：${m[1]}` })
+        return
+      }
       setParseMsg({ ok: false, text: '解析失败，请检查格式：【姓名-渠道】P?｜S?｜产品｜预算｜...' })
     }
   }
 
   function handlePasteEvent(e) {
-    // 粘贴后自动触发解析
-    setTimeout(() => {
+    setTimeout(async () => {
       const val = e.target.value
       if (val && val.includes('【')) {
         const result = parseWechatCard(val)
-        if (result) {
-          setForm(result)
-          setPasteCollapsed(true)
-          setParseMsg({ ok: true, text: `已解析「${result.name}」的信息，请确认后保存` })
-        }
+        if (result) await applyParsed(result, val)
+      } else if (val && REF_REGEX.test(val) && isAdmin) {
+        const merged = { ...form }
+        const withRef = await tryMatchRef(val, merged)
+        setForm(withRef)
+        setParseMsg({ ok: true, text: `已识别渠道推广链接` })
       }
     }, 0)
   }
@@ -143,17 +227,20 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
     setError(null)
 
     const row = {
-      name:    form.name.trim(),
-      channel: form.channel.trim() || null,
-      p:       form.p,
-      s:       form.s,
-      prod:    form.prod,
-      b:       form.b,
-      exp:     form.exp.trim() || null,
-      goal:    form.goal.trim() || null,
-      next:    form.next,
-      follow:  form.follow.trim() || null,
-      note:    form.note.trim() || null,
+      name:        form.name.trim(),
+      channel:     form.channel.trim() || null,
+      p:           form.p,
+      s:           form.s,
+      prod:        form.prod,
+      b:           form.b,
+      exp:         form.exp.trim() || null,
+      goal:        form.goal.trim() || null,
+      next:        form.next,
+      follow:      form.follow.trim() || null,
+      note:        form.note.trim() || null,
+      partner_id:  isAdmin ? (form.partner_id || null) : (selfPartnerId || null),
+      recorder_id: user?.id || null,
+      source_type: form.source_type || 'direct',
     }
 
     let result
@@ -172,6 +259,11 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
     }
   }
 
+  const lockedPartner = useMemo(() => {
+    if (isAdmin) return null
+    return partners.find((p) => p.id === selfPartnerId) || null
+  }, [isAdmin, partners, selfPartnerId])
+
   if (!open) return null
 
   return (
@@ -188,7 +280,7 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
           <div className="smart-paste-area">
             <textarea
               className="form-textarea smart-paste-input"
-              placeholder="粘贴微信客户卡片格式，自动填写字段…&#10;例：【Harry-朋友介绍（Paul）】P2｜S2｜IFV｜B4｜Exp:202711｜Goal:202611｜Call｜跟进:0415｜国内有一个直发棒项目…"
+              placeholder="粘贴微信客户卡片格式，自动填写字段…&#10;例：【Harry-朋友介绍（Paul）】P2｜S2｜IFV｜B4｜Exp:202711｜Goal:202611｜Call｜跟进:0415｜国内有一个直发棒项目…&#10;或粘贴含 ?ref=READII-XXX-2025 的推广链接"
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
               onPaste={handlePasteEvent}
@@ -300,6 +392,71 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
         <div className="form-row full" style={{ marginTop: 12 }}>
           <label className="form-label">一句话进度</label>
           <textarea className="form-textarea" placeholder="例：刚加微信，对IFV有兴趣，签证2026年底到期，决策节点9月" value={form.note} onChange={set('note')} />
+        </div>
+
+        {/* 归属区块 */}
+        <div className="form-row full" style={{ marginTop: 18 }}>
+          <label className="form-label" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11, color: 'var(--text-muted)' }}>
+            归属
+          </label>
+        </div>
+
+        <div className="form-grid" style={{ marginTop: 6 }}>
+          <div className="form-row">
+            <label className="form-label">渠道伙伴</label>
+            {isAdmin ? (
+              <select
+                className="form-select"
+                value={form.partner_id}
+                onChange={set('partner_id')}
+              >
+                <option value="">— 无渠道 —</option>
+                {partners.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {(p.profiles?.full_name || '未命名')} · {p.referral_code}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                className="form-input"
+                value={
+                  lockedPartner
+                    ? `${lockedPartner.profiles?.full_name || '你'} · ${lockedPartner.referral_code}`
+                    : '（无绑定伙伴）'
+                }
+                readOnly
+                style={{ background: 'var(--bg-muted)', cursor: 'not-allowed' }}
+              />
+            )}
+          </div>
+          <div className="form-row">
+            <label className="form-label">录入人</label>
+            <input
+              className="form-input"
+              value={profile?.full_name || user?.email || ''}
+              readOnly
+              style={{ background: 'var(--bg-muted)', cursor: 'not-allowed' }}
+            />
+          </div>
+        </div>
+
+        <div className="form-row full" style={{ marginTop: 12 }}>
+          <label className="form-label">来源类型</label>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', paddingTop: 4 }}>
+            {SOURCE_TYPES.map((s) => (
+              <label key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-primary)', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="source_type"
+                  value={s.key}
+                  checked={form.source_type === s.key}
+                  onChange={set('source_type')}
+                />
+                {s.label}
+              </label>
+            ))}
+          </div>
         </div>
 
         {error && (
