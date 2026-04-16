@@ -4,27 +4,39 @@ function json(status, body) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
+// v0.13.1: Q numbering after section reorder
+// Q1=name, Q2=location, Q3=contact, Q4=source
+// Q5=goals(multi), Q6=timeline, Q7=readiness
+// Q8=visa_type, Q9=expiry, Q10=company, Q11=family(multi)
+// Q12=career, Q13=years, Q14=business_intent, Q15=uk_partner
+// Q16=notes
+
 function guessRoute(a) {
-  if (a.Q7 === '是，已注册' && a.Q5 === '毕业生工作签证（PSW/Graduate）') return 'SW'
-  if (a.Q11 === '是，已有明确商业计划') return 'IFV'
-  if (a.Q5 === '工作签证（Skilled Worker）') return 'EW'
-  return 'SW'
+  const scores = { IFV: 0, SW: 0, EW: 0 }
+
+  if (a.Q14 === '是，已有明确商业计划') scores.IFV += 3
+  if (a.Q14 === '是，初步有想法但尚未成型') scores.IFV += 1
+  if (a.Q8 === '毕业生工作签证（PSW/Graduate）') { scores.IFV += 1; scores.SW += 1 }
+
+  if (a.Q10 === '是，已注册') scores.SW += 2
+  if (a.Q15 === '有，且对方持有英国永居或公民身份') scores.SW += 2
+  if (a.Q14 === '主要目的是居留，商业是附带') scores.SW += 2
+
+  if (a.Q8 === '工作签证（Skilled Worker）') scores.EW += 2
+  if (a.Q14 === '是，已有明确商业计划' && a.Q2 !== '英国境内') scores.EW += 1
+
+  if (scores.IFV >= scores.SW && scores.IFV >= scores.EW) return { route: 'IFV', scores }
+  if (scores.SW >= scores.EW) return { route: 'SW', scores }
+  return { route: 'EW', scores }
 }
 
 function guessPriority(a) {
-  if (a.Q6 === '6个月内到期' || a.Q14 === '尽快（3个月内）') return 'P1'
-  if (a.Q6 === '6-12个月内到期') return 'P2'
+  if (a.Q7 === '有时间压力，需要尽快启动') return 'P1'
+  if (a.Q7 === '已基本确定方向，想推进了') return 'P1'
+  if (a.Q9 === '6个月内到期' || a.Q6 === '尽快（3个月内）') return 'P1'
+  if (a.Q7 === '已经在认真考虑，想听专业意见') return 'P2'
+  if (a.Q9 === '6-12个月内到期') return 'P2'
   return 'P3'
-}
-
-function guessBudget(a) {
-  const map = {
-    '£5,000 以下': 'B1',
-    '£5,000 – £20,000': 'B2',
-    '£20,000 – £50,000': 'B3',
-    '£50,000 以上': 'B4',
-  }
-  return map[a.Q15] || 'B0'
 }
 
 export default async (req) => {
@@ -42,30 +54,36 @@ export default async (req) => {
 
   if (!answers.Q1?.trim()) return json(400, { error: '姓名为必填项' })
   if (!answers.Q3?.trim()) return json(400, { error: '联系方式为必填项' })
-  if (!answers.Q5) return json(400, { error: '签证类型为必填项' })
+  if (!answers.Q8) return json(400, { error: '签证类型为必填项' })
 
   const supabase = createClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  const prod = guessRoute(answers)
+  const { route, scores } = guessRoute(answers)
   const p = guessPriority(answers)
-  const b = guessBudget(answers)
+
+  const familyAnswers = answers.Q11 || []
+  const family_flag =
+    familyAnswers.includes('子女需要一同办理签证') ||
+    familyAnswers.includes('子女目前在英国就读') ||
+    familyAnswers.includes('配偶/伴侣需要一同办理签证')
 
   const row = {
     name: answers.Q1.trim(),
     contact_info: answers.Q3.trim(),
     channel: answers.Q4 || (refCode ? '渠道合作伙伴' : '问卷评估'),
-    prod,
+    prod: route,
     p,
     s: 'S0',
-    b,
+    b: 'B0',
     note: answers.Q16?.trim() || null,
-    assessment_data: answers,
+    assessment_data: { ...answers, route_scores: scores },
     source_type: refCode ? 'ref_link' : 'content',
+    family_flag,
+    readiness: answers.Q7 || null,
   }
 
-  // Channel attribution
   if (refCode) {
     const { data: partner } = await supabase
       .from('partners')

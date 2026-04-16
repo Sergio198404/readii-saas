@@ -107,6 +107,14 @@
   gap: 10px;
 }
 
+.as-section-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #8A8780;
+  margin: -16px 0 20px;
+  padding-left: 42px;
+}
+
 .as-section-n {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;

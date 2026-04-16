@@ -2,9 +2,11 @@ import { useState } from 'react'
 import './LeadCard.css'
 
 const Q_LABELS = {
-  Q1: '姓名', Q2: '所在地', Q3: '联系方式', Q4: '来源', Q5: '签证类型',
-  Q6: '到期时间', Q7: '注册公司', Q8: '家庭情况', Q9: '职业领域', Q10: '从业年限',
-  Q11: '商业意向', Q12: '英国合伙人', Q13: '目标', Q14: '时间要求', Q15: '预算', Q16: '补充说明',
+  Q1: '姓名', Q2: '所在地', Q3: '联系方式', Q4: '来源',
+  Q5: '目标', Q6: '时间要求', Q7: '启动阶段',
+  Q8: '签证类型', Q9: '到期时间', Q10: '注册公司', Q11: '家庭情况',
+  Q12: '职业领域', Q13: '从业年限', Q14: '商业意向', Q15: '英国合伙人',
+  Q16: '补充说明', route_scores: '路线评分',
 }
 
 export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onProposal }) {
@@ -23,7 +25,10 @@ export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoa
       <div className="card-header">
         <div className="card-avatar">{initials}</div>
         <div className="card-name-block">
-          <div className="card-name">{lead?.name || '—'}</div>
+          <div className="card-name">
+            {lead?.name || '—'}
+            {lead?.family_flag && <span className="card-family-tag">👨‍👩‍👧 家庭</span>}
+          </div>
           <div className="card-channel">{lead?.channel || ''}</div>
         </div>
         <div className="card-header-right">

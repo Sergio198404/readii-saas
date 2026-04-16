@@ -2,13 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './AssessmentPage.css'
 
-const SECTIONS = [
-  { title: '基本信息', count: 4 },
-  { title: '当前身份状态', count: 4 },
-  { title: '职业与商业背景', count: 4 },
-  { title: '目标与预期', count: 3 },
-  { title: '补充说明', count: 1 },
-]
 const TOTAL_Q = 16
 
 function Radio({ name, options, value, onChange }) {
@@ -67,7 +60,7 @@ export default function AssessmentPage() {
     setError('')
     if (!a.Q1?.trim()) return setError('请填写姓名')
     if (!a.Q3?.trim()) return setError('请填写联系方式')
-    if (!a.Q5) return setError('请选择您目前持有的签证类型')
+    if (!a.Q8) return setError('请选择您目前持有的签证类型')
 
     setSubmitting(true)
     try {
@@ -95,7 +88,7 @@ export default function AssessmentPage() {
             <div className="as-success-icon">✓</div>
             <h2>提交成功</h2>
             <p>感谢您填写可行性评估问卷。苏晓宇会在1个工作日内通过您提供的联系方式与您沟通。</p>
-            <p style={{fontSize:13,color:'var(--as-ink3)',marginTop:16}}>在此期间，您可以添加苏晓宇的微信：<strong>xiaoyusu_readii</strong></p>
+            <p style={{fontSize:13,color:'#8A8780',marginTop:16}}>在此期间，您可以添加苏晓宇的微信：<strong>xiaoyusu_readii</strong></p>
           </div>
         </div>
       </div>
@@ -117,7 +110,7 @@ export default function AssessmentPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Section 1 */}
+          {/* Section 1 · 基本信息 */}
           <div className="as-section">
             <div className="as-section-head"><span className="as-section-n">01</span>基本信息</div>
 
@@ -125,17 +118,14 @@ export default function AssessmentPage() {
               <label className="as-q-label">Q1 · 您的姓名 <span className="as-required">*</span></label>
               <input className="as-input" value={a.Q1 || ''} onChange={e => set('Q1', e.target.value)} placeholder="请输入姓名" />
             </div>
-
             <div className="as-q">
               <label className="as-q-label">Q2 · 您目前所在地</label>
               <Radio name="Q2" value={a.Q2} onChange={v => set('Q2', v)} options={['英国境内', '中国大陆', '香港/澳门', '其他']} />
             </div>
-
             <div className="as-q">
               <label className="as-q-label">Q3 · 您的联系方式 <span className="as-required">*</span></label>
               <input className="as-input" value={a.Q3 || ''} onChange={e => set('Q3', e.target.value)} placeholder="微信号或手机号均可" />
             </div>
-
             {!refCode && (
               <div className="as-q">
                 <label className="as-q-label">Q4 · 您是如何了解到 Readii 的？</label>
@@ -144,104 +134,101 @@ export default function AssessmentPage() {
             )}
           </div>
 
-          {/* Section 2 */}
+          {/* Section 2 · 您希望达成什么？ */}
           <div className="as-section">
-            <div className="as-section-head"><span className="as-section-n">02</span>当前身份状态</div>
+            <div className="as-section-head"><span className="as-section-n">02</span>您希望达成什么？</div>
+            <p className="as-section-sub">先告诉我们您的目标，我们再来看怎么实现它</p>
 
             <div className="as-q">
-              <label className="as-q-label">Q5 · 您目前持有的签证类型 <span className="as-required">*</span></label>
-              <Radio name="Q5" value={a.Q5} onChange={v => set('Q5', v)} options={[
+              <label className="as-q-label">Q5 · 您希望达到的主要目标（最多选3项）</label>
+              <MultiCheck max={3} options={[
+                '在英国长期合法居留', '让子女在英国接受教育', '在英国开展或扩展业务',
+                '获得永久居留权（ILR）', '为将来入籍做准备', '家庭团聚', '为未来长期定居英国做准备',
+              ]} value={a.Q5 || []} onChange={v => set('Q5', v)} />
+            </div>
+            <div className="as-q">
+              <label className="as-q-label">Q6 · 您希望在多久内完成签证申请？</label>
+              <Radio name="Q6" value={a.Q6} onChange={v => set('Q6', v)} options={[
+                '尽快（3个月内）', '3-6个月内', '6-12个月内', '还在了解阶段，暂无时间表',
+              ]} />
+            </div>
+            <div className="as-q">
+              <label className="as-q-label">Q7 · 您目前处于哪个阶段？</label>
+              <Radio name="Q7" value={a.Q7} onChange={v => set('Q7', v)} options={[
+                '刚开始了解，还在收集信息',
+                '已经在认真考虑，想听专业意见',
+                '已基本确定方向，想推进了',
+                '有时间压力，需要尽快启动',
+              ]} />
+            </div>
+          </div>
+
+          {/* Section 3 · 您目前的情况 */}
+          <div className="as-section">
+            <div className="as-section-head"><span className="as-section-n">03</span>您目前的情况</div>
+            <p className="as-section-sub">帮助顾问在通话前了解您的起点</p>
+
+            <div className="as-q">
+              <label className="as-q-label">Q8 · 您目前持有的签证类型 <span className="as-required">*</span></label>
+              <Radio name="Q8" value={a.Q8} onChange={v => set('Q8', v)} options={[
                 '毕业生工作签证（PSW/Graduate）', '学生签证（Student Visa）',
                 '工作签证（Skilled Worker）', '创新签证（Innovator Founder）',
                 '访客签证（Visitor）', '暂无英国签证（在国内）', '其他',
               ]} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q6 · 您当前签证的到期时间</label>
-              <Radio name="Q6" value={a.Q6} onChange={v => set('Q6', v)} options={[
+              <label className="as-q-label">Q9 · 您当前签证的到期时间</label>
+              <Radio name="Q9" value={a.Q9} onChange={v => set('Q9', v)} options={[
                 '6个月内到期', '6-12个月内到期', '1年以上', '暂无英国签证',
               ]} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q7 · 您是否已在英国注册公司？</label>
-              <Radio name="Q7" value={a.Q7} onChange={v => set('Q7', v)} options={[
+              <label className="as-q-label">Q10 · 您是否已在英国注册公司？</label>
+              <Radio name="Q10" value={a.Q10} onChange={v => set('Q10', v)} options={[
                 '是，已注册', '正在办理', '尚未注册', '不确定是否需要',
               ]} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q8 · 您的家庭情况（可多选）</label>
+              <label className="as-q-label">Q11 · 您的家庭情况（可多选）</label>
               <MultiCheck options={[
                 '配偶/伴侣需要一同办理签证', '子女需要一同办理签证',
                 '子女目前在英国就读', '仅本人，无家庭成员需求',
-              ]} value={a.Q8 || []} onChange={v => set('Q8', v)} />
+              ]} value={a.Q11 || []} onChange={v => set('Q11', v)} />
             </div>
           </div>
 
-          {/* Section 3 */}
+          {/* Section 4 · 职业与商业背景 */}
           <div className="as-section">
-            <div className="as-section-head"><span className="as-section-n">03</span>职业与商业背景</div>
+            <div className="as-section-head"><span className="as-section-n">04</span>职业与商业背景</div>
 
             <div className="as-q">
-              <label className="as-q-label">Q9 · 您的主要职业领域</label>
-              <Radio name="Q9" value={a.Q9} onChange={v => set('Q9', v)} options={[
+              <label className="as-q-label">Q12 · 您的主要职业领域</label>
+              <Radio name="Q12" value={a.Q12} onChange={v => set('Q12', v)} options={[
                 '科技/互联网', '金融/投资', '教育/培训', '餐饮/零售/消费品',
                 '旅游/酒店/文旅', '医疗/健康', '制造业/工业', '创意/设计/媒体',
                 '咨询/专业服务', '其他',
               ]} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q10 · 您的从业年限</label>
-              <Radio name="Q10" value={a.Q10} onChange={v => set('Q10', v)} options={['3年以下', '3-5年', '5-10年', '10年以上']} />
+              <label className="as-q-label">Q13 · 您的从业年限</label>
+              <Radio name="Q13" value={a.Q13} onChange={v => set('Q13', v)} options={['3年以下', '3-5年', '5-10年', '10年以上']} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q11 · 您是否有意在英国开展商业活动或创业？</label>
-              <Radio name="Q11" value={a.Q11} onChange={v => set('Q11', v)} options={[
+              <label className="as-q-label">Q14 · 您是否有意在英国开展商业活动或创业？</label>
+              <Radio name="Q14" value={a.Q14} onChange={v => set('Q14', v)} options={[
                 '是，已有明确商业计划', '是，初步有想法但尚未成型',
                 '主要目的是居留，商业是附带', '暂不确定',
               ]} />
             </div>
-
             <div className="as-q">
-              <label className="as-q-label">Q12 · 您是否有合伙人或业务联系人在英国？</label>
-              <Radio name="Q12" value={a.Q12} onChange={v => set('Q12', v)} options={[
+              <label className="as-q-label">Q15 · 您是否有合伙人或业务联系人在英国？</label>
+              <Radio name="Q15" value={a.Q15} onChange={v => set('Q15', v)} options={[
                 '有，且对方持有英国永居或公民身份', '有，但对方也是临时签证', '暂时没有',
               ]} />
             </div>
           </div>
 
-          {/* Section 4 */}
-          <div className="as-section">
-            <div className="as-section-head"><span className="as-section-n">04</span>目标与预期</div>
-
-            <div className="as-q">
-              <label className="as-q-label">Q13 · 您希望达到的主要目标（最多选3项）</label>
-              <MultiCheck max={3} options={[
-                '在英国长期合法居留', '让子女在英国接受教育', '在英国开展或扩展业务',
-                '获得永久居留权（ILR）', '为将来入籍做准备', '家庭团聚', '资产配置与财务规划',
-              ]} value={a.Q13 || []} onChange={v => set('Q13', v)} />
-            </div>
-
-            <div className="as-q">
-              <label className="as-q-label">Q14 · 您希望在多久内完成签证申请？</label>
-              <Radio name="Q14" value={a.Q14} onChange={v => set('Q14', v)} options={[
-                '尽快（3个月内）', '3-6个月内', '6-12个月内', '还在了解阶段，暂无时间表',
-              ]} />
-            </div>
-
-            <div className="as-q">
-              <label className="as-q-label">Q15 · 您对签证服务的预算范围</label>
-              <Radio name="Q15" value={a.Q15} onChange={v => set('Q15', v)} options={[
-                '£5,000 以下', '£5,000 – £20,000', '£20,000 – £50,000', '£50,000 以上', '预算取决于方案和结果',
-              ]} />
-            </div>
-          </div>
-
-          {/* Section 5 */}
+          {/* Section 5 · 补充说明 */}
           <div className="as-section">
             <div className="as-section-head"><span className="as-section-n">05</span>补充说明</div>
 
