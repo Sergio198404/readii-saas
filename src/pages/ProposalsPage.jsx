@@ -98,7 +98,7 @@ export default function ProposalsPage() {
                         )}
                       </td>
                       <td className="prop-actions">
-                        <button onClick={() => navigate(`/admin/proposals/${p.id}/edit`)}>编辑</button>
+                        <button onClick={() => navigate(`/admin/proposals/${p.id}/edit`)}>{p.status === 'draft' ? '继续编辑' : '编辑'}</button>
                         <button onClick={() => copyLink(p.token)}>
                           {copied === p.token ? '✓ 已复制' : '复制链接'}
                         </button>

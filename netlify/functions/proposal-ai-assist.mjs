@@ -22,11 +22,21 @@ const PROMPTS = {
 签证路线：${ctx.visa_route_zh || '未指定'}
 以JSON格式返回，不要其他内容。`,
 
-  tags: (ctx) => `根据客户情况生成4个建议书封面标签，每个标签5-15个字，突出客户特点和签证路线。
-客户姓名：${ctx.client_name || ''}${ctx.client_title || ''}
-签证路线：${ctx.visa_route_zh || ''}
-客户已具备条件：${(ctx.client_advantages || []).join('、') || '未提供'}
-以JSON字符串数组格式返回4个标签，不要其他内容。例：["主推路线 · SW 自雇工签","客户 · 王女士","旅游/酒店管理 · 10年+","孩子 Year 10"]`,
+  tags: (ctx) => `根据以下客户完整信息，生成4个简短的封面标签，用于建议书封面芯片展示。
+标签要求：每个不超过10个汉字，概括客户的核心特征或推荐路线。
+第一个标签固定格式为「主推路线 · ${ctx.visa_route_zh || '未指定'}」。
+其余3个从客户的身份情况、家庭情况、时间窗口、背景优势等维度各取一个最有代表性的特征。
+以JSON数组返回4个字符串，不要其他内容。
+客户信息：${ctx.lead_full_info || '未提供'}
+当前方案信息：${ctx.form_context || '未提供'}`,
+
+  cover_tags: (ctx) => `根据以下客户完整信息，生成4个简短的封面标签，用于建议书封面芯片展示。
+标签要求：每个不超过10个汉字，概括客户的核心特征或推荐路线。
+第一个标签固定格式为「主推路线 · ${ctx.visa_route_zh || '未指定'}」。
+其余3个从客户的身份情况、家庭情况、时间窗口、背景优势等维度各取一个最有代表性的特征。
+以JSON数组返回4个字符串，不要其他内容。
+客户信息：${ctx.lead_full_info || '未提供'}
+当前方案信息：${ctx.form_context || '未提供'}`,
 
   exclusion: (ctx) => `根据客户情况，撰写一段"排除路线及原因"的分析，解释为什么某些路线不适合。简洁专业，2-3句话，用HTML strong标签强调关键内容。
 签证路线（推荐的）：${ctx.visa_route_zh || ''}
@@ -73,7 +83,7 @@ export default async (req) => {
     const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('')
 
     // Try to parse JSON for structured responses
-    if (['goals', 'metrics', 'tags'].includes(field_type)) {
+    if (['goals', 'metrics', 'tags', 'cover_tags'].includes(field_type)) {
       const match = text.match(/[\[{][\s\S]*[\]}]/)
       if (match) {
         return json(200, { result: JSON.parse(match[0]) })

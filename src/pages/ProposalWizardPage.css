@@ -62,6 +62,21 @@
 .pw-preview-section { padding: 8px 0; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
 .pw-result { margin-top: 16px; padding: 16px; background: #f4faf6; border: 1px solid #b7e0c2; border-radius: var(--r-md); }
 
+.pw-save-status { font-size: 12px; color: var(--text-muted); }
+
+.pw-add-custom {
+  background: none; border: 1px dashed var(--border-subtle); border-radius: var(--r-sm);
+  padding: 6px 12px; font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 8px;
+}
+.pw-add-custom:hover { border-color: var(--border-medium); color: var(--text-primary); }
+
+.pw-check-custom { background: #fef8ed; border-radius: var(--r-sm); padding: 4px 8px; }
+
+.pw-custom-value-form {
+  margin-top: 12px; padding: 14px; border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md); display: flex; flex-direction: column; gap: 10px;
+}
+
 @media (max-width: 768px) {
   .pw-assess-grid { grid-template-columns: 1fr; }
   .pw-row { flex-direction: column; }
