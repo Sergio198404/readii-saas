@@ -6,6 +6,7 @@ import ExpertsPage from './pages/ExpertsPage'
 import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
 import PartnersAdminPage from './pages/PartnersAdminPage'
+import ProposalsPage from './pages/ProposalsPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AppLayout from './components/layout/AppLayout'
@@ -118,6 +119,15 @@ export default function App() {
           element={
             <RequireAuth user={user} profile={profile} allow={['admin']}>
               <PartnersAdminPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/proposals"
+          element={
+            <RequireAuth user={user} profile={profile} allow={['admin']}>
+              <ProposalsPage />
             </RequireAuth>
           }
         />

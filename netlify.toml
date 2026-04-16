@@ -8,8 +8,8 @@
   targetPort = 5173
 
 [functions]
-  # 延长函数超时到 60 秒（Netlify Pro 支持更长）
   external_node_modules = ["@anthropic-ai/sdk"]
+  included_files = ["netlify/functions/proposal-template.html"]
 
 [functions."daily-brief"]
   # web_search 需要更长时间

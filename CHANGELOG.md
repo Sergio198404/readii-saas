@@ -2,6 +2,21 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.8.0] - 2026-04-16
+
+### 新增：建议书（Proposal）系统
+- **数据库**：`proposals` 表（编号、token、客户信息、签证路线、顾问、现状评估、客户原话、排除路线、顾问引言、方案选择、状态追踪、查看次数）+ `proposal_logs` 审计日志 + `proposal_seq` 编号序列 + `generate_proposal_no()` RPC
+- **Netlify Functions**：
+  - `proposal-view.mjs`：公开访问，token 验证→读模板→变量替换→返回 HTML；更新 view_count 和 status；写入访问日志
+  - `proposal-verify-phone.mjs`：占位函数（MVP 直接返回 verified:true，注释标注后续接 Twilio）
+  - `proposal-request-contract.mjs`：客户点击"申请正式协议"→更新 selected_tier、status=signed、signed_at；写入日志
+- **前端**：
+  - `/admin/proposals` 建议书列表页（编号、客户、状态标签、日期、查看次数、复制链接/查看按钮）
+  - `NewProposalModal`：从客户卡片或列表页新建；表单含客户搜索、签证路线、称呼、现状评估、客户原话、排除路线、顾问引言、推荐方案；RPC 生成编号；成功后展示访问链接+复制
+  - `LeadCard` 新增"📄 建议书"操作按钮
+  - `Sidebar` admin 区域新增"建议书"入口
+- **模板**：`readii_proposal_v4.html` 转为 `netlify/functions/proposal-template.html`，demo 值替换为 `[[MARKER]]` 占位符；"申请正式协议"按钮绑定 JS 调用 `proposal-request-contract` → 成功后按钮变为"✓ 已收到您的申请"并禁用
+
 ## [0.7.0] - 2026-04-14
 
 ### 新增

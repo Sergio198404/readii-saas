@@ -1,6 +1,6 @@
 import './LeadCard.css'
 
-export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal }) {
+export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onProposal }) {
   const initials = lead?.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
@@ -66,6 +66,7 @@ export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoa
         <button className="btn-action" onClick={() => onEdit?.(lead)}>编辑</button>
         <button className="btn-action update" onClick={() => onUpdate?.(lead)}>更新进展</button>
         <button className="btn-action ai-btn" onClick={() => onAskCoach?.(lead)}>🧠 AI建议</button>
+        <button className="btn-action" onClick={() => onProposal?.(lead)}>📄 建议书</button>
         {isS3 && (
           <button className="btn-action deal-btn" onClick={() => onMarkDeal?.(lead)}>🎉 标记成交</button>
         )}

@@ -1,0 +1,21 @@
+.npp-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 24px; }
+.npp-modal { width: 100%; max-width: 540px; background: var(--bg-card, #fff); border-radius: var(--r-lg, 12px); box-shadow: 0 12px 48px rgba(0,0,0,.2); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
+.npp-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--border-subtle); }
+.npp-head h2 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin: 0; color: var(--text-primary); }
+.npp-close { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
+.npp-body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
+.npp-row { display: flex; gap: 12px; }
+.npp-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.npp-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; }
+.npp-field input, .npp-field select, .npp-field textarea { padding: 9px 12px; border: 1px solid var(--border-subtle); border-radius: var(--r-md, 8px); background: var(--bg-input, #fff); color: var(--text-primary); font-size: 13px; font-family: var(--font-body); outline: none; }
+.npp-field textarea { resize: vertical; min-height: 60px; }
+.npp-field input:focus, .npp-field select:focus, .npp-field textarea:focus { border-color: var(--border-medium, #999); }
+.npp-error { background: #fee; color: #c33; padding: 8px 12px; border-radius: var(--r-md); font-size: 12px; }
+.npp-success { background: #e6f4ea; color: #1e7a3c; padding: 10px 12px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; }
+.npp-submit { padding: 10px 16px; border: none; border-radius: var(--r-md); background: var(--text-primary, #111); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+.npp-submit:disabled { opacity: .5; cursor: not-allowed; }
+.npp-ghost { padding: 10px 16px; border: 1px solid var(--border-subtle); border-radius: var(--r-md); background: var(--bg-card); color: var(--text-primary); font-size: 13px; cursor: pointer; }
+.npp-actions { display: flex; gap: 10px; }
+.npp-link-row { display: flex; gap: 8px; }
+.npp-readonly { flex: 1; padding: 9px 12px; border: 1px solid var(--border-subtle); border-radius: var(--r-md); background: var(--bg-muted); color: var(--text-primary); font-family: ui-monospace, monospace; font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+.npp-copy-btn { padding: 9px 14px; border: 1px solid var(--border-subtle); border-radius: var(--r-md); background: var(--bg-card); color: var(--text-primary); font-size: 12px; cursor: pointer; }
