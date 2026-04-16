@@ -29,3 +29,7 @@
 .prop-actions { display: flex; gap: 6px; }
 .prop-actions button { padding: 5px 10px; border: 1px solid var(--border-subtle); border-radius: var(--r-sm); background: var(--bg-card, #fff); color: var(--text-primary); font-size: 11px; cursor: pointer; }
 .prop-actions button:hover { background: var(--bg-muted); }
+
+.prop-sub { font-size: 11px; font-weight: 600; }
+.prop-sub-active { color: #1e7a3c; }
+.prop-sub-cancelled { color: var(--text-muted); }

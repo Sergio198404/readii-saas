@@ -95,10 +95,22 @@ export default async (req) => {
     '[[ADVISOR_NOTE]]': proposal.advisor_note || '',
     '[[PROPOSAL_DEADLINE]]': fmtDateISO(deadlineDate.toISOString()),
     '[[PROPOSAL_ID]]': proposal.id,
+    '[[ACCESS_TOKEN]]': proposal.token || '',
+    '[[CLIENT_EMAIL]]': proposal.client_email || '',
   }
 
   for (const [key, val] of Object.entries(replacements)) {
     tpl = tpl.replaceAll(key, val)
+  }
+
+  // Payment status banner
+  const payment = url.searchParams.get('payment')
+  if (payment === 'success') {
+    const banner = `<div style="background:#e6f4ea;color:#1e7a3c;padding:16px 24px;text-align:center;font-size:14px;font-weight:600;border-bottom:1px solid #b7e0c2">✓ 订阅成功！欢迎加入 Readii 自助申请，苏晓宇会在24小时内通过微信与您确认开通详情。</div>`
+    tpl = tpl.replace('<div class="recip-bar">', banner + '\n<div class="recip-bar">')
+  } else if (payment === 'cancelled') {
+    const banner = `<div style="background:#f3f3f3;color:#8A8780;padding:16px 24px;text-align:center;font-size:14px;border-bottom:1px solid #ddd">您已取消付款，建议书仍然有效，随时可以重新订阅。</div>`
+    tpl = tpl.replace('<div class="recip-bar">', banner + '\n<div class="recip-bar">')
   }
 
   return html(200, tpl)

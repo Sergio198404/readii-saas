@@ -1286,7 +1286,7 @@ body {
         </div>
         <div style="padding:12px 16px;background:rgba(245,232,208,0.15)">
           <div style="font-size:12px;color:rgba(253,251,246,0.6);line-height:1.6;margin-bottom:12px">在线标准协议，签约即付款，<br>系统立即为您开通。</div>
-          <div style="background:var(--g);border-radius:7px;padding:9px 16px;font-size:13px;font-weight:500;color:#fff;text-align:center;cursor:pointer">
+          <div id="btn-self-service" onclick="startCheckout(this)" style="background:var(--g);border-radius:7px;padding:9px 16px;font-size:13px;font-weight:500;color:#fff;text-align:center;cursor:pointer">
             立即订阅，在线签约 →
           </div>
         </div>
@@ -1364,6 +1364,30 @@ function updateCountdown() {
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
+
+async function startCheckout(btn) {
+  btn.textContent = '跳转中...';
+  btn.style.opacity = '0.6';
+  btn.style.pointerEvents = 'none';
+  try {
+    const res = await fetch('/.netlify/functions/stripe-create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proposal_token: '[[ACCESS_TOKEN]]',
+        client_name: '[[CLIENT_NAME]]',
+        client_email: '[[CLIENT_EMAIL]]'
+      })
+    });
+    const { url, error } = await res.json();
+    if (error) throw new Error(error);
+    window.location.href = url;
+  } catch (e) {
+    btn.textContent = '出错了，请刷新重试';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+}
 
 async function requestContract(btn) {
   if (btn.dataset.done) return;

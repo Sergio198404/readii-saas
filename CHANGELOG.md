@@ -2,6 +2,18 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.9.0] - 2026-04-16
+
+### 新增：Stripe 自助订阅支付
+- **`stripe-create-checkout.mjs`**：接收 `{ proposal_token, client_email, client_name }` → 创建 Stripe Checkout Session（subscription 模式，£49/月）→ 返回支付 URL
+- **`stripe-webhook.mjs`**：监听 `checkout.session.completed`（写入 stripe_session_id + subscription_id + 状态更新）和 `customer.subscription.deleted`（标记 expired）
+- **建议书模板**：
+  - "立即订阅，在线签约"按钮绑 `startCheckout()` → POST stripe-create-checkout → 跳转 Stripe 支付页
+  - 支付成功/取消后返回建议书页面带 `?payment=success|cancelled` 参数 → 顶部显示绿色/灰色提示条
+- **ProposalsPage**：列表新增"订阅"列（`● 已订阅` 绿色 / `● 已取消` 灰色）
+- **NewProposalModal**：新增客户邮箱字段（用于 Stripe customer_email）
+- **SQL 迁移**：`add_stripe_columns_to_proposals.sql` — proposals 表新增 `client_email` / `stripe_session_id` / `stripe_subscription_id`
+
 ## [0.8.0] - 2026-04-16
 
 ### 新增：建议书（Proposal）系统

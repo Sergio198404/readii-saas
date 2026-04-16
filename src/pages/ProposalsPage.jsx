@@ -23,7 +23,7 @@ export default function ProposalsPage() {
     setLoading(true)
     const { data, error: err } = await supabase
       .from('proposals')
-      .select('id, token, client_name, visa_route_zh, status, proposal_date, view_count, proposal_no')
+      .select('id, token, client_name, visa_route_zh, status, proposal_date, view_count, proposal_no, stripe_subscription_id')
       .order('created_at', { ascending: false })
     if (err) setError(err.message)
     else setProposals(data || [])
@@ -74,6 +74,7 @@ export default function ProposalsPage() {
                   <th>状态</th>
                   <th>日期</th>
                   <th>查看</th>
+                  <th>订阅</th>
                   <th>操作</th>
                 </tr>
               </thead>
@@ -88,6 +89,14 @@ export default function ProposalsPage() {
                       <td><span className={`prop-status ${st.cls}`}>{st.label}</span></td>
                       <td className="prop-date">{p.proposal_date}</td>
                       <td className="prop-views">{p.view_count || 0}</td>
+                      <td>
+                        {p.stripe_subscription_id && p.status === 'signed' && (
+                          <span className="prop-sub prop-sub-active">● 已订阅</span>
+                        )}
+                        {p.stripe_subscription_id && p.status === 'expired' && (
+                          <span className="prop-sub prop-sub-cancelled">● 已取消</span>
+                        )}
+                      </td>
                       <td className="prop-actions">
                         <button onClick={() => copyLink(p.token)}>
                           {copied === p.token ? '✓ 已复制' : '复制链接'}

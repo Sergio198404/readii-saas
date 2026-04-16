@@ -14,6 +14,7 @@ export default function NewProposalModal({ onClose, onCreated, prefillLead }) {
   const [leads, setLeads] = useState([])
   const [leadId, setLeadId] = useState(prefillLead?.id || '')
   const [clientName, setClientName] = useState(prefillLead?.name || '')
+  const [clientEmail, setClientEmail] = useState('')
   const [clientTitle, setClientTitle] = useState('女士')
   const [routeIdx, setRouteIdx] = useState(0)
   const [background, setBackground] = useState('')
@@ -71,6 +72,7 @@ export default function NewProposalModal({ onClose, onCreated, prefillLead }) {
     const row = {
       lead_id: leadId || null,
       client_name: clientName.trim(),
+      client_email: clientEmail.trim() || null,
       client_title: clientTitle,
       visa_route_zh: route.zh,
       visa_route_en: route.en,
@@ -151,6 +153,10 @@ export default function NewProposalModal({ onClose, onCreated, prefillLead }) {
                   <option value="女士">女士</option>
                 </select>
               </div>
+            </div>
+            <div className="npp-field">
+              <label>客户邮箱（用于 Stripe 订阅，选填）</label>
+              <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} placeholder="client@example.com" />
             </div>
             <div className="npp-field">
               <label>签证路线</label>
