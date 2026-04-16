@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
 import PartnersAdminPage from './pages/PartnersAdminPage'
 import ProposalsPage from './pages/ProposalsPage'
+import ProposalWizardPage from './pages/ProposalWizardPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import AppLayout from './components/layout/AppLayout'
@@ -128,6 +129,22 @@ export default function App() {
           element={
             <RequireAuth user={user} profile={profile} allow={['admin']}>
               <ProposalsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/proposals/new"
+          element={
+            <RequireAuth user={user} profile={profile} allow={['admin']}>
+              <ProposalWizardPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/proposals/:id/edit"
+          element={
+            <RequireAuth user={user} profile={profile} allow={['admin']}>
+              <ProposalWizardPage />
             </RequireAuth>
           }
         />

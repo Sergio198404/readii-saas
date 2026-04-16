@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Sidebar from '../components/layout/Sidebar'
-import NewProposalModal from '../components/modals/NewProposalModal'
 import './ProposalsPage.css'
 
 const STATUS_MAP = {
@@ -14,9 +14,9 @@ const STATUS_MAP = {
 
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState([])
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showNew, setShowNew] = useState(false)
   const [copied, setCopied] = useState(null)
 
   const load = useCallback(async () => {
@@ -52,7 +52,7 @@ export default function ProposalsPage() {
             <h1 className="prop-title">建议书管理</h1>
             <div className="prop-subtitle">生成、追踪和管理客户建议书</div>
           </div>
-          <button className="prop-add-btn" onClick={() => setShowNew(true)}>
+          <button className="prop-add-btn" onClick={() => navigate('/admin/proposals/new')}>
             + 新建建议书
           </button>
         </header>
@@ -98,6 +98,7 @@ export default function ProposalsPage() {
                         )}
                       </td>
                       <td className="prop-actions">
+                        <button onClick={() => navigate(`/admin/proposals/${p.id}/edit`)}>编辑</button>
                         <button onClick={() => copyLink(p.token)}>
                           {copied === p.token ? '✓ 已复制' : '复制链接'}
                         </button>
@@ -112,12 +113,6 @@ export default function ProposalsPage() {
         </div>
       </main>
 
-      {showNew && (
-        <NewProposalModal
-          onClose={() => setShowNew(false)}
-          onCreated={async () => { setShowNew(false); await load() }}
-        />
-      )}
     </div>
   )
 }

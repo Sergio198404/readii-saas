@@ -79,6 +79,38 @@ export default async (req) => {
   // Load template and replace
   let tpl = readFileSync(join(templateDir, 'proposal-template.html'), 'utf8')
 
+  // Build dynamic sections
+  const goals = Array.isArray(proposal.selected_goals) ? proposal.selected_goals : []
+  const metrics = proposal.metrics && typeof proposal.metrics === 'object' ? proposal.metrics : {}
+  const values = Array.isArray(proposal.selected_values) ? proposal.selected_values : []
+  const coverTags = Array.isArray(proposal.cover_tags) ? proposal.cover_tags : []
+  const typicalDisadv = Array.isArray(proposal.typical_disadvantages) ? proposal.typical_disadvantages : []
+  const clientAdv = Array.isArray(proposal.client_advantages) ? proposal.client_advantages : []
+
+  const goalsHtml = goals.map((g, i) =>
+    `<div class="goal-card"><div class="goal-head"><div class="goal-num">${i + 1}</div><div class="goal-title">${g.title || ''}</div><span class="goal-tag">${g.tag || ''}</span></div><div class="goal-body"><div class="goal-desc">${g.description || ''}</div></div></div>`
+  ).join('\n') || '<div style="color:var(--ink-3);font-size:13px">暂未设置目标</div>'
+
+  const metricsHtml = goals.map((g, i) => {
+    const items = (metrics[g.title] || []).map(m => `<div class="metric-item">${m}</div>`).join('\n')
+    return `<div class="goal-card"><div class="goal-head"><div class="goal-num">${i + 1}</div><div class="goal-title">${g.title || ''}</div></div><div class="goal-body">${items || '<div style="color:var(--ink-3)">—</div>'}</div></div>`
+  }).join('\n') || '<div style="color:var(--ink-3);font-size:13px">暂未设置衡量标准</div>'
+
+  const valuesHtml = values.map(v =>
+    `<div class="val-card"><div class="val-icon">${v.icon || ''}</div><div class="val-title">${v.title || ''}</div><div class="val-desc">${v.desc || ''}</div><div class="val-loss">${v.loss || ''}</div></div>`
+  ).join('\n') || '<div style="color:var(--ink-3);font-size:13px">暂未选择价值主张</div>'
+
+  const coverTagsHtml = coverTags.filter(Boolean).map((t, i) =>
+    `<span class="cv-chip ${i === 0 ? 'cv-chip-g' : 'cv-chip-l'}">${t}</span>`
+  ).join('\n') || ''
+
+  const typicalHtml = typicalDisadv.map(d => `<div class="adv-item"><span>✗</span>${d}</div>`).join('\n') || ''
+  const advHtml = clientAdv.map(a => `<div class="adv-item"><span>✓</span>${a}</div>`).join('\n') || ''
+
+  const goalChecksHtml = goals.map(g =>
+    `<div class="accept-check-item"><div class="chk-box"></div><span>${g.title || ''}</span></div>`
+  ).join('\n') || ''
+
   const replacements = {
     '[[CLIENT_NAME]]': proposal.client_name || '',
     '[[CLIENT_TITLE]]': proposal.client_title || '',
@@ -97,6 +129,13 @@ export default async (req) => {
     '[[PROPOSAL_ID]]': proposal.id,
     '[[ACCESS_TOKEN]]': proposal.token || '',
     '[[CLIENT_EMAIL]]': proposal.client_email || '',
+    '[[GOALS_SECTION]]': goalsHtml,
+    '[[METRICS_SECTION]]': metricsHtml,
+    '[[VALUES_SECTION]]': valuesHtml,
+    '[[COVER_TAGS]]': coverTagsHtml,
+    '[[TYPICAL_DISADVANTAGES]]': typicalHtml,
+    '[[CLIENT_ADVANTAGES]]': advHtml,
+    '[[GOAL_CHECKS]]': goalChecksHtml,
   }
 
   for (const [key, val] of Object.entries(replacements)) {

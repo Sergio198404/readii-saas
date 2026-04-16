@@ -638,10 +638,7 @@ body {
 
   <!-- [[TAG_1]] [[TAG_2]] [[TAG_3]] [[TAG_4]] — 系统根据客户情况自动生成 -->
   <div class="cover-chips">
-    <span class="cv-chip cv-chip-g">主推路线 · SW 自雇工签</span>
-    <span class="cv-chip cv-chip-l">客户 · 王女士</span>
-    <span class="cv-chip cv-chip-l">旅游/酒店管理 · 10年+</span>
-    <span class="cv-chip cv-chip-l">孩子 Year 10 · PSW 12个月窗口</span>
+    [[COVER_TAGS]]
   </div>
 
   <div class="cover-footer">
@@ -707,17 +704,11 @@ body {
   <div class="adv-grid">
     <div class="adv-col adv-typical">
       <div class="adv-col-title">典型申请人的起点</div>
-      <div class="adv-item"><span>✗</span>公司尚未注册，需从零开始</div>
-      <div class="adv-item"><span>✗</span>无合适的AO人选</div>
-      <div class="adv-item"><span>✗</span>PSW仅剩3–6个月，时间极紧</div>
-      <div class="adv-item"><span>✗</span>职业背景不够清晰连续</div>
+      [[TYPICAL_DISADVANTAGES]]
     </div>
     <div class="adv-col adv-you">
       <div class="adv-col-title">您已经具备的条件</div>
-      <div class="adv-item"><span>✓</span>公司已注册，法律主体就绪</div>
-      <div class="adv-item"><span>✓</span>永居合伙人可合法担任AO</div>
-      <div class="adv-item"><span>✓</span>PSW还有12个月，准备充裕</div>
-      <div class="adv-item"><span>✓</span>10年旅游/酒店管理，背景清晰</div>
+      [[CLIENT_ADVANTAGES]]
     </div>
   </div>
 
@@ -745,20 +736,8 @@ body {
 
   <div class="goal-intro">我们在咨询中确认，您希望达成以下目标——请在签署前再次确认这些目标与您的期望一致：</div>
 
-  <!-- [[GOAL_1~N]] — 后台可增减目标条目 -->
   <div class="goal-list">
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">1</div><div class="goal-title">在PSW到期前完成工签申请递交，确保居留状态不中断</div><span class="goal-tag">核心目标</span></div>
-      <div class="goal-body"><div class="goal-desc">PSW将于2027年4月到期。所有准备工作需在此节点前充裕完成，为递交后的等待期预留缓冲。</div></div>
-    </div>
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">2</div><div class="goal-title">以合规方式建立自雇工签所需的完整雇主架构</div><span class="goal-tag">合规目标</span></div>
-      <div class="goal-body"><div class="goal-desc">包括Sponsor Licence、AO正式授权、薪资结构合规设计，也是后续续签申请的基础资产。</div></div>
-    </div>
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">3</div><div class="goal-title">孩子签证与教育安排同步妥善处置</div><span class="goal-tag">家庭目标</span></div>
-      <div class="goal-body"><div class="goal-desc">孩子Year 10，GCSE关键阶段。依附签证与主签证同步规划，学籍在过渡期间不受影响。</div></div>
-    </div>
+    [[GOALS_SECTION]]
   </div>
 </div>
 
@@ -771,32 +750,8 @@ body {
     <div><div class="sec-t">衡量标准</div><div class="sec-sub">如何评估目标进展与 Readii 的贡献</div></div>
   </div>
 
-  <!-- [[METRIC_1~N]] — 后台按目标生成，可定制 -->
   <div class="goal-list">
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">1</div><div class="goal-title">居留状态连续性</div></div>
-      <div class="goal-body">
-        <div class="metric-item">在PSW到期前<strong>至少5个月</strong>完成递交</div>
-        <div class="metric-item">等待期内<strong>零居留状态中断</strong></div>
-        <div class="metric-item">工签获批后起始日<strong>无空档期</strong></div>
-      </div>
-    </div>
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">2</div><div class="goal-title">合规架构建立</div></div>
-      <div class="goal-body">
-        <div class="metric-item">Sponsor Licence<strong>成功获批</strong></div>
-        <div class="metric-item">AO授权文件<strong>完整归档</strong>，符合Home Office要求</div>
-        <!-- [[SALARY_THRESHOLD]] — 当前£41,700 -->
-        <div class="metric-item">薪资结构经会计师确认，<strong>满足当前 Home Office 最低薪资门槛（≥£41,700，以实际递交时政策为准）</strong></div>
-      </div>
-    </div>
-    <div class="goal-card">
-      <div class="goal-head"><div class="goal-num">3</div><div class="goal-title">孩子签证与教育</div></div>
-      <div class="goal-body">
-        <div class="metric-item">依附签证与主签证<strong>同批次递交、同批次获批</strong></div>
-        <div class="metric-item">学校确认<strong>学籍连续</strong>，无需重新入学申请</div>
-      </div>
-    </div>
+    [[METRICS_SECTION]]
   </div>
 </div>
 
@@ -809,50 +764,8 @@ body {
     <div><div class="sec-t">价值</div><div class="sec-sub">采用本方案可以为您创造的价值</div></div>
   </div>
 
-  <!-- [[VALUE_1~6]] — 后台从价值库选择，可定制 -->
   <div class="val-grid">
-    <div class="val-card">
-      <div class="val-icon">👨‍👦</div>
-      <div class="val-title">孩子的未来保障</div>
-      <div class="val-desc">工签获批后，孩子完成A-Level可以以UK resident身份申请英国大学，<strong>学费与本地生相同</strong>（约£9,250/年）。</div>
-      <div class="val-loss">若签证中断，孩子将以国际生身份就读（£25,000+/年），四年差额超过<strong>£60,000</strong>——远超本次服务费。</div>
-    </div>
-    <div class="val-card">
-      <div class="val-icon">🛡</div>
-      <div class="val-title">身份自主掌控</div>
-      <div class="val-desc">自雇路线建立的是<strong>不依赖外部雇主</strong>的身份架构，续签都在自己手里。</div>
-      <div class="val-loss">依赖外部雇主工签，雇主随时可以撤销CoS，将面临被动失去签证资格的风险。</div>
-    </div>
-    <div class="val-card">
-      <div class="val-icon">⏱</div>
-      <div class="val-title">时间成本节省</div>
-      <div class="val-desc">Readii 全程协调，您<strong>不需要请假、不需要跑机构</strong>，只在关键节点配合提供材料。</div>
-      <div class="val-loss">自行摸索的错误代价极大——一次材料错误可能导致拒签，重新准备至少6个月。</div>
-    </div>
-    <div class="val-card">
-      <div class="val-icon">🎯</div>
-      <div class="val-title">决策精准度</div>
-      <div class="val-desc">我们已帮您排除创新签，避免在错误方向投入时间。<strong>过去12个月，这是我们处理最多的案件类型。</strong></div>
-      <div class="val-loss">在错误路线上准备6个月，压缩了PSW到期前的有效操作窗口，代价难以挽回。</div>
-    </div>
-    <div class="val-card">
-      <div class="val-icon">👥</div>
-      <div class="val-title">同路人网络</div>
-      <div class="val-desc">加入 Readii 落地社群，连接与您处于相似阶段的跨境家庭。<strong>每月直播答疑，按阶段细分，精选服务商推荐。</strong></div>
-      <div class="val-loss">独自面对陌生系统，缺少真实参照——没有人告诉你"和我一样情况的人是怎么走通的"。</div>
-    </div>
-    <div class="val-card">
-      <div class="val-icon">📋</div>
-      <div class="val-title">合规架构资产</div>
-      <div class="val-desc">Sponsor Licence 一旦建立，是<strong>未来为其他员工发工签的长期资格</strong>，随业务发展持续增值。</div>
-      <div class="val-loss">没有Sponsor Licence，公司无法合法为任何人发工签，限制了未来的商业灵活性。</div>
-    </div>
-  </div>
-
-  <!-- [[SCENE_TEXT]] -->
-  <div class="scene-box">
-    <div class="scene-label">工签获批之后，您的生活会是什么样的</div>
-    <div class="scene-text">"工签获批的那天，您不需要再担心每次出入境的签证状态。孩子在学校的学籍是稳定的，<strong>他知道自己可以在这里读完中学、考A-Level、申请大学，而不是随时可能需要离开。</strong>您可以专注地去发展您在英国的业务，而不是每隔几个月就要重新想一遍'我还能不能留下来'。"</div>
+    [[VALUES_SECTION]]
   </div>
 </div>
 
@@ -883,13 +796,13 @@ body {
       <div class="tier-detail">
         <div class="tier-includes">包含</div>
         <div class="tier-items">
+          <div class="tier-item">英国创业社群会员资格</div>
+          <div class="tier-item">每月线上社群活动（案例分享/经验交流）</div>
+          <div class="tier-item">最新签证政策实时解读与讨论</div>
+          <div class="tier-item">线上答疑（每周固定场次）</div>
           <div class="tier-item">自动化申请流程把控系统</div>
-          <div class="tier-item">完整材料清单（按签证类型）</div>
-          <div class="tier-item">官方材料模板下载</div>
+          <div class="tier-item">完整材料清单与官方模板</div>
           <div class="tier-item">AI问答无限次</div>
-          <div class="tier-item">政策变化个性化推送</div>
-          <div class="tier-item">Readii 落地社群权益</div>
-          <div class="tier-item">内部案例分享会（每月）</div>
         </div>
         <div style="margin-top:12px;padding:8px 10px;background:var(--g-lt);border-radius:6px;font-size:12px;color:var(--g-dk)">
           ✓ 在线标准协议，立即签约付款，即时开通
@@ -1029,7 +942,6 @@ body {
 
   <div class="fear-action">
     <div class="fear-row">如果启动推迟3个月，PSW到期前缓冲窗口将从8个月缩短至5个月，Sponsor Licence 审批期间若遇延误将没有回旋余地。</div>
-    <div class="action-row">您现在只需要做一件事：签署建议书，其余所有事情由 Readii 来推进。</div>
   </div>
 </div>
 
@@ -1232,42 +1144,16 @@ body {
     <div><div class="sec-t">接受建议书</div><div class="sec-sub">签署即确认您已阅读并同意以上全部内容</div></div>
   </div>
 
-  <p class="accept-intro">如您同意以上建议书的内容，请先确认以下目标（我们在咨询中已达成共识），再在下方签署。签署后，Readii 将于<strong>1个工作日内</strong>与您联系，安排启动会议。</p>
-
   <div class="accept-checks">
-    <div class="accept-checks-title">请确认您希望达成的目标（已在第二节中讨论）</div>
-    <div class="accept-check-item"><div class="chk-box"></div><span>在PSW到期前完成工签申请递交，确保居留状态不中断</span></div>
-    <div class="accept-check-item"><div class="chk-box"></div><span>以合规方式建立自雇工签所需的完整雇主架构</span></div>
-    <div class="accept-check-item"><div class="chk-box"></div><span>孩子签证与教育安排同步妥善处置</span></div>
+    <div class="accept-checks-title">请确认您希望通过本次合作达成的目标</div>
+    [[GOAL_CHECKS]]
   </div>
 
-  <div class="sign-grid">
-    <div class="sign-box">
-      <div class="sign-box-title">客户签署</div>
-      <div class="sign-line"></div>
-      <div class="sign-line-lbl">签名</div>
-      <div class="sign-meta">
-        <!-- [[CLIENT_NAME]] -->
-        <div class="sign-meta-row"><span class="sign-meta-lbl">姓名</span><span class="sign-meta-val">[[CLIENT_NAME]][[CLIENT_TITLE]]</span></div>
-        <div class="sign-meta-row"><span class="sign-meta-lbl">选择方案</span><span class="sign-meta-val"><span style="color:var(--ink-3);font-size:12px">☐ 自助申请 £49/月 &nbsp; ☐ 陪跑 £20,000 &nbsp;</span><strong style="color:var(--g-dk)">☑ 全案委托 £50,000</strong><span style="color:var(--ink-3);font-size:12px"> &nbsp; ☐ 结果保障 £50,000</span></span></div>
-        <div style="font-size:11px;color:var(--ink-4);font-style:italic;margin-top:6px">如需更改方案，请在签署前联系顾问确认。</div>
-        <div class="sign-meta-row"><span class="sign-meta-lbl">签署日期</span><span class="sign-meta-val">_____ 年 ___ 月 ___ 日</span></div>
-      </div>
-    </div>
-    <div class="sign-box">
-      <div class="sign-box-title">Readii 代表签署</div>
-      <div class="sign-line"></div>
-      <div class="sign-line-lbl">签名</div>
-      <div class="sign-meta">
-        <div class="sign-meta-row"><span class="sign-meta-lbl">姓名</span><span class="sign-meta-val">苏晓宇 · Xiaoyu Su</span></div>
-        <div class="sign-meta-row"><span class="sign-meta-lbl">职位</span><span class="sign-meta-val">创始人 · Readii Limited</span></div>
-        <!-- [[DATE]] -->
-        <div class="sign-meta-row"><span class="sign-meta-lbl">签署日期</span><span class="sign-meta-val">[[DATE]]</span></div>
-      </div>
+  <div style="margin-top:20px;padding:16px 20px;background:var(--g-lt);border-radius:8px;border:var(--bg)">
+    <div style="font-size:14px;color:var(--g-dk);line-height:1.7">
+      如您认可以上内容并希望推进合作，请直接通过微信与苏晓宇确认——我们会在1个工作日内为您安排启动会议。
     </div>
   </div>
-
-  <div class="accept-note">如您有任何疑问，请直接通过微信与苏晓宇沟通——我们不会催促您，但希望您在做决定时拥有所有需要的信息。</div>
 </div>
 
 <!-- CLOSING ACTION -->

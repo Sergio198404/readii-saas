@@ -2,6 +2,32 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.11.0] - 2026-04-16
+
+### 新增：建议书分步向导
+- `/admin/proposals/new` 和 `/admin/proposals/:id/edit` 7步向导（基本信息 → 现状评估 → 目标 → 衡量标准 → 价值主张 → 时间安排 → 预览&生成）
+- 每步保存草稿，支持中途退出后继续编辑
+- Step 1：客户信息 + 签证路线 + 封面标签（AI生成）
+- Step 2：典型劣势/客户优势 checkbox 预设库 + 背景/原话/排除/引言（AI撰写按钮）
+- Step 3：AI生成4-6个目标卡片，顾问勾选 + 自定义添加
+- Step 4：AI根据已选目标自动生成衡量标准，可编辑/增删
+- Step 5：8项价值库勾选（最多6个），每项可编辑损失描述
+- Step 6：时间线节点配置（增删改 + 类型切换） + 风险提示（AI撰写）
+- Step 7：摘要预览 + 生成链接 + QR 码
+- `proposal-ai-assist.mjs` 新函数：统一处理 goals/metrics/tags/exclusion/advisor_note/risk_note/timeline_desc 的 AI 生成
+- ProposalsPage 列表新增"编辑"按钮跳转到向导
+
+### 模板更新
+- 封面标签改为动态 `[[COVER_TAGS]]`
+- 优劣对比改为动态 `[[TYPICAL_DISADVANTAGES]]` / `[[CLIENT_ADVANTAGES]]`
+- 目标/衡量标准/价值主张改为动态 `[[GOALS_SECTION]]` / `[[METRICS_SECTION]]` / `[[VALUES_SECTION]]`
+- Section 10 移除双方签名框，改为动态 `[[GOAL_CHECKS]]` + 微信确认提示
+- 自助申请 tier-items 更新为社群+答疑+AI 内容
+- 删除 "您现在只需要做一件事" action-row
+
+### SQL 迁移
+- `proposal_wizard_columns.sql`：proposals 表新增 typical_disadvantages / client_advantages / selected_goals / metrics / selected_values / timeline / risk_note / cover_tags
+
 ## [0.9.0] - 2026-04-16
 
 ### 新增：Stripe 自助订阅支付
