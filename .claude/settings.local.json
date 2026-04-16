@@ -15,7 +15,9 @@
       "Bash(npx vite:*)",
       "Bash(curl:*)",
       "Bash(npx netlify:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls \"C:/Users/sergi/Downloads/Saas project/netlify/functions/notify-advisor\"*)",
+      "Bash(grep -l \"notify-advisor\" \"C:/Users/sergi/Downloads/Saas project/netlify/functions/\"*.mjs)"
     ]
   }
 }

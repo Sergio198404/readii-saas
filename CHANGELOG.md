@@ -2,6 +2,26 @@
 
 本文件记录 Readii Sales CRM 的所有功能变更。版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.13.0] - 2026-04-16
+
+### 新增：客户端可行性评估问卷
+- `/assessment` 公开页面（无需登录），支持 `?ref={code}` 渠道归因
+- 16题5 Section 滚动式问卷：基本信息 / 身份状态 / 职业背景 / 目标预期 / 补充说明
+- 顶部进度条实时显示完成百分比
+- 视觉风格与建议书模板一致（Cormorant Garamond 标题 + DM Sans 正文 + 墨金配色）
+- 移动端适配（< 600px 响应式布局）
+- `submit-assessment.mjs` Netlify Function：
+  - 自动判断签证路线（PSW+已注册→SW, 明确商业计划→IFV, 工签→EW）
+  - 自动判断优先级（6个月内到期→P1, 6-12个月→P2）
+  - 自动判断预算档位
+  - `?ref=` 参数自动匹配 partners 表写入 `partner_id`
+  - 完整问卷 JSON 存入 `assessment_data` 字段
+- `LeadCard` 增加「查看问卷原始答案」折叠区（仅有 assessment_data 时显示），顾问通话前快速浏览
+- `LeadCard` 增加联系方式行（仅有 contact_info 时显示）
+
+### SQL 迁移
+- `add_assessment_columns.sql`：leads 表新增 `contact_info text` + `assessment_data jsonb`
+
 ## [0.11.0] - 2026-04-16
 
 ### 新增：建议书分步向导

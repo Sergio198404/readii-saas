@@ -105,6 +105,39 @@
 .update-date { color: var(--text-muted); flex-shrink: 0; }
 .update-text { color: var(--text-secondary); }
 
+.card-assessment {
+  margin-bottom: 10px;
+}
+
+.assessment-answers {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--bg-page);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assessment-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.assessment-label {
+  color: var(--text-muted);
+  min-width: 70px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+.assessment-value {
+  color: var(--text-primary);
+}
+
 .card-actions {
   display: flex;
   gap: 6px;
