@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const templateDir = dirname(fileURLToPath(import.meta.url))
 
 function html(status, body) {
   return new Response(body, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } })
@@ -77,7 +77,7 @@ export default async (req) => {
   deadlineDate.setDate(deadlineDate.getDate() + 7)
 
   // Load template and replace
-  let tpl = readFileSync(join(__dirname, 'proposal-template.html'), 'utf8')
+  let tpl = readFileSync(join(templateDir, 'proposal-template.html'), 'utf8')
 
   const replacements = {
     '[[CLIENT_NAME]]': proposal.client_name || '',
