@@ -56,6 +56,20 @@
 .um-link { font-size: 12px; color: #b8741a; text-decoration: none; margin-top: 6px; display: inline-block; }
 .um-link:hover { text-decoration: underline; }
 
+/* ═══ CustomerJourney Timeline ═══ */
+.cj-timeline { display: flex; flex-direction: column; }
+.cj-node { display: flex; gap: 16px; }
+.cj-line-col { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.cj-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; z-index: 1; }
+.cj-line { width: 2px; flex: 1; min-height: 16px; }
+.cj-card { flex: 1; border: 1px solid var(--border-subtle); border-radius: var(--r-md, 8px); margin-bottom: 8px; cursor: pointer; transition: border-color .15s; background: var(--bg-card, #fff); }
+.cj-card:hover { border-color: var(--border-medium); }
+.cj-card-current { border-color: #b8741a; box-shadow: 0 0 0 1px rgba(184,121,42,.15); }
+.cj-card-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; }
+.cj-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.cj-card-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.cj-card-body { padding: 0 16px 16px; border-top: 1px solid var(--border-subtle); padding-top: 16px; }
+
 @media (max-width: 768px) {
   .csc-grid { grid-template-columns: 1fr; }
   .qap-grid { grid-template-columns: 1fr; }

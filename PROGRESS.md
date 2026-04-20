@@ -18,3 +18,10 @@
 - 组件：CustomerLayout, JourneyProgressBar, CurrentStageCard, QuickActionPanel, UpcomingMeetings
 - API：src/lib/api/customer.js
 - 备注：无 customer_profiles 数据时显示友好提示；使用现有 CSS vars 体系
+
+## 任务 4：Journey 数据模型 ✅
+- 完成日期：2026-04-20
+- Admin 页面：Journey 模板列表 / 阶段列表 / 阶段编辑器 / 客户列表 / 客户进度管理
+- 客户页面：/customer/journey 纵向时间线（可展开卡片）
+- 阶段数量不固定，支持任意数量的阶段增删
+- 备注：模板 seed SQL 待执行；阶段内容由苏晓宇在 admin UI 中录入

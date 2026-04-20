@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
 import CustomerDashboard from './CustomerDashboard'
+import CustomerJourney from './CustomerJourney'
 
 export default function CustomerRoutes() {
   return (
@@ -8,7 +9,7 @@ export default function CustomerRoutes() {
       <Route element={<CustomerLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<CustomerDashboard />} />
-        <Route path="journey" element={<Placeholder title="我的进度" />} />
+        <Route path="journey" element={<CustomerJourney />} />
         <Route path="documents" element={<Placeholder title="我的文档" />} />
         <Route path="qa" element={<Placeholder title="问答" />} />
         <Route path="meetings" element={<Placeholder title="会议" />} />
