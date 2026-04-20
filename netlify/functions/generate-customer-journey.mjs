@@ -66,15 +66,21 @@ export default async (req) => {
     signed_date: customer.signed_date,
   })
 
-  // 3. Find journey_template for this service_type
-  const { data: template, error: tErr } = await admin
+  // 3. Find journey_template for this service_type.
+  // Use limit(1) instead of maybeSingle() so we tolerate accidental duplicate
+  // template rows (which would otherwise throw PGRST114 "more than one row").
+  const { data: templates, error: tErr } = await admin
     .from('journey_templates')
     .select('*')
     .eq('service_type', customer.service_type)
     .eq('is_active', true)
-    .maybeSingle()
+    .order('created_at', { ascending: false })
+    .limit(1)
   if (tErr) return json(500, { error: `读取 journey_templates 失败：${tErr.message}` })
-  if (!template) return json(400, { error: `未找到 ${customer.service_type} 的激活模板` })
+  if (!templates || templates.length === 0) {
+    return json(400, { error: `未找到 ${customer.service_type} 的激活模板` })
+  }
+  const template = templates[0]
 
   // 4. Load journey_stages for the template (with stage_code), keyed by stage_number/code
   const { data: templateStages, error: sErr } = await admin
