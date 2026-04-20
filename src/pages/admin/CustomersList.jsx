@@ -10,7 +10,10 @@ export default function CustomersList() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    listCustomerProfiles().then(setCustomers).finally(() => setLoading(false))
+    listCustomerProfiles()
+      .then(setCustomers)
+      .catch(err => console.error('[CustomersList] load failed:', err))
+      .finally(() => setLoading(false))
   }, [])
 
   function qStatus(c) {

@@ -151,6 +151,9 @@ export default function CustomerQuestionnaire() {
             needs_mentoring: !!data.customer.needs_mentoring,
           }))
         }
+      } catch (err) {
+        console.error('[Questionnaire] failed to load:', err)
+        setCustomer(null)
       } finally {
         setLoading(false)
       }
