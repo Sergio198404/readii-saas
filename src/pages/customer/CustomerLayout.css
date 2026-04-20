@@ -1,0 +1,45 @@
+.cl-root { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg-page); }
+
+.cl-topbar {
+  height: 56px; background: var(--bg-card, #fff); border-bottom: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+}
+.cl-topbar-left { display: flex; align-items: center; gap: 10px; }
+.cl-brand { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.cl-brand-sub { font-size: 12px; color: var(--text-muted); }
+.cl-topbar-right { display: flex; align-items: center; gap: 12px; }
+.cl-user-name { font-size: 13px; color: var(--text-primary); }
+.cl-avatar {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--bg-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--text-primary); border: 1px solid var(--border-subtle);
+}
+.cl-signout {
+  font-size: 11px; color: var(--text-muted); background: none; border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm); padding: 4px 10px; cursor: pointer;
+}
+.cl-signout:hover { background: var(--bg-muted); }
+
+.cl-body { flex: 1; display: flex; overflow: hidden; }
+
+.cl-sidebar {
+  width: 220px; flex-shrink: 0; background: var(--bg-card, #fff); border-right: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+.cl-nav { padding: 16px 0; }
+.cl-nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 24px;
+  font-size: 13px; color: var(--text-secondary); text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.cl-nav-item:hover { background: var(--bg-muted); color: var(--text-primary); }
+.cl-nav-item.active { background: rgba(196,135,60,0.08); color: #b8741a; font-weight: 600; border-right: 3px solid #b8741a; }
+.cl-nav-icon { width: 16px; text-align: center; opacity: 0.7; }
+
+.cl-main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+
+@media (max-width: 768px) {
+  .cl-sidebar { width: 60px; }
+  .cl-nav-item span:not(.cl-nav-icon) { display: none; }
+  .cl-main { padding: 16px; }
+}
