@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import Sidebar from '../components/layout/Sidebar'
 import NewPartnerModal from '../components/modals/NewPartnerModal'
+import { attachProfiles } from '../lib/api/adminHelpers'
 import './PartnersAdminPage.css'
 
 const fmtMoney = (n) => `£${(Math.round((Number(n) || 0) * 100) / 100).toLocaleString()}`
@@ -19,9 +20,9 @@ export default function PartnersAdminPage() {
     setLoading(true)
     setError('')
 
-    const { data: partnerRows, error: pErr } = await supabase
+    const { data: partnerRowsRaw, error: pErr } = await supabase
       .from('partners')
-      .select('id, user_id, level, commission_rate, referral_code, referral_url, status, created_at, profiles:user_id(full_name)')
+      .select('id, user_id, level, commission_rate, referral_code, referral_url, status, created_at')
       .order('created_at', { ascending: false })
 
     if (pErr) {
@@ -30,7 +31,8 @@ export default function PartnersAdminPage() {
       return
     }
 
-    setPartners(partnerRows || [])
+    const partnerRows = await attachProfiles(supabase, partnerRowsRaw || [])
+    setPartners(partnerRows)
 
     const ids = (partnerRows || []).map((p) => p.id)
     const userIds = (partnerRows || []).map((p) => p.user_id).filter(Boolean)

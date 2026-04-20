@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import { supabase } from '../../lib/supabase'
+import { attachProfile } from '../../lib/api/adminHelpers'
 import { getMonthlyOperations, saveMonthlyOperations, generateReport, getReportSignedUrl } from '../../lib/api/reports'
 import './AdminPages.css'
 
@@ -30,10 +31,10 @@ export default function MonthlyOperations() {
   useEffect(() => {
     ;(async () => {
       const [{ data: cust }, arr] = await Promise.all([
-        supabase.from('customer_profiles').select('*, profiles:user_id(full_name, email)').eq('id', customerId).single(),
+        supabase.from('customer_profiles').select('*').eq('id', customerId).single(),
         getMonthlyOperations(customerId),
       ])
-      setCustomer(cust)
+      setCustomer(await attachProfile(supabase, cust))
       setRows(arr)
       setLoading(false)
     })()

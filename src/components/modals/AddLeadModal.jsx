@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/useAuth'
+import { attachProfile, attachProfiles } from '../../lib/api/adminHelpers'
 
 const SOURCE_TYPES = [
   { key: 'content',  label: '内容引流' },
@@ -95,18 +96,19 @@ export default function AddLeadModal({ open, onClose, editingLead }) {
       if (isAdmin) {
         const { data } = await supabase
           .from('partners')
-          .select('id, referral_code, profiles:user_id(full_name)')
+          .select('id, user_id, referral_code')
           .eq('status', 'active')
           .order('created_at', { ascending: false })
-        setPartners(data || [])
+        setPartners(await attachProfiles(supabase, data || []))
       } else if (user?.id) {
         const { data } = await supabase
           .from('partners')
-          .select('id, referral_code, profiles:user_id(full_name)')
+          .select('id, user_id, referral_code')
           .eq('user_id', user.id)
           .maybeSingle()
         if (data) {
-          setPartners([data])
+          const enriched = await attachProfile(supabase, data)
+          setPartners([enriched])
           setSelfPartnerId(data.id)
         }
       }

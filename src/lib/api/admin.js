@@ -1,4 +1,5 @@
 import { supabase } from '../supabase'
+import { attachProfile, attachProfiles } from './adminHelpers'
 
 // ═══ Journey Templates ═══
 
@@ -73,32 +74,22 @@ export async function deleteJourneyStage(stageId, templateId) {
 // ═══ Customer Progress ═══
 
 export async function listCustomerProfiles() {
-  // Two separate queries: customer_profiles + batched profiles via .in() to avoid
-  // the INNER JOIN that drops rows when admin can't read other users' profiles.
   const { data: customers, error } = await supabase
     .from('customer_profiles')
     .select('id, user_id, service_type, signed_date, status, questionnaire_completed, employee_location')
     .order('created_at', { ascending: false })
   if (error) throw error
-  if (!customers || customers.length === 0) return []
-
-  const userIds = [...new Set(customers.map(c => c.user_id).filter(Boolean))]
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, full_name, email')
-    .in('id', userIds)
-
-  const profileById = Object.fromEntries((profiles || []).map(p => [p.id, p]))
-  return customers.map(c => ({ ...c, profiles: profileById[c.user_id] || null }))
+  return attachProfiles(supabase, customers)
 }
 
 export async function getCustomerProgress(customerId) {
-  const { data: customer, error: cErr } = await supabase
+  const { data: customerRaw, error: cErr } = await supabase
     .from('customer_profiles')
-    .select('*, profiles:user_id(full_name, email)')
+    .select('*')
     .eq('id', customerId)
     .single()
   if (cErr) throw cErr
+  const customer = await attachProfile(supabase, customerRaw)
 
   const { data: template } = await supabase
     .from('journey_templates')
@@ -205,23 +196,13 @@ export async function deleteStageVariant(variantId) {
 // ═══ Customer Questionnaire ═══
 
 export async function getCustomerQuestionnaire(customerId) {
-  // Two separate queries: customer_profiles (admin RLS allows) + profiles (own-row only RLS).
-  // Avoids the INNER JOIN drop caused by `profiles:user_id(...)` nested embed.
-  const { data: customer, error } = await supabase
+  const { data: raw, error } = await supabase
     .from('customer_profiles')
     .select('*')
     .eq('id', customerId)
     .single()
   if (error) throw error
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, email')
-    .eq('id', customer.user_id)
-    .maybeSingle()
-
-  // Keep `profiles` (plural) key for consumer compatibility with existing UI code.
-  return { customer: { ...customer, profiles: profile } }
+  return { customer: await attachProfile(supabase, raw) }
 }
 
 const QUESTIONNAIRE_FIELDS = [

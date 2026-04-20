@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useRole } from '../../contexts/RoleContext'
 import { hasPermission } from '../../lib/staffPermissions'
 import { updateStageProgress } from '../../lib/api/admin'
+import { attachProfile } from '../../lib/api/adminHelpers'
 import {
   REPORT_TYPES, listReportsForCustomer, generateReport, getReportSignedUrl,
 } from '../../lib/api/reports'
@@ -35,10 +36,10 @@ export default function StaffCustomerDetail() {
     ;(async () => {
       const { data } = await supabase
         .from('customer_profiles')
-        .select('*, profiles:user_id(full_name, email)')
+        .select('*')
         .eq('id', customerId)
         .single()
-      setCustomer(data)
+      setCustomer(await attachProfile(supabase, data))
       setLoading(false)
     })()
   }, [customerId])

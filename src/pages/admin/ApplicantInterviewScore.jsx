@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import { supabase } from '../../lib/supabase'
+import { attachProfile } from '../../lib/api/adminHelpers'
 import { getApplicantScores, upsertApplicantScores, generateReport, getReportSignedUrl } from '../../lib/api/reports'
 import './AdminPages.css'
 
@@ -32,10 +33,10 @@ export default function ApplicantInterviewScore() {
   useEffect(() => {
     ;(async () => {
       const [{ data: cust }, existing] = await Promise.all([
-        supabase.from('customer_profiles').select('*, profiles:user_id(full_name, email)').eq('id', customerId).single(),
+        supabase.from('customer_profiles').select('*').eq('id', customerId).single(),
         getApplicantScores(customerId),
       ])
-      setCustomer(cust)
+      setCustomer(await attachProfile(supabase, cust))
       if (existing) setRow({ ...EMPTY, ...existing })
       setLoading(false)
     })()

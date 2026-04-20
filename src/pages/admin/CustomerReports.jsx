@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import { supabase } from '../../lib/supabase'
+import { attachProfile } from '../../lib/api/adminHelpers'
 import {
   REPORT_TYPES, listReportsForCustomer, generateReport, getReportSignedUrl,
 } from '../../lib/api/reports'
@@ -24,10 +25,10 @@ export default function CustomerReports() {
     ;(async () => {
       const { data: cust } = await supabase
         .from('customer_profiles')
-        .select('*, profiles:user_id(full_name, email)')
+        .select('*')
         .eq('id', customerId)
         .single()
-      setCustomer(cust)
+      setCustomer(await attachProfile(supabase, cust))
       await reload()
       setLoading(false)
     })()

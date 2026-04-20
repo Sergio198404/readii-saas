@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Sidebar from '../../components/layout/Sidebar'
 import { supabase } from '../../lib/supabase'
+import { attachProfile } from '../../lib/api/adminHelpers'
 import {
   listHRItems, getCustomerHRProgress, ensureHRProgressInit,
   updateHRProgress, getHREvidenceSignedUrl, groupByPhase, isAllCompleted,
@@ -42,8 +43,8 @@ export default function CustomerHRCompliance() {
   useEffect(() => {
     ;(async () => {
       const { data: cust } = await supabase.from('customer_profiles')
-        .select('*, profiles:user_id(full_name, email)').eq('id', customerId).single()
-      setCustomer(cust)
+        .select('*').eq('id', customerId).single()
+      setCustomer(await attachProfile(supabase, cust))
       await ensureHRProgressInit(customerId)
       await reload()
       setLoading(false)

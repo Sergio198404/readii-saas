@@ -1,16 +1,25 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { attachProfiles } from '../../lib/api/adminHelpers'
 
 export default function StaffCustomers() {
   const [customers, setCustomers] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.from('customer_profiles')
-      .select('id, service_type, signed_date, status, questionnaire_completed, visa_path, expected_completion_date, profiles:user_id(full_name, email)')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setCustomers(data || []); setLoading(false) })
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('customer_profiles')
+          .select('id, user_id, service_type, signed_date, status, questionnaire_completed, visa_path, expected_completion_date')
+          .order('created_at', { ascending: false })
+        setCustomers(await attachProfiles(supabase, data || []))
+      } catch (err) {
+        console.error('[StaffCustomers] load failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [])
 
   if (loading) return <div style={{padding:20,color:'var(--text-muted)',fontSize:13}}>加载中...</div>

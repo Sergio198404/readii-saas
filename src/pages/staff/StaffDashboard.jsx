@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useRole } from '../../contexts/RoleContext'
 import { STAFF_ROLE_LABELS } from '../../lib/staffPermissions'
 import { computeAlerts, daysSince } from '../../lib/complianceAlerts'
+import { attachProfiles, attachNestedProfiles } from '../../lib/api/adminHelpers'
 
 export default function StaffDashboard() {
   const { profile } = useRole()
@@ -62,12 +63,20 @@ function KellyDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.from('customer_qa')
-      .select('*, customer_profiles!inner(id, profiles:user_id(full_name, email))')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: true })
-      .limit(20)
-      .then(({ data }) => { setQas(data || []); setLoading(false) })
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('customer_qa')
+          .select('*, customer_profiles!inner(id, user_id)')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: true })
+          .limit(20)
+        setQas(await attachNestedProfiles(supabase, data || [], 'customer_profiles'))
+      } catch (err) {
+        console.error('[KellyDashboard] load failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [])
 
   return (
@@ -104,18 +113,19 @@ function LisaDashboard() {
 
   useEffect(() => {
     ;(async () => {
-      const [{ data: customers }, { data: progress }, { data: stages }] = await Promise.all([
-        supabase.from('customer_profiles').select('*, profiles:user_id(full_name, email)'),
+      const [{ data: customersRaw }, { data: progress }, { data: stages }] = await Promise.all([
+        supabase.from('customer_profiles').select('*'),
         supabase.from('customer_journey_progress').select('*'),
         supabase.from('journey_stages').select('*'),
       ])
+      const customers = await attachProfiles(supabase, customersRaw || [])
       const stagesById = Object.fromEntries((stages || []).map(s => [s.id, s]))
       const progressByCustomer = {}
       for (const p of (progress || [])) {
         (progressByCustomer[p.customer_id] = progressByCustomer[p.customer_id] || []).push(p)
       }
       const computed = computeAlerts({
-        customers: customers || [],
+        customers,
         progressByCustomer,
         stagesById,
       })
@@ -176,24 +186,25 @@ function TimDashboard() {
 
       const [{ data: qas }, { data: meetings }, { data: silents }] = await Promise.all([
         supabase.from('customer_qa')
-          .select('*, customer_profiles!inner(id, profiles:user_id(full_name, email))')
+          .select('*, customer_profiles!inner(id, user_id)')
           .eq('status', 'pending')
           .lte('created_at', yesterday),
         supabase.from('customer_meetings')
-          .select('*, customer_profiles!inner(id, profiles:user_id(full_name, email))')
+          .select('*, customer_profiles!inner(id, user_id)')
           .gte('scheduled_at', todayStart)
           .lt('scheduled_at', todayEnd)
           .in('status', ['scheduled', 'confirmed'])
           .order('scheduled_at', { ascending: true }),
         supabase.from('customer_profiles')
-          .select('*, profiles:user_id(full_name, email)')
+          .select('*')
           .eq('status', 'active')
           .order('updated_at', { ascending: true })
           .limit(5),
       ])
-      setUrgentQAs(qas || [])
-      setTodayMeetings(meetings || [])
-      setSilentCustomers((silents || []).filter(c => daysSince(c.updated_at) >= 14))
+      setUrgentQAs(await attachNestedProfiles(supabase, qas || [], 'customer_profiles'))
+      setTodayMeetings(await attachNestedProfiles(supabase, meetings || [], 'customer_profiles'))
+      const silentsWithProfiles = await attachProfiles(supabase, silents || [])
+      setSilentCustomers(silentsWithProfiles.filter(c => daysSince(c.updated_at) >= 14))
       setLoading(false)
     })()
   }, [])
@@ -251,12 +262,13 @@ function RyanDashboard() {
 
   useEffect(() => {
     ;(async () => {
-      const { data: customers } = await supabase
+      const { data: customersRaw } = await supabase
         .from('customer_profiles')
-        .select('*, profiles:user_id(full_name, email)')
+        .select('*')
         .eq('status', 'active')
+      const customers = await attachProfiles(supabase, customersRaw || [])
 
-      const withOps = (customers || []).filter(c => {
+      const withOps = customers.filter(c => {
         const ops = Array.isArray(c.monthly_operations_data) ? c.monthly_operations_data : []
         return ops.length > 0
       })
