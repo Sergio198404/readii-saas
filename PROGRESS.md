@@ -1,7 +1,13 @@
 # Readii v1 开发进度
 
-## 任务 1：数据库 Schema 部署 ⏳
-- 状态：迁移文件已创建，待在 Supabase 执行
-- 新增表数量：19（含 lead_conversations 的 index 表）
+## 任务 1：数据库 Schema 部署 ✅
+- 完成日期：2026-04-20
+- 新增表数量：19
 - 迁移文件：6
-- 备注：profiles 表已有 full_name / avatar_url，跳过重复添加；现有 partners 表保留不动，新建 partner_profiles 作为 v1 扩展表
+- 备注：profiles 扩展 7 列 + 回填现有角色；现有 partners 表保留，新建 partner_profiles 作为 v1 扩展表
+
+## 任务 2：角色扩展和登录路由 ✅
+- 完成日期：2026-04-20
+- 新增组件：RoleProvider, ProtectedRoute, RoleSwitcher
+- 新增路由：/customer/*, /consultant/*, /dashboard, /unauthorized
+- 备注：现有 admin/partner 路由全部保留不动；新增 v1 路由并行存在；roles.js 支持旧 role 字段回退
