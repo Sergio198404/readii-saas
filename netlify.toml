@@ -8,7 +8,7 @@
   targetPort = 5173
 
 [functions]
-  external_node_modules = ["@anthropic-ai/sdk", "stripe"]
+  external_node_modules = ["@anthropic-ai/sdk", "stripe", "pdfkit"]
   included_files = ["netlify/functions/proposal-template.html"]
 
 [functions."daily-brief"]

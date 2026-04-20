@@ -8,8 +8,6 @@ import ExpertsPage from './pages/ExpertsPage'
 import LoginPage from './pages/LoginPage'
 import PartnerPage from './pages/PartnerPage'
 import PartnersAdminPage from './pages/PartnersAdminPage'
-import ProposalsPage from './pages/ProposalsPage'
-import ProposalWizardPage from './pages/ProposalWizardPage'
 import AssessmentPage from './pages/AssessmentPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
@@ -17,11 +15,19 @@ import UnauthorizedPage from './pages/UnauthorizedPage'
 import DashboardRouter from './pages/DashboardRouter'
 import CustomerRoutes from './pages/customer/routes'
 import ConsultantRoutes from './pages/consultant/routes'
+import StaffRoutes from './pages/staff/routes'
+import TeamManagement from './pages/admin/TeamManagement'
 import JourneyTemplatesList from './pages/admin/JourneyTemplatesList'
 import JourneyStagesList from './pages/admin/JourneyStagesList'
 import JourneyStageEditor from './pages/admin/JourneyStageEditor'
 import CustomersList from './pages/admin/CustomersList'
 import CustomerProgressPage from './pages/admin/CustomerProgressPage'
+import CustomerQuestionnaire from './pages/admin/CustomerQuestionnaire'
+import CustomerHRCompliance from './pages/admin/CustomerHRCompliance'
+import CustomerReports from './pages/admin/CustomerReports'
+import AOInterviewScore from './pages/admin/AOInterviewScore'
+import ApplicantInterviewScore from './pages/admin/ApplicantInterviewScore'
+import MonthlyOperations from './pages/admin/MonthlyOperations'
 import AppLayout from './components/layout/AppLayout'
 import { useAuth } from './lib/useAuth'
 
@@ -36,15 +42,23 @@ function FullScreenMessage({ children }) {
   )
 }
 
+function isAdmin(profile) {
+  return !!profile && (profile.role === 'admin' || profile.role_admin === true)
+}
+
 function RequireAuth({ profile, user, allow, children }) {
   const location = useLocation()
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   if (profile && profile.password_changed === false) {
     return <Navigate to="/change-password" replace />
   }
-  if (allow && profile && !allow.includes(profile.role)) {
-    const home = profile.role === 'admin' ? '/today' : '/partner'
-    return <Navigate to={home} replace />
+  if (allow && profile) {
+    // Accept admin via either legacy role='admin' or role_admin=true
+    const admitted = allow.includes(profile.role) || (allow.includes('admin') && isAdmin(profile))
+    if (!admitted) {
+      const home = isAdmin(profile) ? '/today' : '/partner'
+      return <Navigate to={home} replace />
+    }
   }
   return <AppLayout>{children}</AppLayout>
 }
@@ -54,7 +68,13 @@ export default function App() {
 
   if (loading) return <FullScreenMessage>加载中...</FullScreenMessage>
 
-  const homePath = profile?.role === 'admin' ? '/today' : '/partner'
+  const homePath = isAdmin(profile)
+    ? '/today'
+    : profile?.role_staff
+      ? '/staff'
+      : profile?.role_customer
+        ? '/customer/dashboard'
+        : '/partner'
 
   return (
     <RoleProvider>
@@ -81,15 +101,17 @@ export default function App() {
             <ProtectedRoute requireRole="consultant"><ConsultantRoutes /></ProtectedRoute>
           } />
 
+          {/* v1 Staff routes */}
+          <Route path="/staff/*" element={
+            <ProtectedRoute requireRole="staff"><StaffRoutes /></ProtectedRoute>
+          } />
+
           {/* ═══ Existing admin routes (unchanged) ═══ */}
           <Route path="/today" element={<RequireAuth user={user} profile={profile} allow={['admin']}><TodayView /></RequireAuth>} />
           <Route path="/board" element={<RequireAuth user={user} profile={profile} allow={['admin']}><SalesBoard /></RequireAuth>} />
           <Route path="/content" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ContentPage /></RequireAuth>} />
           <Route path="/experts" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ExpertsPage /></RequireAuth>} />
           <Route path="/admin/partners" element={<RequireAuth user={user} profile={profile} allow={['admin']}><PartnersAdminPage /></RequireAuth>} />
-          <Route path="/admin/proposals" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ProposalsPage /></RequireAuth>} />
-          <Route path="/admin/proposals/new" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ProposalWizardPage /></RequireAuth>} />
-          <Route path="/admin/proposals/:id/edit" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ProposalWizardPage /></RequireAuth>} />
 
           {/* ═══ Admin v1 routes ═══ */}
           <Route path="/admin/journey-templates" element={<RequireAuth user={user} profile={profile} allow={['admin']}><JourneyTemplatesList /></RequireAuth>} />
@@ -97,6 +119,13 @@ export default function App() {
           <Route path="/admin/journey-templates/:templateId/stages/:stageId/edit" element={<RequireAuth user={user} profile={profile} allow={['admin']}><JourneyStageEditor /></RequireAuth>} />
           <Route path="/admin/customers" element={<RequireAuth user={user} profile={profile} allow={['admin']}><CustomersList /></RequireAuth>} />
           <Route path="/admin/customers/:customerId/progress" element={<RequireAuth user={user} profile={profile} allow={['admin']}><CustomerProgressPage /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/questionnaire" element={<RequireAuth user={user} profile={profile} allow={['admin']}><CustomerQuestionnaire /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/hr-compliance" element={<RequireAuth user={user} profile={profile} allow={['admin']}><CustomerHRCompliance /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/reports" element={<RequireAuth user={user} profile={profile} allow={['admin']}><CustomerReports /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/ao-interview-score" element={<RequireAuth user={user} profile={profile} allow={['admin']}><AOInterviewScore /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/applicant-interview-score" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ApplicantInterviewScore /></RequireAuth>} />
+          <Route path="/admin/customers/:customerId/monthly-ops" element={<RequireAuth user={user} profile={profile} allow={['admin']}><MonthlyOperations /></RequireAuth>} />
+          <Route path="/admin/team" element={<RequireAuth user={user} profile={profile} allow={['admin']}><TeamManagement /></RequireAuth>} />
 
           {/* ═══ Existing partner route (unchanged) ═══ */}
           <Route path="/partner" element={<RequireAuth user={user} profile={profile}><PartnerPage /></RequireAuth>} />

@@ -44,10 +44,14 @@ export default function JourneyStagesList() {
     await load()
   }
 
-  function statusLabel(stage) {
-    if (stage.description_why && stage.description_customer_action && stage.description_readii_action) return '✓ 内容完整'
-    return '⚠ 待填写'
+  function completeness(stage) {
+    const filled = [stage.description_why, stage.description_customer_action, stage.description_readii_action].filter(Boolean).length
+    if (filled === 3) return { cls: 'complete', label: '✓ 完整' }
+    if (filled === 0) return { cls: 'incomplete', label: '✗ 空' }
+    return { cls: 'incomplete', label: `⚠ ${filled}/3` }
   }
+
+  const APPLIES_LABEL = { always: '所有', path_a: '路径A', path_b: '路径B', conditional: '条件' }
 
   return (
     <div className="app-layout">
@@ -73,20 +77,26 @@ export default function JourneyStagesList() {
         <div className="ap-body">
           {loading ? <div className="ap-empty">加载中...</div> : stages.length === 0 ? <div className="ap-empty">暂无阶段，点击右上角新增</div> : (
             <table className="ap-table">
-              <thead><tr><th>#</th><th>标题</th><th>预计天数</th><th>状态</th><th>操作</th></tr></thead>
+              <thead><tr><th>#</th><th>code</th><th>标题</th><th>适用</th><th>天数</th><th>SKU</th><th>内容</th><th>操作</th></tr></thead>
               <tbody>
-                {stages.map(s => (
-                  <tr key={s.id}>
-                    <td className="ap-stage-num">{s.stage_number}</td>
-                    <td className="ap-stage-title">{s.title}{s.title_en && <span className="ap-stage-en"> · {s.title_en}</span>}</td>
-                    <td>{s.estimated_duration_days || '—'}</td>
-                    <td><span className={`ap-status ${s.description_why ? 'complete' : 'incomplete'}`}>{statusLabel(s)}</span></td>
-                    <td className="ap-actions">
-                      <button onClick={() => navigate(`/admin/journey-templates/${templateId}/stages/${s.id}/edit`)}>编辑</button>
-                      <button onClick={() => handleDelete(s)} style={{color:'var(--danger-text, #c33)'}}>删除</button>
-                    </td>
-                  </tr>
-                ))}
+                {stages.map(s => {
+                  const c = completeness(s)
+                  return (
+                    <tr key={s.id}>
+                      <td className="ap-stage-num">{s.stage_number}</td>
+                      <td style={{fontSize:11,color:'var(--text-muted)'}}>{s.stage_code || '—'}</td>
+                      <td className="ap-stage-title">{s.title}{s.title_en && <span className="ap-stage-en"> · {s.title_en}</span>}</td>
+                      <td style={{fontSize:11,color:'var(--text-muted)'}}>{APPLIES_LABEL[s.applies_to] || '所有'}</td>
+                      <td>{s.estimated_duration_days || '—'}</td>
+                      <td style={{fontSize:11}}>{s.has_sku ? '✓' : ''}{s.has_sub_module ? ' · 子模块' : ''}</td>
+                      <td><span className={`ap-status ${c.cls}`}>{c.label}</span></td>
+                      <td className="ap-actions">
+                        <button onClick={() => navigate(`/admin/journey-templates/${templateId}/stages/${s.id}/edit`)}>编辑</button>
+                        <button onClick={() => handleDelete(s)} style={{color:'var(--danger-text, #c33)'}}>删除</button>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           )}

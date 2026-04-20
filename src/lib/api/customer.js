@@ -102,3 +102,31 @@ const SERVICE_LABELS = {
 export function getServiceTypeLabel(type) {
   return SERVICE_LABELS[type] || type
 }
+
+// ═══ Journey: variants + service_mode ═══
+
+export async function loadVariantsForStages(stageIds) {
+  if (!stageIds.length) return []
+  const { data, error } = await supabase
+    .from('stage_variants')
+    .select('*')
+    .in('stage_id', stageIds)
+  if (error) throw error
+  return data || []
+}
+
+export async function setServiceMode(progressId, mode) {
+  const patch = {
+    service_mode: mode,
+    service_mode_confirmed: true,
+    service_mode_confirmed_at: new Date().toISOString(),
+  }
+  const { data, error } = await supabase
+    .from('customer_journey_progress')
+    .update(patch)
+    .eq('id', progressId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}

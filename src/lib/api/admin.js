@@ -75,7 +75,7 @@ export async function deleteJourneyStage(stageId, templateId) {
 export async function listCustomerProfiles() {
   const { data, error } = await supabase
     .from('customer_profiles')
-    .select('id, user_id, service_type, signed_date, status, profiles:user_id(full_name, email)')
+    .select('id, user_id, service_type, signed_date, status, questionnaire_completed, employee_location, profiles:user_id(full_name, email)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data || []
@@ -151,4 +151,91 @@ export async function syncCurrentStage(customerId, stages, progress) {
   const inProgressStage = stages.find(s => progressMap[s.id]?.status === 'in_progress')
   const currentStageId = inProgressStage?.id || null
   await supabase.from('customer_profiles').update({ current_stage_id: currentStageId }).eq('id', customerId)
+}
+
+// ═══ Stage Variants ═══
+
+export async function listStageVariants(stageId) {
+  const { data, error } = await supabase
+    .from('stage_variants')
+    .select('*')
+    .eq('stage_id', stageId)
+    .order('variant_code')
+  if (error) throw error
+  return data || []
+}
+
+export async function createStageVariant(stageId, row) {
+  const { data, error } = await supabase
+    .from('stage_variants')
+    .insert({ ...row, stage_id: stageId })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateStageVariant(variantId, updates) {
+  const { data, error } = await supabase
+    .from('stage_variants')
+    .update(updates)
+    .eq('id', variantId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteStageVariant(variantId) {
+  const { error } = await supabase.from('stage_variants').delete().eq('id', variantId)
+  if (error) throw error
+}
+
+// ═══ Customer Questionnaire ═══
+
+export async function getCustomerQuestionnaire(customerId) {
+  const { data: customer, error } = await supabase
+    .from('customer_profiles')
+    .select('*, profiles:user_id(full_name, email)')
+    .eq('id', customerId)
+    .single()
+  if (error) throw error
+  return { customer }
+}
+
+const QUESTIONNAIRE_FIELDS = [
+  'employee_location', 'employee_nationality', 'current_visa_remaining_months',
+  'employee_english_status', 'target_soc_code', 'requires_criminal_record',
+  'countries_lived', 'startup_capital', 'company_structure', 'ao_candidate',
+  'needs_mentoring',
+]
+
+export async function saveQuestionnaireDraft(customerId, answers) {
+  const patch = {}
+  for (const f of QUESTIONNAIRE_FIELDS) {
+    if (answers[f] !== undefined) patch[f] = answers[f]
+  }
+  patch.updated_at = new Date().toISOString()
+  const { error } = await supabase
+    .from('customer_profiles')
+    .update(patch)
+    .eq('id', customerId)
+  if (error) throw error
+}
+
+export async function generateCustomerJourney(customerId) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const token = session?.access_token
+  if (!token) throw new Error('未登录')
+  const res = await fetch('/.netlify/functions/generate-customer-journey', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ customerId }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`)
+  return json
 }

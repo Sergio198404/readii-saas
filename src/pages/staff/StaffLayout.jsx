@@ -2,35 +2,52 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { RoleSwitcher } from '../../components/RoleSwitcher'
 import { useRole } from '../../contexts/RoleContext'
 import { signOut } from '../../lib/supabase'
-import './CustomerLayout.css'
+import { STAFF_ROLE_LABELS } from '../../lib/staffPermissions'
+import '../customer/CustomerLayout.css'
 
-const NAV_ITEMS = [
-  { to: '/customer/dashboard', label: '工作台', icon: '◈' },
-  { to: '/customer/journey', label: '我的进度', icon: '◷' },
-  { to: '/customer/documents', label: '我的文档', icon: '◇' },
-  { to: '/customer/qa', label: '问答', icon: '◆' },
-  { to: '/customer/meetings', label: '会议', icon: '○' },
-  { to: '/customer/reports', label: '我的报告', icon: '◎' },
-  { to: '/customer/settings', label: '设置', icon: '◉' },
+const COMMON_ITEMS = [
+  { to: '/staff', end: true, label: '我的 Dashboard', icon: '◈' },
+  { to: '/staff/customers', label: '所有客户', icon: '◷' },
 ]
 
-export default function CustomerLayout() {
+const ROLE_ITEMS = {
+  copywriter: [
+    { to: '/staff/qa-queue', label: 'QA 队列', icon: '◆' },
+  ],
+  project_manager: [
+    { to: '/staff/alerts', label: '合规预警', icon: '⚠' },
+    { to: '/staff/milestones', label: '里程碑日历', icon: '◉' },
+  ],
+  customer_manager: [
+    { to: '/staff/qa-queue', label: 'QA 队列', icon: '◆' },
+    { to: '/staff/meetings', label: '会议管理', icon: '○' },
+  ],
+  bdm: [
+    { to: '/staff/leads', label: '新线索', icon: '◇' },
+    { to: '/staff/financials', label: '财务节点', icon: '£' },
+  ],
+}
+
+export default function StaffLayout() {
   const { profile } = useRole()
   const navigate = useNavigate()
-  const name = profile?.full_name || ''
+  const name = profile?.full_name || profile?.email || ''
   const initial = (name[0] || '?').toUpperCase()
+  const staffRole = profile?.staff_role
 
   async function handleSignOut() {
     try { await signOut() } catch (e) { console.error(e) }
     navigate('/login')
   }
 
+  const navItems = [...COMMON_ITEMS, ...(ROLE_ITEMS[staffRole] || [])]
+
   return (
     <div className="cl-root">
       <header className="cl-topbar">
         <div className="cl-topbar-left">
           <span className="cl-brand">Readii</span>
-          <span className="cl-brand-sub">客户工作台</span>
+          <span className="cl-brand-sub">内部工作台 · {STAFF_ROLE_LABELS[staffRole] || '未分配角色'}</span>
         </div>
         <div className="cl-topbar-right">
           <RoleSwitcher />
@@ -43,10 +60,11 @@ export default function CustomerLayout() {
       <div className="cl-body">
         <aside className="cl-sidebar">
           <nav className="cl-nav">
-            {NAV_ITEMS.map(item => (
+            {navItems.map(item => (
               <NavLink
                 key={item.to}
                 to={item.to}
+                end={item.end}
                 className={({ isActive }) => `cl-nav-item ${isActive ? 'active' : ''}`}
               >
                 <span className="cl-nav-icon">{item.icon}</span>

@@ -33,7 +33,6 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
   const isContent = location.pathname === '/content'
   const isExperts = location.pathname === '/experts'
   const isPartnersAdmin = location.pathname === '/admin/partners'
-  const isProposals = location.pathname === '/admin/proposals'
 
   function handleFilterClick(key) {
     if (key === 'today') {
@@ -44,14 +43,12 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
       navigate('/experts')
     } else if (key === 'admin-partners') {
       navigate('/admin/partners')
-    } else if (key === 'admin-proposals') {
-      navigate('/admin/proposals')
     } else if (key === 'admin-journey') {
       navigate('/admin/journey-templates')
     } else if (key === 'admin-customers') {
       navigate('/admin/customers')
     } else {
-      if (isToday || isContent || isExperts || isPartnersAdmin || isProposals) navigate('/board')
+      if (isToday || isContent || isExperts || isPartnersAdmin) navigate('/board')
       onFilterChange?.(key)
     }
   }
@@ -61,8 +58,7 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
       : key === 'content' ? isContent
       : key === 'experts' ? isExperts
       : key === 'admin-partners' ? isPartnersAdmin
-      : key === 'admin-proposals' ? isProposals
-      : (!isToday && !isContent && !isExperts && !isPartnersAdmin && !isProposals && currentFilter === key)
+      : (!isToday && !isContent && !isExperts && !isPartnersAdmin && currentFilter === key)
     return (
       <div
         key={key}
@@ -115,7 +111,6 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
           <div className="sidebar-section">
             <div className="sidebar-section-label">管理</div>
             {renderItem({ key: 'admin-partners', icon: '◇', label: '伙伴管理' })}
-            {renderItem({ key: 'admin-proposals', icon: '📄', label: '建议书' })}
             {renderItem({ key: 'admin-journey', icon: '🗺', label: 'Journey 模板' })}
             {renderItem({ key: 'admin-customers', icon: '👤', label: '客户管理' })}
           </div>

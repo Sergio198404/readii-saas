@@ -3,6 +3,7 @@ export const ROLES = {
   PARTNER: 'partner',
   CONSULTANT: 'consultant',
   ADMIN: 'admin',
+  STAFF: 'staff',
 }
 
 export function getUserRoles(profile) {
@@ -11,6 +12,7 @@ export function getUserRoles(profile) {
   if (profile.role_customer) roles.push(ROLES.CUSTOMER)
   if (profile.role_partner) roles.push(ROLES.PARTNER)
   if (profile.role_consultant) roles.push(ROLES.CONSULTANT)
+  if (profile.role_staff) roles.push(ROLES.STAFF)
   if (profile.role_admin) roles.push(ROLES.ADMIN)
   // Fallback: support old role field during transition
   if (roles.length === 0 && profile.role) {
@@ -30,6 +32,7 @@ export function getDefaultRoute(profile) {
   if (roles.includes(ROLES.CUSTOMER)) return '/customer/dashboard'
   if (roles.includes(ROLES.PARTNER)) return '/partner/dashboard'
   if (roles.includes(ROLES.CONSULTANT)) return '/consultant/dashboard'
+  if (roles.includes(ROLES.STAFF)) return '/staff'
   if (roles.includes(ROLES.ADMIN)) return '/today'
   return '/'
 }
@@ -38,6 +41,7 @@ export const ROLE_BASE_PATHS = {
   [ROLES.CUSTOMER]: '/customer',
   [ROLES.PARTNER]: '/partner',
   [ROLES.CONSULTANT]: '/consultant',
+  [ROLES.STAFF]: '/staff',
   [ROLES.ADMIN]: '/admin',
 }
 
@@ -45,6 +49,7 @@ export function getRequiredRoleFromPath(pathname) {
   if (pathname.startsWith('/customer')) return ROLES.CUSTOMER
   if (pathname.startsWith('/partner')) return ROLES.PARTNER
   if (pathname.startsWith('/consultant')) return ROLES.CONSULTANT
+  if (pathname.startsWith('/staff')) return ROLES.STAFF
   if (pathname.startsWith('/admin') || pathname.startsWith('/today') || pathname.startsWith('/board') || pathname.startsWith('/content') || pathname.startsWith('/experts')) return ROLES.ADMIN
   return null
 }

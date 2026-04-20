@@ -16,12 +16,20 @@ async function ensureProfile(user) {
   }
   if (existing) return existing
 
-  const role = ADMIN_EMAILS.includes(user.email) ? 'admin' : 'partner'
+  const isAdminEmail = ADMIN_EMAILS.includes(user.email)
+  const role = isAdminEmail ? 'admin' : 'partner'
   const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || null
 
   const { data: inserted, error: insertErr } = await supabase
     .from('profiles')
-    .insert({ id: user.id, full_name: fullName, role, password_changed: true })
+    .insert({
+      id: user.id,
+      full_name: fullName,
+      role,
+      role_admin: isAdminEmail,
+      role_partner: !isAdminEmail,
+      password_changed: true,
+    })
     .select()
     .single()
 

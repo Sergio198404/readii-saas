@@ -9,7 +9,7 @@ const Q_LABELS = {
   Q16: '补充说明', route_scores: '路线评分',
 }
 
-export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onProposal }) {
+export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal }) {
   const [showAssessment, setShowAssessment] = useState(false)
   const initials = lead?.name
     ? [...lead.name].length >= 2
@@ -101,7 +101,6 @@ export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoa
         <button className="btn-action" onClick={() => onEdit?.(lead)}>编辑</button>
         <button className="btn-action update" onClick={() => onUpdate?.(lead)}>更新进展</button>
         <button className="btn-action ai-btn" onClick={() => onAskCoach?.(lead)}>🧠 AI建议</button>
-        <button className="btn-action" onClick={() => onProposal?.(lead)}>📄 建议书</button>
         {isS3 && (
           <button className="btn-action deal-btn" onClick={() => onMarkDeal?.(lead)}>🎉 标记成交</button>
         )}

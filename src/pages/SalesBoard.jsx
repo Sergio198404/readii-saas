@@ -7,7 +7,6 @@ import EmailPanel from '../components/email/EmailPanel'
 import AddLeadModal from '../components/modals/AddLeadModal'
 import UpdateLeadModal from '../components/modals/UpdateLeadModal'
 import MarkDealModal from '../components/modals/MarkDealModal'
-import NewProposalModal from '../components/modals/NewProposalModal'
 import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
 import { useAuth } from '../lib/useAuth'
@@ -27,7 +26,6 @@ export default function SalesBoard() {
   const [showEmail, setShowEmail] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [dealingLead, setDealingLead] = useState(null)
-  const [proposalLead, setProposalLead] = useState(null)
   const [deals, setDeals] = useState([])
 
   const { leads, filteredLeads, counts, badgeCounts, loading, error, refetch } = useLeads(currentFilter, searchQuery)
@@ -98,7 +96,6 @@ export default function SalesBoard() {
               }}
               onDelete={async (lead) => { await supabase.from('leads').delete().eq('id', lead.id) }}
               onMarkDeal={(lead) => setDealingLead(lead)}
-              onProposal={(lead) => setProposalLead(lead)}
             />
           )}
         </div>
@@ -124,14 +121,6 @@ export default function SalesBoard() {
             setDealingLead(null)
             await Promise.all([refetch(), fetchDeals()])
           }}
-        />
-      )}
-
-      {proposalLead && (
-        <NewProposalModal
-          prefillLead={proposalLead}
-          onClose={() => setProposalLead(null)}
-          onCreated={() => setProposalLead(null)}
         />
       )}
 

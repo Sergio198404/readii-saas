@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
 import CustomerDashboard from './CustomerDashboard'
 import CustomerJourney from './CustomerJourney'
+import HRCompliance from './HRCompliance'
+import ReportsCenter from './ReportsCenter'
 
 export default function CustomerRoutes() {
   return (
@@ -10,6 +12,8 @@ export default function CustomerRoutes() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<CustomerDashboard />} />
         <Route path="journey" element={<CustomerJourney />} />
+        <Route path="hr-compliance" element={<HRCompliance />} />
+        <Route path="reports" element={<ReportsCenter />} />
         <Route path="documents" element={<Placeholder title="我的文档" />} />
         <Route path="qa" element={<Placeholder title="问答" />} />
         <Route path="meetings" element={<Placeholder title="会议" />} />

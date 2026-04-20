@@ -1,0 +1,51 @@
+.hrc-container { max-width: 840px; }
+.hrc-header { margin-bottom: 20px; }
+.hrc-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+.hrc-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+
+.hrc-progress-bar { height: 8px; border-radius: 100px; background: var(--bg-muted); overflow: hidden; margin-bottom: 6px; }
+.hrc-progress-fill { height: 100%; background: linear-gradient(90deg, #1e7a3c, #3fa06a); transition: width .3s; }
+.hrc-progress-text { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+.hrc-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+.hrc-generate-btn { padding: 10px 18px; background: #1B2A4A; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.hrc-generate-btn:disabled { opacity: .5; cursor: not-allowed; }
+.hrc-download-btn { padding: 10px 18px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 8px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
+
+.hrc-phase { margin-bottom: 20px; border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; background: var(--bg-card); }
+.hrc-phase.locked { opacity: .55; pointer-events: none; }
+.hrc-phase-header { padding: 14px 18px; background: var(--bg-muted); display: flex; justify-content: space-between; align-items: center; }
+.hrc-phase-title { font-weight: 600; font-size: 14px; }
+.hrc-phase-count { font-size: 11px; color: var(--text-muted); }
+.hrc-phase-locked-badge { font-size: 11px; color: #b8741a; background: #fff4e0; padding: 2px 8px; border-radius: 100px; }
+
+.hrc-item { padding: 12px 18px; border-top: 1px solid var(--border-subtle); }
+.hrc-item:first-of-type { border-top: none; }
+.hrc-item-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.hrc-item-num { width: 40px; font-weight: 700; color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+.hrc-item-title { flex: 1; font-size: 13px; }
+.hrc-item-status { font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; }
+.hrc-status-completed { background: #e6f4ea; color: #1e7a3c; }
+.hrc-status-pending { background: #f3f3f0; color: var(--text-muted); }
+.hrc-status-in-progress { background: #fff4e0; color: #b8741a; }
+.hrc-status-waived { background: #eef; color: #446; }
+
+.hrc-item-body { margin-top: 12px; padding: 14px; background: var(--bg-muted); border-radius: 8px; font-size: 13px; line-height: 1.6; }
+.hrc-item-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); font-weight: 600; margin-top: 10px; margin-bottom: 4px; }
+.hrc-item-desc { white-space: pre-wrap; color: var(--text-secondary); }
+.hrc-item-basis { font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+.hrc-upload-zone { margin-top: 14px; padding: 14px; border: 2px dashed var(--border-subtle); border-radius: 8px; text-align: center; font-size: 12px; color: var(--text-muted); }
+.hrc-upload-zone input[type=file] { display: none; }
+.hrc-upload-btn { display: inline-block; padding: 6px 14px; background: var(--text-primary); color: #fff; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 6px; }
+
+.hrc-evidence { margin-top: 10px; padding: 8px 12px; background: #fff; border: 1px solid var(--border-subtle); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.hrc-evidence-link { color: #1B2A4A; text-decoration: none; }
+.hrc-evidence-link:hover { text-decoration: underline; }
+
+.hrc-item-buttons { display: flex; gap: 8px; margin-top: 12px; }
+.hrc-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-subtle); background: var(--bg-card); cursor: pointer; font-size: 12px; }
+.hrc-btn-primary { background: #1e7a3c; color: #fff; border-color: #1e7a3c; }
+.hrc-btn-ghost { background: transparent; }
+
+.hrc-signoff-wait { margin-top: 12px; padding: 10px 14px; background: #fff4e0; border-left: 3px solid #b8741a; border-radius: 4px; font-size: 12px; color: #b8741a; }
