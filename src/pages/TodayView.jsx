@@ -2,9 +2,11 @@ import { useState } from 'react'
 import Sidebar from '../components/layout/Sidebar'
 import UpdateLeadModal from '../components/modals/UpdateLeadModal'
 import DanKoeModal from '../components/modals/DanKoeModal'
+import ProposalCreateModal from '../components/modals/ProposalCreateModal'
 import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
 import { useExperts } from '../lib/useExperts'
+import { useAuth } from '../lib/useAuth'
 import './TodayView.css'
 
 function todayMMDD() {
@@ -23,7 +25,7 @@ function sortByPriority(a, b) {
   return (P_ORDER[a.p] ?? 9) - (P_ORDER[b.p] ?? 9)
 }
 
-function MiniCard({ lead, onUpdate, onDanKoe, overdue }) {
+function MiniCard({ lead, onUpdate, onDanKoe, onOpenProposal, isAdmin, overdue }) {
   const initials = lead.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
@@ -49,6 +51,15 @@ function MiniCard({ lead, onUpdate, onDanKoe, overdue }) {
         </div>
       </div>
       <div className="today-card-actions">
+        {isAdmin && (
+          <button
+            className="btn-action today-card-btn"
+            onClick={() => onOpenProposal(lead)}
+            title="生成方案书链接"
+          >
+            📄 方案书
+          </button>
+        )}
         <button className="btn-action ai-btn today-card-btn" onClick={() => onDanKoe(lead)}>
           🧠 AI教练
         </button>
@@ -68,6 +79,10 @@ export default function TodayView() {
   const [coachPrompt, setCoachPrompt] = useState(null)
   const [showDanKoe, setShowDanKoe] = useState(false)
   const [danKoeLead, setDanKoeLead] = useState(null)
+  const [proposalLead, setProposalLead] = useState(null)
+
+  const { profile } = useAuth()
+  const isAdmin = !!profile && (profile.role === 'admin' || profile.role_admin === true)
 
   const { leads, badgeCounts, loading } = useLeads('all', '')
   const { experts } = useExperts()
@@ -160,7 +175,7 @@ export default function TodayView() {
                     🚨 逾期未跟进 <span className="today-section-count">{overdueLeads.length}</span>
                   </h2>
                   {overdueLeads.map(l => (
-                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} overdue />
+                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} overdue />
                   ))}
                 </section>
               )}
@@ -171,7 +186,7 @@ export default function TodayView() {
                   📅 今日必跟进 <span className="today-section-count">{todayLeads.length}</span>
                 </h2>
                 {todayLeads.length > 0 ? todayLeads.map(l => (
-                  <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} />
+                  <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} />
                 )) : (
                   <div className="today-empty">今日没有到期跟进，干得漂亮 ✓</div>
                 )}
@@ -184,7 +199,7 @@ export default function TodayView() {
                     🔴 P1 雷达 <span className="today-section-count">{p1Leads.length}</span>
                   </h2>
                   {p1Leads.map(l => (
-                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} />
+                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} />
                   ))}
                 </section>
               )}
@@ -212,6 +227,13 @@ export default function TodayView() {
         leads={leads}
         initialPrompt={coachPrompt}
       />
+
+      {proposalLead && (
+        <ProposalCreateModal
+          lead={proposalLead}
+          onClose={() => setProposalLead(null)}
+        />
+      )}
     </div>
   )
 }

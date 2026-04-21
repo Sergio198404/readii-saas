@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '../../lib/useAuth'
 import './LeadCard.css'
 
 const Q_LABELS = {
@@ -9,8 +10,10 @@ const Q_LABELS = {
   Q16: '补充说明', route_scores: '路线评分',
 }
 
-export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal }) {
+export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onOpenProposal }) {
   const [showAssessment, setShowAssessment] = useState(false)
+  const { profile } = useAuth()
+  const isAdmin = !!profile && (profile.role === 'admin' || profile.role_admin === true)
   const initials = lead?.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
@@ -100,6 +103,15 @@ export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoa
       <div className="card-actions">
         <button className="btn-action" onClick={() => onEdit?.(lead)}>编辑</button>
         <button className="btn-action update" onClick={() => onUpdate?.(lead)}>更新进展</button>
+        {isAdmin && (
+          <button
+            className="btn-action"
+            onClick={() => onOpenProposal?.(lead)}
+            title="生成方案书链接"
+          >
+            📄 方案书
+          </button>
+        )}
         <button className="btn-action ai-btn" onClick={() => onAskCoach?.(lead)}>🧠 AI建议</button>
         {isS3 && (
           <button className="btn-action deal-btn" onClick={() => onMarkDeal?.(lead)}>🎉 标记成交</button>

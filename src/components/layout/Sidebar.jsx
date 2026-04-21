@@ -33,6 +33,9 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
   const isContent = location.pathname === '/content'
   const isExperts = location.pathname === '/experts'
   const isPartnersAdmin = location.pathname === '/admin/partners'
+  const isProposalsAdmin = location.pathname === '/admin/proposals'
+  const isThirdPartyFees = location.pathname === '/admin/settings/third-party-fees'
+  const isAnyRoute = isToday || isContent || isExperts || isPartnersAdmin || isProposalsAdmin || isThirdPartyFees
 
   function handleFilterClick(key) {
     if (key === 'today') {
@@ -47,8 +50,12 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
       navigate('/admin/journey-templates')
     } else if (key === 'admin-customers') {
       navigate('/admin/customers')
+    } else if (key === 'admin-proposals') {
+      navigate('/admin/proposals')
+    } else if (key === 'admin-third-party-fees') {
+      navigate('/admin/settings/third-party-fees')
     } else {
-      if (isToday || isContent || isExperts || isPartnersAdmin) navigate('/board')
+      if (isAnyRoute) navigate('/board')
       onFilterChange?.(key)
     }
   }
@@ -58,7 +65,9 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
       : key === 'content' ? isContent
       : key === 'experts' ? isExperts
       : key === 'admin-partners' ? isPartnersAdmin
-      : (!isToday && !isContent && !isExperts && !isPartnersAdmin && currentFilter === key)
+      : key === 'admin-proposals' ? isProposalsAdmin
+      : key === 'admin-third-party-fees' ? isThirdPartyFees
+      : (!isAnyRoute && currentFilter === key)
     return (
       <div
         key={key}
@@ -113,6 +122,8 @@ export default function Sidebar({ currentFilter, onFilterChange, badgeCounts = {
             {renderItem({ key: 'admin-partners', icon: '◇', label: '伙伴管理' })}
             {renderItem({ key: 'admin-journey', icon: '🗺', label: 'Journey 模板' })}
             {renderItem({ key: 'admin-customers', icon: '👤', label: '客户管理' })}
+            {renderItem({ key: 'admin-proposals', icon: '📄', label: '方案书' })}
+            {renderItem({ key: 'admin-third-party-fees', icon: '💷', label: '第三方费用' })}
           </div>
         </>
       )}

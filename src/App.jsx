@@ -28,6 +28,9 @@ import CustomerReports from './pages/admin/CustomerReports'
 import AOInterviewScore from './pages/admin/AOInterviewScore'
 import ApplicantInterviewScore from './pages/admin/ApplicantInterviewScore'
 import MonthlyOperations from './pages/admin/MonthlyOperations'
+import ProposalsAdminPage from './pages/admin/ProposalsAdminPage'
+import ThirdPartyFeesPage from './pages/admin/ThirdPartyFeesPage'
+import ProposalPublicPage from './pages/ProposalPublicPage'
 import AppLayout from './components/layout/AppLayout'
 import { useAuth } from './lib/useAuth'
 
@@ -84,6 +87,7 @@ export default function App() {
           <Route path="/login" element={user ? <Navigate to={homePath} replace /> : <LoginPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/assessment" element={<AssessmentPage />} />
+          <Route path="/p/:token" element={<ProposalPublicPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
           <Route path="/change-password" element={!user ? <Navigate to="/login" replace /> : <ChangePasswordPage />} />
@@ -126,6 +130,8 @@ export default function App() {
           <Route path="/admin/customers/:customerId/applicant-interview-score" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ApplicantInterviewScore /></RequireAuth>} />
           <Route path="/admin/customers/:customerId/monthly-ops" element={<RequireAuth user={user} profile={profile} allow={['admin']}><MonthlyOperations /></RequireAuth>} />
           <Route path="/admin/team" element={<RequireAuth user={user} profile={profile} allow={['admin']}><TeamManagement /></RequireAuth>} />
+          <Route path="/admin/proposals" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ProposalsAdminPage /></RequireAuth>} />
+          <Route path="/admin/settings/third-party-fees" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ThirdPartyFeesPage /></RequireAuth>} />
 
           {/* ═══ Existing partner route (unchanged) ═══ */}
           <Route path="/partner" element={<RequireAuth user={user} profile={profile}><PartnerPage /></RequireAuth>} />
