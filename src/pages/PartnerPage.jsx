@@ -143,8 +143,17 @@ export default function PartnerPage() {
         {error && <div className="pp-error">加载失败：{error}</div>}
 
         {!loading && !partner && (
-          <div className="pp-empty-state">
-            你的账号还没有关联 partner 记录，请联系管理员。
+          <div className="pp-empty-state pp-welcome">
+            <div className="pp-welcome-title">欢迎加入 Readii 渠道网络</div>
+            <div className="pp-welcome-sub">你的账号正在审核中，通常在 1–2 个工作日内完成</div>
+            <div className="pp-welcome-contact">
+              如有疑问，请联系：<a href="mailto:xiaoyusu@readii.co.uk">xiaoyusu@readii.co.uk</a>
+              <span className="pp-welcome-dot"> · </span>
+              微信：<strong>sergio07</strong>
+            </div>
+            <div className="pp-welcome-footnote">
+              审核通过后，你将收到通知，届时即可开始推广并获取佣金
+            </div>
           </div>
         )}
 

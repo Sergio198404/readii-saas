@@ -58,6 +58,47 @@
   font-size: 13px;
 }
 
+.pp-welcome {
+  padding: 56px 32px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+.pp-welcome-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.pp-welcome-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.pp-welcome-contact {
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-muted);
+  padding: 14px 18px;
+  border-radius: var(--r-sm);
+  display: inline-block;
+  margin-bottom: 18px;
+}
+.pp-welcome-contact a {
+  color: var(--accent-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+.pp-welcome-contact a:hover { text-decoration: underline; }
+.pp-welcome-dot { color: var(--text-muted); }
+.pp-welcome-footnote {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 .pp-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
