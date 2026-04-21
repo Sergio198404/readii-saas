@@ -95,16 +95,6 @@ export default function ProposalPublicPage() {
 
   const countdown = formatCountdown(msLeft)
 
-  const requiredTotalPence = useMemo(() => {
-    const items = proposal?.third_party_items || []
-    return items.reduce((sum, it) => {
-      if (!it.is_required) return sum
-      if (it.price_fixed_pence != null) return sum + it.price_fixed_pence
-      if (it.price_from_pence != null) return sum + it.price_from_pence
-      return sum
-    }, 0)
-  }, [proposal?.third_party_items])
-
   async function handleConfirm(e) {
     e.preventDefault()
     setSubmitErr('')
@@ -241,9 +231,52 @@ export default function ProposalPublicPage() {
             </div>
           </div>
 
+          <div className="pp-section">
+            <div className="pp-section-title">Readii 服务费</div>
+            <div className="pp-readii-fee">
+              <div className="pp-readii-fee-name">
+                {proposal.recommended_plan_name || 'Readii 陪跑服务费'}
+              </div>
+              <div className="pp-readii-fee-price">
+                {fmtGBP(proposal.service_price_pence)}
+                <span className="pp-readii-fee-tax">含 VAT</span>
+              </div>
+              <ul className="pp-readii-fee-notes">
+                <li>这是你支付给 Readii 的全部费用</li>
+                <li>不包含政府规费及第三方专业服务费</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pp-section">
+            <div className="pp-section-title">付款计划</div>
+            <div className="pp-payment">
+              <div className="pp-payment-box">
+                <div className="pp-payment-label">签约首期</div>
+                <div className="pp-payment-amount">{fmtGBP(proposal.payment_1_pence)}</div>
+                <div className="pp-payment-sub">{proposal.payment_1_trigger || '确认启动后 5 个工作日内'}</div>
+                <div className="pp-payment-refund">7 天无理由退款保障</div>
+              </div>
+              <div className="pp-payment-box">
+                <div className="pp-payment-label">第二期</div>
+                <div className="pp-payment-amount">{fmtGBP(proposal.payment_2_pence)}</div>
+                <div className="pp-payment-sub">{proposal.payment_2_trigger || '按阶段里程碑'}</div>
+              </div>
+              <div className="pp-payment-box">
+                <div className="pp-payment-label">第三方费用</div>
+                <div className="pp-payment-amount">实报实付</div>
+                <div className="pp-payment-sub">客户自行向第三方缴纳</div>
+              </div>
+            </div>
+          </div>
+
           {thirdParty.length > 0 && (
             <div className="pp-section">
-              <div className="pp-section-title">第三方费用清单</div>
+              <div className="pp-section-title">另需自行向第三方支付的费用</div>
+              <div className="pp-third-party-note">
+                以下费用由客户直接向相应机构缴纳，不经过 Readii 账户。
+                Readii 不从中收取任何差价或手续费。
+              </div>
               <table className="pp-fees-table">
                 <thead>
                   <tr>
@@ -271,35 +304,8 @@ export default function ProposalPublicPage() {
                   ))}
                 </tbody>
               </table>
-
-              <div className="pp-total-row">
-                <span>Readii 服务费 + 必要第三方费合计（估算）</span>
-                <strong>{fmtGBP((proposal.service_price_pence || 0) + requiredTotalPence)}</strong>
-              </div>
             </div>
           )}
-
-          <div className="pp-section">
-            <div className="pp-section-title">付款计划</div>
-            <div className="pp-payment">
-              <div className="pp-payment-box">
-                <div className="pp-payment-label">签约首期</div>
-                <div className="pp-payment-amount">{fmtGBP(proposal.payment_1_pence)}</div>
-                <div className="pp-payment-sub">{proposal.payment_1_trigger || '确认启动后 5 个工作日内'}</div>
-                <div className="pp-payment-refund">7 天无理由退款保障</div>
-              </div>
-              <div className="pp-payment-box">
-                <div className="pp-payment-label">第二期</div>
-                <div className="pp-payment-amount">{fmtGBP(proposal.payment_2_pence)}</div>
-                <div className="pp-payment-sub">{proposal.payment_2_trigger || '按阶段里程碑'}</div>
-              </div>
-              <div className="pp-payment-box">
-                <div className="pp-payment-label">第三方费用</div>
-                <div className="pp-payment-amount">实报实付</div>
-                <div className="pp-payment-sub">客户自行向第三方缴纳</div>
-              </div>
-            </div>
-          </div>
 
           {confirmed ? (
             <div className="pp-success">

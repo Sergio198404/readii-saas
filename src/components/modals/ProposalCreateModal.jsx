@@ -222,10 +222,6 @@ export default function ProposalCreateModal({ lead, onClose }) {
   const selectedFees = feeRows.filter(r => r.checked && r.item_name.trim())
   const requiredFees = selectedFees.filter(r => r.is_required)
   const optionalFees = selectedFees.filter(r => !r.is_required)
-  const requiredTotal = requiredFees.reduce((sum, r) => {
-    if (r.price_mode === 'fixed') return sum + (Number(r.price_fixed) || 0)
-    return sum + (Number(r.price_from) || 0)
-  }, 0)
 
   async function handleSubmit() {
     setError('')
@@ -747,14 +743,17 @@ export default function ProposalCreateModal({ lead, onClose }) {
                     : `${selectedTimeline.length} 个节点（含 ${keyMilestoneCount} 个关键节点）`}
                 />
                 <SummaryRow
-                  label="第三方费用"
-                  value={selectedFees.length === 0
-                    ? <span style={{ color: 'var(--text-muted)' }}>未选任何费用</span>
-                    : `${requiredFees.length} 项必须（${fmtGBP(requiredTotal)}）· ${optionalFees.length} 项按需`}
+                  label="Readii 服务费"
+                  value={<strong>{fmtGBP(recPrice)}</strong>}
                 />
                 <SummaryRow
-                  label="预计合计"
-                  value={<strong style={{ fontSize: 15 }}>{fmtGBP(Number(recPrice) + requiredTotal)}</strong>}
+                  label="第三方参考费用"
+                  value={selectedFees.length === 0
+                    ? <span style={{ color: 'var(--text-muted)' }}>未选任何费用</span>
+                    : <>
+                        {requiredFees.length} 项必须 + {optionalFees.length} 项按需
+                        <span style={{ color: 'var(--text-muted)', marginLeft: 6, fontSize: 11 }}>（仅供参考，客户直付）</span>
+                      </>}
                   isLast
                 />
               </div>
