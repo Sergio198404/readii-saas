@@ -22,9 +22,19 @@ export default async (req) => {
   try { body = await req.json() } catch { return json(400, { error: 'Invalid JSON' }) }
 
   const token = body?.token
-  const clientPhone = (body?.client_phone || '').trim()
+  const clientName    = (body?.client_name    || '').trim()
+  const clientPhone   = (body?.client_phone   || '').trim()
+  const clientEmail   = (body?.client_email   || '').trim()
+  const clientAddress = (body?.client_address || '').trim()
+
   if (!token) return json(400, { error: 'token 必填' })
-  if (!clientPhone) return json(400, { error: 'client_phone 必填' })
+  if (!clientName)    return json(400, { error: '姓名必填' })
+  if (!clientPhone)   return json(400, { error: '手机号必填' })
+  if (!clientEmail)   return json(400, { error: '邮箱必填' })
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
+    return json(400, { error: '邮箱格式不正确' })
+  }
+  if (!clientAddress) return json(400, { error: '居住地址必填' })
 
   const { data, error } = await admin
     .from('proposals')
@@ -47,7 +57,10 @@ export default async (req) => {
   const { error: updateErr } = await admin.from('proposals').update({
     status: 'confirmed',
     confirmed_at: new Date().toISOString(),
+    client_name: clientName,
     confirmed_client_phone: clientPhone,
+    confirmed_client_email: clientEmail,
+    confirmed_client_address: clientAddress,
   }).eq('id', data.id)
 
   if (updateErr) return json(500, { error: updateErr.message })

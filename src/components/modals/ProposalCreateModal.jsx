@@ -443,7 +443,7 @@ export default function ProposalCreateModal({ lead, onClose }) {
                     <input value={recName} onChange={(e) => setRecName(e.target.value)} placeholder="陪跑方案" />
                   </div>
                   <div className="ap-field">
-                    <label>推荐价格 £</label>
+                    <label>推荐价格 £（含 VAT）</label>
                     <input type="number" min="0" value={recPrice} onChange={(e) => setRecPrice(e.target.value)} />
                   </div>
                   <div className="ap-field">

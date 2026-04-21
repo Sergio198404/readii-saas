@@ -156,9 +156,11 @@ export default function ProposalsAdminPage() {
                           </div>
                         )}
                         {s === 'confirmed' && p.confirmed_at && (
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>
-                            确认于 {fmtDateShort(p.confirmed_at)}
-                            {p.confirmed_client_phone && ` · ${p.confirmed_client_phone}`}
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, lineHeight: 1.55 }}>
+                            <div>确认于 {fmtDateShort(p.confirmed_at)}</div>
+                            {p.confirmed_client_phone && <div>📱 {p.confirmed_client_phone}</div>}
+                            {p.confirmed_client_email && <div>✉️ {p.confirmed_client_email}</div>}
+                            {p.confirmed_client_address && <div>🏠 {p.confirmed_client_address}</div>}
                           </div>
                         )}
                       </td>

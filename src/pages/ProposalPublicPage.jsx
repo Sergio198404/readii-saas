@@ -6,12 +6,13 @@ import './ProposalPublicPage.css'
 function pad(n) { return String(n).padStart(2, '0') }
 
 function formatCountdown(msLeft) {
-  if (msLeft <= 0) return { h: '00', m: '00', s: '00' }
+  if (msLeft <= 0) return { d: 0, h: '00', m: '00', s: '00' }
   const total = Math.floor(msLeft / 1000)
-  const h = Math.floor(total / 3600)
+  const d = Math.floor(total / 86400)
+  const h = Math.floor((total % 86400) / 3600)
   const m = Math.floor((total % 3600) / 60)
   const s = total % 60
-  return { h: pad(h), m: pad(m), s: pad(s) }
+  return { d, h: pad(h), m: pad(m), s: pad(s) }
 }
 
 function fmtGBP(pence) {
@@ -49,6 +50,8 @@ export default function ProposalPublicPage() {
   const [showForm, setShowForm] = useState(false)
   const [confirmName, setConfirmName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [address, setAddress] = useState('')
   const [consent, setConsent] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitErr, setSubmitErr] = useState('')
@@ -105,14 +108,24 @@ export default function ProposalPublicPage() {
   async function handleConfirm(e) {
     e.preventDefault()
     setSubmitErr('')
-    if (!phone.trim()) return setSubmitErr('请填写手机号')
-    if (!consent) return setSubmitErr('请勾选同意')
+    if (!confirmName.trim()) return setSubmitErr('请填写姓名')
+    if (!phone.trim())       return setSubmitErr('请填写手机号')
+    if (!email.trim())       return setSubmitErr('请填写邮箱')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setSubmitErr('邮箱格式不正确')
+    if (!address.trim())     return setSubmitErr('请填写居住地址')
+    if (!consent)            return setSubmitErr('请勾选同意')
     setSubmitting(true)
     try {
       const res = await fetch('/.netlify/functions/confirm-proposal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, client_phone: phone.trim() }),
+        body: JSON.stringify({
+          token,
+          client_name:    confirmName.trim(),
+          client_phone:   phone.trim(),
+          client_email:   email.trim(),
+          client_address: address.trim(),
+        }),
       })
       const json = await res.json()
       if (res.status === 410) {
@@ -153,16 +166,10 @@ export default function ProposalPublicPage() {
   const timelineItems = Array.isArray(proposal.timeline_items) ? proposal.timeline_items : []
   const thirdParty = Array.isArray(proposal.third_party_items) ? proposal.third_party_items : []
 
+  const hasPromo = proposal.promo_price_pence != null && proposal.original_price_pence != null
+
   return (
     <div className="pp-root">
-      <div className={`pp-countdown ${expired ? 'expired' : urgent ? 'warning' : ''}`}>
-        {expired
-          ? <>报价已失效 · 请联系 Readii 重新出方案</>
-          : <>此方案书有效期剩余 <strong>{countdown.h}</strong>:
-            <strong>{countdown.m}</strong>:<strong>{countdown.s}</strong> ·
-            到期时间 {fmtDate(proposal.expires_at)}</>}
-      </div>
-
       <div className="pp-wrap">
         <div className="pp-card">
           <div className="pp-head">
@@ -308,21 +315,24 @@ export default function ProposalPublicPage() {
             </div>
           ) : (
             <div className="pp-cta">
-              {proposal.promo_price_pence != null && (
+              {hasPromo && (
                 <div className="pp-promo">
-                  <div className="pp-promo-label">限时优惠价</div>
+                  <div className="pp-promo-header">
+                    <div className="pp-promo-label">限时优惠</div>
+                    <div className={`pp-promo-countdown ${urgent ? 'urgent' : ''}`}>
+                      剩余 {countdown.d > 0 ? <><strong>{countdown.d}</strong>d </> : null}
+                      <strong>{countdown.h}</strong>:<strong>{countdown.m}</strong>:<strong>{countdown.s}</strong>
+                    </div>
+                  </div>
                   <div className="pp-promo-prices">
-                    {proposal.original_price_pence != null && (
-                      <span className="pp-promo-original">{fmtGBP(proposal.original_price_pence)}</span>
-                    )}
+                    <span className="pp-promo-original">{fmtGBP(proposal.original_price_pence)}</span>
+                    <span className="pp-promo-original-tax">含 VAT</span>
                     <span className="pp-promo-now">{fmtGBP(proposal.promo_price_pence)}</span>
                     <span className="pp-promo-tax">含 VAT</span>
                   </div>
                   <ul className="pp-promo-terms">
-                    <li>5 天内确认方案即享此价格</li>
-                    {proposal.original_price_pence != null && (
-                      <li>逾期恢复原价 {fmtGBP(proposal.original_price_pence)}</li>
-                    )}
+                    <li>5 天内确认即享此价格</li>
+                    <li>逾期恢复原价 {fmtGBP(proposal.original_price_pence)}</li>
                   </ul>
                 </div>
               )}
@@ -336,34 +346,59 @@ export default function ProposalPublicPage() {
                 </button>
               ) : (
                 <form className="pp-form" onSubmit={handleConfirm}>
+                  <div className="pp-form-head">
+                    <div className="pp-form-title">填写签约信息</div>
+                    <div className="pp-form-sub">Readii 将根据以下信息准备服务协议</div>
+                  </div>
+
                   <div>
-                    <label>姓名确认</label>
+                    <label>姓名（中文全名）</label>
                     <input
                       type="text"
                       value={confirmName}
                       onChange={(e) => setConfirmName(e.target.value)}
+                      placeholder="与护照/身份证一致的姓名"
                     />
                   </div>
                   <div>
-                    <label>手机号</label>
+                    <label>手机号（微信同号）</label>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="方便 Readii 联系你的手机号"
+                      placeholder="+86 或英国号码均可"
                     />
                   </div>
+                  <div>
+                    <label>邮箱地址</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="用于接收服务协议和发票"
+                    />
+                  </div>
+                  <div>
+                    <label>居住地址</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="当前常住地址（街道 / 城市 / 国家）"
+                    />
+                  </div>
+
                   <label className="pp-form-consent">
                     <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                    <span>我已阅读并确认上述方案。我了解签约后 7 天内可申请全额退款。</span>
+                    <span>我已阅读并确认上述方案内容。我了解签约后 7 天内可申请全额退款，无需说明理由。</span>
                   </label>
                   {submitErr && <div className="pp-error-text">{submitErr}</div>}
                   <button
                     type="submit"
                     className="pp-cta-btn"
-                    disabled={submitting || !phone.trim() || !consent}
+                    disabled={submitting || !consent}
                   >
-                    {submitting ? '提交中…' : '提交确认'}
+                    {submitting ? '提交中…' : '提交签约信息'}
                   </button>
                 </form>
               )}
