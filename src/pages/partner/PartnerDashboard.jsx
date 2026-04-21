@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/useAuth'
 import AddLeadModal from '../../components/modals/AddLeadModal'
@@ -111,10 +111,12 @@ export default function PartnerDashboard() {
   const [updating, setUpdating] = useState(null)
   const [aiInput, setAiInput] = useState('')
 
-  const loadedRef = useRef(false)
-
   const load = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id) {
+      // useAuth hasn't hydrated yet; don't flip loading off — the effect
+      // will re-fire as soon as user.id becomes available.
+      return
+    }
     setLoading(true)
     setError('')
 
@@ -158,8 +160,6 @@ export default function PartnerDashboard() {
   }, [user?.id])
 
   useEffect(() => {
-    if (loadedRef.current) return
-    loadedRef.current = true
     load()
   }, [load])
 
