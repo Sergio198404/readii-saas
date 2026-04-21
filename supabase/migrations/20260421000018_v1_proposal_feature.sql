@@ -2,6 +2,35 @@
 -- add proposal_third_party_defaults admin-editable defaults table, 8-char
 -- token generator + 48h expires_at trigger, RLS for admin-all + public-by-token.
 
+-- 0. Drop NOT NULL on any legacy proposals columns (e.g. visa_route_zh from
+-- the old v0.8/v0.11 proposal generation system). The new flow only uses the
+-- columns added below, so legacy columns must be nullable to allow inserts
+-- that omit them. Dynamic loop covers all non-PK columns and is idempotent.
+DO $$
+DECLARE
+  col RECORD;
+BEGIN
+  FOR col IN
+    SELECT c.column_name
+    FROM information_schema.columns c
+    WHERE c.table_schema = 'public'
+      AND c.table_name = 'proposals'
+      AND c.is_nullable = 'NO'
+      AND c.column_name NOT IN (
+        SELECT kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema  = kcu.table_schema
+        WHERE tc.table_schema = 'public'
+          AND tc.table_name = 'proposals'
+          AND tc.constraint_type = 'PRIMARY KEY'
+      )
+  LOOP
+    EXECUTE format('ALTER TABLE proposals ALTER COLUMN %I DROP NOT NULL', col.column_name);
+  END LOOP;
+END $$;
+
 -- 1. Extend existing proposals table (kept from old feature)
 ALTER TABLE proposals
   ADD COLUMN IF NOT EXISTS token TEXT UNIQUE,
