@@ -29,6 +29,7 @@ export default function SalesBoard() {
   const [dealingLead, setDealingLead] = useState(null)
   const [proposalLead, setProposalLead] = useState(null)
   const [deals, setDeals] = useState([])
+  const [partnerMap, setPartnerMap] = useState({})
 
   const { leads, filteredLeads, counts, badgeCounts, loading, error, refetch } = useLeads(currentFilter, searchQuery)
 
@@ -39,7 +40,19 @@ export default function SalesBoard() {
     if (!err) setDeals(data || [])
   }, [])
 
+  const fetchPartners = useCallback(async () => {
+    const { data, error: err } = await supabase
+      .from('partners')
+      .select('id, referral_code')
+    if (!err) {
+      const map = {}
+      for (const p of data || []) map[p.id] = p
+      setPartnerMap(map)
+    }
+  }, [])
+
   useEffect(() => { fetchDeals() }, [fetchDeals])
+  useEffect(() => { fetchPartners() }, [fetchPartners])
 
   const dealSummaries = useMemo(() => {
     const map = {}
@@ -90,6 +103,7 @@ export default function SalesBoard() {
             <LeadList
               leads={filteredLeads}
               dealSummaries={dealSummaries}
+              partnerMap={partnerMap}
               onEdit={(lead) => { setEditingLead(lead); setShowAddModal(true) }}
               onUpdate={(lead) => { setUpdatingLead(lead); setShowUpdateModal(true) }}
               onAskCoach={(lead) => {

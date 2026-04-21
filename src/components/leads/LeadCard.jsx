@@ -10,7 +10,7 @@ const Q_LABELS = {
   Q16: '补充说明', route_scores: '路线评分',
 }
 
-export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onOpenProposal }) {
+export default function LeadCard({ lead, dealSummary, partnerInfo, onEdit, onUpdate, onAskCoach, onDelete, onMarkDeal, onOpenProposal }) {
   const [showAssessment, setShowAssessment] = useState(false)
   const { profile } = useAuth()
   const isAdmin = !!profile && (profile.role === 'admin' || profile.role_admin === true)
@@ -45,6 +45,11 @@ export default function LeadCard({ lead, dealSummary, onEdit, onUpdate, onAskCoa
         {lead?.b && <span className="badge badge-budget">{lead.b}</span>}
         {lead?.next && <span className="badge badge-date">{lead.next}</span>}
         {lead?.follow && <span className="badge badge-today">{lead.follow}</span>}
+        {isAdmin && partnerInfo?.referral_code && (
+          <span className="badge" style={{ background: '#F5E8D0', color: '#7A4E12', fontWeight: 600 }}>
+            🔗 {partnerInfo.referral_code}
+          </span>
+        )}
       </div>
 
       {lead?.note && (

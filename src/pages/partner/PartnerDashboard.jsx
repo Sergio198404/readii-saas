@@ -142,10 +142,11 @@ export default function PartnerDashboard() {
     setPartner(partnerRow)
 
     const [{ data: leadRows }, { data: roleRows }] = await Promise.all([
+      // RLS (partner_read_own_leads) restricts this to the caller's own
+      // leads, so no explicit partner_id filter is needed.
       supabase
         .from('leads')
         .select('*')
-        .eq('partner_id', partnerRow.id)
         .order('created_at', { ascending: false }),
       supabase
         .from('deal_roles')

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from '../components/layout/Sidebar'
 import UpdateLeadModal from '../components/modals/UpdateLeadModal'
 import DanKoeModal from '../components/modals/DanKoeModal'
@@ -7,6 +7,7 @@ import CoachDrawer from '../components/coach/CoachDrawer'
 import { useLeads } from '../lib/useLeads'
 import { useExperts } from '../lib/useExperts'
 import { useAuth } from '../lib/useAuth'
+import { supabase } from '../lib/supabase'
 import './TodayView.css'
 
 function todayMMDD() {
@@ -25,7 +26,7 @@ function sortByPriority(a, b) {
   return (P_ORDER[a.p] ?? 9) - (P_ORDER[b.p] ?? 9)
 }
 
-function MiniCard({ lead, onUpdate, onDanKoe, onOpenProposal, isAdmin, overdue }) {
+function MiniCard({ lead, onUpdate, onDanKoe, onOpenProposal, isAdmin, partnerInfo, overdue }) {
   const initials = lead.name
     ? [...lead.name].length >= 2
       ? [...lead.name][0] + [...lead.name].at(-1)
@@ -46,6 +47,11 @@ function MiniCard({ lead, onUpdate, onDanKoe, onOpenProposal, isAdmin, overdue }
             {lead.next && <span>下一步: {lead.next}</span>}
             {lead.follow && <span> · 跟进: {lead.follow}</span>}
             {overdue && <span className="today-overdue-tag">逾期</span>}
+            {isAdmin && partnerInfo?.referral_code && (
+              <span style={{ marginLeft: 6, fontSize: 11, padding: '1px 6px', borderRadius: 4, background: '#F5E8D0', color: '#7A4E12', fontWeight: 600 }}>
+                🔗 {partnerInfo.referral_code}
+              </span>
+            )}
           </div>
           {lead.note && <div className="today-card-note">{lead.note}</div>}
         </div>
@@ -80,6 +86,7 @@ export default function TodayView() {
   const [showDanKoe, setShowDanKoe] = useState(false)
   const [danKoeLead, setDanKoeLead] = useState(null)
   const [proposalLead, setProposalLead] = useState(null)
+  const [partnerMap, setPartnerMap] = useState({})
 
   const { profile } = useAuth()
   const isAdmin = !!profile && (profile.role === 'admin' || profile.role_admin === true)
@@ -87,6 +94,16 @@ export default function TodayView() {
   const { leads, badgeCounts, loading } = useLeads('all', '')
   const { experts } = useExperts()
   const today = todayMMDD()
+
+  useEffect(() => {
+    if (!isAdmin) return
+    supabase.from('partners').select('id, referral_code').then(({ data, error }) => {
+      if (error) return
+      const map = {}
+      for (const p of data || []) map[p.id] = p
+      setPartnerMap(map)
+    })
+  }, [isAdmin])
 
   // ① 今日必跟进（只关注 P1/P2）
   const todayLeads = leads
@@ -175,7 +192,7 @@ export default function TodayView() {
                     🚨 逾期未跟进 <span className="today-section-count">{overdueLeads.length}</span>
                   </h2>
                   {overdueLeads.map(l => (
-                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} overdue />
+                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} partnerInfo={l.partner_id ? partnerMap[l.partner_id] : null} overdue />
                   ))}
                 </section>
               )}
@@ -186,7 +203,7 @@ export default function TodayView() {
                   📅 今日必跟进 <span className="today-section-count">{todayLeads.length}</span>
                 </h2>
                 {todayLeads.length > 0 ? todayLeads.map(l => (
-                  <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} />
+                  <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} partnerInfo={l.partner_id ? partnerMap[l.partner_id] : null} />
                 )) : (
                   <div className="today-empty">今日没有到期跟进，干得漂亮 ✓</div>
                 )}
@@ -199,7 +216,7 @@ export default function TodayView() {
                     🔴 P1 雷达 <span className="today-section-count">{p1Leads.length}</span>
                   </h2>
                   {p1Leads.map(l => (
-                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} />
+                    <MiniCard key={l.id} lead={l} onUpdate={handleUpdate} onDanKoe={handleDanKoe} onOpenProposal={setProposalLead} isAdmin={isAdmin} partnerInfo={l.partner_id ? partnerMap[l.partner_id] : null} />
                   ))}
                 </section>
               )}
