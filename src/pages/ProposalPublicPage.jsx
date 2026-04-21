@@ -279,6 +279,7 @@ export default function ProposalPublicPage() {
                 <div className="pp-payment-label">签约首期</div>
                 <div className="pp-payment-amount">{fmtGBP(proposal.payment_1_pence)}</div>
                 <div className="pp-payment-sub">{proposal.payment_1_trigger || '确认启动后 5 个工作日内'}</div>
+                <div className="pp-payment-refund">7 天无理由退款保障</div>
               </div>
               <div className="pp-payment-box">
                 <div className="pp-payment-label">第二期</div>
@@ -307,6 +308,25 @@ export default function ProposalPublicPage() {
             </div>
           ) : (
             <div className="pp-cta">
+              {proposal.promo_price_pence != null && (
+                <div className="pp-promo">
+                  <div className="pp-promo-label">限时优惠价</div>
+                  <div className="pp-promo-prices">
+                    {proposal.original_price_pence != null && (
+                      <span className="pp-promo-original">{fmtGBP(proposal.original_price_pence)}</span>
+                    )}
+                    <span className="pp-promo-now">{fmtGBP(proposal.promo_price_pence)}</span>
+                    <span className="pp-promo-tax">含 VAT</span>
+                  </div>
+                  <ul className="pp-promo-terms">
+                    <li>5 天内确认方案即享此价格</li>
+                    {proposal.original_price_pence != null && (
+                      <li>逾期恢复原价 {fmtGBP(proposal.original_price_pence)}</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+
               <div className="pp-cta-title">确认你希望启动这个方案</div>
               <div className="pp-cta-sub">Readii 在收到你的确认后会尽快与你联系推进签约</div>
 
@@ -335,7 +355,7 @@ export default function ProposalPublicPage() {
                   </div>
                   <label className="pp-form-consent">
                     <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                    <span>我已阅读并确认上述方案，同意 Readii 与我联系推进签约。</span>
+                    <span>我已阅读并确认上述方案。我了解签约后 7 天内可申请全额退款。</span>
                   </label>
                   {submitErr && <div className="pp-error-text">{submitErr}</div>}
                   <button
@@ -349,12 +369,17 @@ export default function ProposalPublicPage() {
               )}
             </div>
           )}
+        </div>
 
+        <div className="pp-footer">
+          <div className="pp-footer-rule" />
           <div className="pp-disclaimer">
-            免责声明：本方案书为基于你当前提供信息的初步建议，最终服务范围、价格及时间线以正式签约合同为准。
-            第三方费用（签证官方申请费、IHS、律师审核等）由相应机构收取，Readii 不从中收取差价。
+            本方案书基于你当前提供信息的初步建议，最终服务范围、价格及时间线以正式签约合同为准。
+            第三方费用（签证官方申请费、IHS、律师审核费等）由相应机构收取，Readii 不从中收取差价。
             Readii 不提供任何签证结果担保，最终审批权属于 UKVI / Home Office。
+            签约后 7 日内如决定不继续，可申请全额退款，无需说明理由。
           </div>
+          <div className="pp-company">Readii Limited · Canterbury, UK · readii.co.uk</div>
         </div>
       </div>
     </div>

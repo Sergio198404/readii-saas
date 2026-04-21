@@ -51,9 +51,11 @@ export default function ProposalCreateModal({ lead, onClose }) {
   const [routeNote, setRouteNote] = useState('')
 
   // Step 2
-  const [recName, setRecName] = useState('自助执行方案')
+  const [recName, setRecName] = useState('陪跑方案')
   const [recPrice, setRecPrice] = useState(defaults.service_price)
   const [recDesc, setRecDesc] = useState('你来执行，Readii 陪你走完全程')
+  const [originalPrice, setOriginalPrice] = useState(6600)
+  const [promoPrice, setPromoPrice] = useState(5800)
   const [anchName, setAnchName] = useState('全案委托服务')
   const [anchPrice, setAnchPrice] = useState(defaults.anchor_price)
   const [anchDesc, setAnchDesc] = useState('同类型全案律师/咨询机构的市场参考价')
@@ -275,6 +277,8 @@ export default function ProposalCreateModal({ lead, onClose }) {
           anchor_price:  Number(anchPrice) || 0,
           payment_1:     Number(payment1) || 0,
           payment_2:     Number(payment2) || 0,
+          original_price: originalPrice === '' ? null : Number(originalPrice),
+          promo_price:    promoPrice === ''    ? null : Number(promoPrice),
           recommended_plan_name: recName.trim() || null,
           recommended_plan_desc: recDesc.trim() || null,
           anchor_plan_name: anchName.trim() || null,
@@ -436,7 +440,7 @@ export default function ProposalCreateModal({ lead, onClose }) {
                   </div>
                   <div className="ap-field">
                     <label>方案名</label>
-                    <input value={recName} onChange={(e) => setRecName(e.target.value)} />
+                    <input value={recName} onChange={(e) => setRecName(e.target.value)} placeholder="陪跑方案" />
                   </div>
                   <div className="ap-field">
                     <label>推荐价格 £</label>
@@ -445,6 +449,19 @@ export default function ProposalCreateModal({ lead, onClose }) {
                   <div className="ap-field">
                     <label>描述</label>
                     <textarea rows={3} value={recDesc} onChange={(e) => setRecDesc(e.target.value)} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 6, paddingTop: 10, borderTop: '1px dashed #b7e0c2' }}>
+                    <div className="ap-field" style={{ marginBottom: 0 }}>
+                      <label>原价（含 VAT）£</label>
+                      <input type="number" min="0" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} />
+                    </div>
+                    <div className="ap-field" style={{ marginBottom: 0 }}>
+                      <label>限时优惠价（含 VAT）£</label>
+                      <input type="number" min="0" value={promoPrice} onChange={(e) => setPromoPrice(e.target.value)} />
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
+                    在公开方案书 CTA 区展示「原价 → 优惠价」的划线对比，5 天内确认即享。
                   </div>
                 </div>
                 {/* Anchor */}
@@ -716,6 +733,12 @@ export default function ProposalCreateModal({ lead, onClose }) {
                 <SummaryRow label="客户" value={clientName + (clientMeta ? ` · ${clientMeta}` : '')} />
                 <SummaryRow label="签证类型" value={SERVICE_TYPE_LABELS[serviceType] || serviceType} />
                 <SummaryRow label="推荐方案" value={`${recName} · ${fmtGBP(recPrice)}（锚定 ${fmtGBP(anchPrice)}）`} />
+                {(Number(originalPrice) > 0 || Number(promoPrice) > 0) && (
+                  <SummaryRow
+                    label="限时优惠"
+                    value={<><span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', marginRight: 8 }}>{fmtGBP(originalPrice)}</span><strong>{fmtGBP(promoPrice)}</strong><span style={{ marginLeft: 6, fontSize: 11, color: 'var(--text-muted)' }}>含 VAT · 5 天内确认</span></>}
+                  />
+                )}
                 <SummaryRow label="付款" value={`${fmtGBP(payment1)} 首期 + ${fmtGBP(payment2)} 第二期`} />
                 <SummaryRow
                   label="时间线"
@@ -736,7 +759,7 @@ export default function ProposalCreateModal({ lead, onClose }) {
                 />
               </div>
               <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                点击「生成方案书链接」后会创建一个 8 位 token 的链接（48 小时有效），把链接发给客户即可。
+                点击「生成方案书链接」后会创建一个 8 位 token 的链接（5 天有效），把链接发给客户即可。
               </div>
             </div>
           )}

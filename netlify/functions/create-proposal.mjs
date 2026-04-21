@@ -64,6 +64,8 @@ export default async (req) => {
     route_note: body.route_note || null,
     service_price_pence: toPence(body.service_price),
     anchor_price_pence: toPence(body.anchor_price),
+    original_price_pence: body.original_price != null ? toPence(body.original_price) : null,
+    promo_price_pence:    body.promo_price    != null ? toPence(body.promo_price)    : null,
     payment_1_pence: toPence(body.payment_1),
     payment_2_pence: toPence(body.payment_2),
     recommended_plan_name: body.recommended_plan_name || null,

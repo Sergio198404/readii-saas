@@ -234,6 +234,12 @@
   font-weight: 600;
 }
 .pp-payment-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+.pp-payment-refund {
+  font-size: 11px;
+  color: #1A6B3A;
+  margin-top: 6px;
+  font-weight: 600;
+}
 
 .pp-cta {
   background: #E8F5EC;
@@ -242,6 +248,62 @@
   border-radius: var(--r-lg);
   text-align: center;
   border: 1px solid #BEDDC6;
+}
+
+.pp-promo {
+  background: #FFFDF8;
+  border: 2px dashed #C4873C;
+  border-radius: var(--r-md);
+  padding: 16px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.pp-promo-label {
+  font-size: 11px;
+  color: #7A4E12;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pp-promo-prices {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.pp-promo-original {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.pp-promo-now {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: #7A4E12;
+  line-height: 1;
+}
+.pp-promo-tax {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.pp-promo-terms {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  text-align: left;
+  display: inline-block;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pp-promo-terms li::before {
+  content: '· ';
+  color: var(--text-muted);
 }
 .pp-cta-title { font-size: 16px; font-weight: 600; color: #1A5C3A; }
 .pp-cta-sub { font-size: 13px; color: var(--text-secondary); margin: 6px 0 14px; }
@@ -259,11 +321,25 @@
 .pp-cta-btn:hover { background: #155030; }
 .pp-cta-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.pp-footer {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 10px 20px 40px;
+}
+.pp-footer-rule {
+  border-top: 1px solid var(--border-subtle);
+  margin: 18px 0;
+}
 .pp-disclaimer {
-  padding: 20px 32px 28px;
   font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.7;
+}
+.pp-company {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 14px;
 }
 
 .pp-form { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 16px; }
