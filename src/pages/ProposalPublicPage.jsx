@@ -214,14 +214,22 @@ export default function ProposalPublicPage() {
             <div className="pp-section-title">方案对比</div>
             <div className="pp-compare">
               <div className="pp-compare-card recommended">
-                <div className="pp-compare-label">Readii 推荐方案</div>
+                <div className="pp-compare-label">
+                  {proposal.recommended_plan_name || 'Readii 推荐方案'}
+                </div>
                 <div className="pp-compare-price">{fmtGBP(proposal.service_price_pence)}</div>
-                <div className="pp-compare-note">包含路径诊断、材料代写、申请陪伴、递交审核等 Readii 服务费</div>
+                <div className="pp-compare-note">
+                  {proposal.recommended_plan_desc || '包含路径诊断、材料代写、申请陪伴、递交审核等 Readii 服务费'}
+                </div>
               </div>
               <div className="pp-compare-card">
-                <div className="pp-compare-label">市面全案参考</div>
+                <div className="pp-compare-label">
+                  {proposal.anchor_plan_name || '市面全案参考'}
+                </div>
                 <div className="pp-compare-price">{fmtGBP(proposal.anchor_price_pence)}</div>
-                <div className="pp-compare-note">同类型全案律师/咨询机构的市场参考价</div>
+                <div className="pp-compare-note">
+                  {proposal.anchor_plan_desc || '同类型全案律师/咨询机构的市场参考价'}
+                </div>
               </div>
             </div>
           </div>
@@ -270,12 +278,12 @@ export default function ProposalPublicPage() {
               <div className="pp-payment-box">
                 <div className="pp-payment-label">签约首期</div>
                 <div className="pp-payment-amount">{fmtGBP(proposal.payment_1_pence)}</div>
-                <div className="pp-payment-sub">确认启动后 5 个工作日内</div>
+                <div className="pp-payment-sub">{proposal.payment_1_trigger || '确认启动后 5 个工作日内'}</div>
               </div>
               <div className="pp-payment-box">
                 <div className="pp-payment-label">第二期</div>
                 <div className="pp-payment-amount">{fmtGBP(proposal.payment_2_pence)}</div>
-                <div className="pp-payment-sub">按阶段里程碑</div>
+                <div className="pp-payment-sub">{proposal.payment_2_trigger || '按阶段里程碑'}</div>
               </div>
               <div className="pp-payment-box">
                 <div className="pp-payment-label">第三方费用</div>
