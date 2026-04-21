@@ -6,7 +6,7 @@ import SalesBoard from './pages/SalesBoard'
 import ContentPage from './pages/ContentPage'
 import ExpertsPage from './pages/ExpertsPage'
 import LoginPage from './pages/LoginPage'
-import PartnerPage from './pages/PartnerPage'
+import PartnerDashboard from './pages/partner/PartnerDashboard'
 import PartnersAdminPage from './pages/PartnersAdminPage'
 import AssessmentPage from './pages/AssessmentPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
@@ -134,8 +134,8 @@ export default function App() {
           <Route path="/admin/settings/third-party-fees" element={<RequireAuth user={user} profile={profile} allow={['admin']}><ThirdPartyFeesPage /></RequireAuth>} />
 
           {/* ═══ Existing partner route (unchanged) ═══ */}
-          <Route path="/partner" element={<RequireAuth user={user} profile={profile}><PartnerPage /></RequireAuth>} />
-          <Route path="/partner/dashboard" element={<RequireAuth user={user} profile={profile}><PartnerPage /></RequireAuth>} />
+          <Route path="/partner" element={<RequireAuth user={user} profile={profile}><PartnerDashboard /></RequireAuth>} />
+          <Route path="/partner/dashboard" element={<RequireAuth user={user} profile={profile}><PartnerDashboard /></RequireAuth>} />
 
           {/* Fallback */}
           <Route path="/" element={<Navigate to={user ? homePath : '/login'} replace />} />
